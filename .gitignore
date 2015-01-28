@@ -27,5 +27,5 @@
 *.out
 *.app
 
-# Max OS X
+# Mac OS X
 .DS_Store

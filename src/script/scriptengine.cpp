@@ -6,10 +6,11 @@
 #include "script/scriptobject.h"
 #include "script/scriptargs.h"
 #include "graphics/spritebatch.h"
+#include "input/keyboard.h"
 
 #include <string>
-#include <fstream>
 #include <iostream>
+#include <fstream>
 
 using namespace v8;
 
@@ -22,16 +23,26 @@ void Include(const FunctionCallbackInfo<Value>& args)
   ScriptEngine::GetCurrent().Execute(filename);
 }
 
-void CreateScriptFunctions(Handle<ObjectTemplate> tmpl)
+Handle<ObjectTemplate> CreateGlobalAndSetFunctions(Isolate* isolate)
 {
-  // Create the global functions.
+  auto tmpl = ObjectTemplate::New(isolate);
+
   ScriptObject::BindFunction(tmpl, "include", Include);
   ScriptObject::BindFunction(tmpl, "print", Console::Print);
 
-  // Create the object constructor functions.
+  return tmpl;
+}
+
+Handle<ObjectTemplate> CreateCowyAndSetFunctions(Isolate* isolate)
+{
+  auto tmpl = ObjectTemplate::New(isolate);
+
   ScriptObject::BindFunction(tmpl, "Window", Window::New);
   ScriptObject::BindFunction(tmpl, "SpriteBatch", SpriteBatch::New);
   ScriptObject::BindFunction(tmpl, "Texture", Texture::New);
+  ScriptObject::BindFunction(tmpl, "Keyboard", Keyboard::New);
+
+  return tmpl;
 }
 
 Handle<String> ReadFile(std::string filename)
@@ -77,11 +88,12 @@ void ScriptEngine::Run(std::string filename)
     // Create a handle scope to hold the temporary references
     HandleScope handleScope(isolate);
 
-    // Create a template for the global object where we set the
-    // built-in global functions
-    auto global = ObjectTemplate::New(isolate);
+    // Create cowy and global template objects and set built-in functions.
+    auto global = CreateGlobalAndSetFunctions(isolate);
+    auto cowy = CreateCowyAndSetFunctions(isolate);
 
-    CreateScriptFunctions(global);
+    // Add cowy object to global.
+    global->Set(String::NewFromUtf8(isolate, "cowy"), cowy);
 
     // Enter the new context so all the following operations take place
     // within it.

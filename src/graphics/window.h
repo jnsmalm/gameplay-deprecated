@@ -7,6 +7,8 @@
 
 class Window {
 
+  friend class Keyboard;
+
 public:
 
   Window(int width, int height, bool fullscreen);

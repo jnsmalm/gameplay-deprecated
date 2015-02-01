@@ -8,7 +8,7 @@ void ScriptObject::BindFunction(Handle<ObjectTemplate> tmpl, const char* name,
   auto isolate = Isolate::GetCurrent();
   HandleScope scope(isolate);
   tmpl->Set(String::NewFromUtf8(isolate, name), 
-  FunctionTemplate::New(isolate, function));
+    FunctionTemplate::New(isolate, function));
 }
 
 void ScriptObject::BindProperty(Handle<ObjectTemplate> tmpl, const char* name, 

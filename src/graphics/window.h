@@ -5,9 +5,15 @@
 #include <glfw/glfw3.h>
 #include "v8.h"
 
+class Keyboard;
+
 class Window {
 
   friend class Keyboard;
+
+  // Class that is only available to window.
+  class ScriptWindow;
+  
 
 public:
 
@@ -34,6 +40,7 @@ public:
 
 private:
 
+  Keyboard* keyboard_;
   GLFWwindow* glfwWindow_;
 
 };

@@ -2,6 +2,7 @@
 #include "script/scriptengine.h"
 #include "script/scriptargs.h"
 #include "script/scriptobject.h"
+#include "input/keyboard.h"
 
 using namespace v8;
 
@@ -24,8 +25,10 @@ GLFWwindow* CreateWindow(int width, int height, bool fullscreen)
   return glfwCreateWindow(width, height, "Game", monitor, NULL);
 }
 
+}
+
 // Helps with setting up the script object.
-class ScriptWindow {
+class Window::ScriptWindow {
 
 public:
 
@@ -65,6 +68,20 @@ public:
     self->Clear();
   }
 
+  static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
+  {
+    auto self = ScriptArgs::GetThis<Window>(args);
+    auto key = ScriptArgs::GetNumber(args, 0);
+    ScriptArgs::SetBooleanResult(args, self->keyboard_->IsKeyDown(key));
+  }
+
+  static void IsKeyPress(const FunctionCallbackInfo<Value>& args)
+  {
+    auto self = ScriptArgs::GetThis<Window>(args);
+    auto key = ScriptArgs::GetNumber(args, 0);
+    ScriptArgs::SetBooleanResult(args, self->keyboard_->IsKeyPress(key));
+  }
+
   static void Setup(Local<ObjectTemplate> tmpl)
   {
     ScriptObject::BindFunction(tmpl, "swapBuffers", SwapBuffers);
@@ -73,41 +90,35 @@ public:
     ScriptObject::BindFunction(tmpl, "pollEvents", PollEvents);
     ScriptObject::BindFunction(tmpl, "getTime", GetTime);
     ScriptObject::BindFunction(tmpl, "isClosing", IsClosing);
+    ScriptObject::BindFunction(tmpl, "isKeyDown", IsKeyDown);
+    ScriptObject::BindFunction(tmpl, "isKeyPress", IsKeyPress);
   }
 
 };
 
-}
-
 Window::Window(int width, int height, bool fullscreen) 
 {
-  // Setup anonymous function to throw script exception if anything
-  // goes wrong in glfw.
+  // Setup anonymous function to throw exception if anything goes wrong in glfw.
   glfwSetErrorCallback([](int error, const char* description)
     {
       throw std::runtime_error(description);
     });
 
-  if (!glfwInit())
+  if (!glfwInit()) {
     // Something went wrong while initializing glfw.
     return;
+  }
 
   glfwWindow_ = CreateWindow(width, height, fullscreen);
 
-  if (!glfwWindow_) 
-  {
+  if (!glfwWindow_) {
     // Something went wrong while creating the window.
     glfwTerminate();
     return;
   }
 
-  // Setup anonymous function to close window when pressing escape.
-  glfwSetKeyCallback(glfwWindow_, 
-    [](GLFWwindow* window, int key, int scancode, int action, int mods) 
-    {
-      if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    });
+  // Create the keyboard associated with this window.
+  keyboard_ = new Keyboard(this);
 
   glfwMakeContextCurrent(glfwWindow_);
   glfwSwapInterval(1);
@@ -135,6 +146,7 @@ void Window::Close()
 
 void Window::PollEvents() 
 {
+  keyboard_->UpdateState();
   glfwPollEvents();
 }
 
@@ -150,14 +162,15 @@ void Window::SwapBuffers()
 
 void Window::Clear()
 {
-  glClearColor(0, 0, 0, 0);
+  glClearColor(100.0/255.0, 149.0/255.0, 237.0/255.0, 1);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Window::EnsureCurrentContext()
 {
-  if (!glfwGetCurrentContext())
+  if (!glfwGetCurrentContext()) {
     throw std::runtime_error("Window (OpenGL context) does not exist");
+  }
 }
 
 void Window::New(const FunctionCallbackInfo<Value>& args) 
@@ -170,7 +183,7 @@ void Window::New(const FunctionCallbackInfo<Value>& args)
 
     // Create texture and wrap in a script object.
     auto window = new Window(width, height, fullscreen);
-    auto object = ScriptObject::Wrap(window, ScriptWindow::Setup);
+    auto object = ScriptObject::Wrap(window, Window::ScriptWindow::Setup);
 
     // Set script object as the result.
     ScriptArgs::SetObjectResult(args, object);

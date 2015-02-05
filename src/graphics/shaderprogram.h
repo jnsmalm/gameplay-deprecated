@@ -9,6 +9,7 @@
 enum UniformDataType {
 
   Matrix4,
+  Vector2,
 
 };
 

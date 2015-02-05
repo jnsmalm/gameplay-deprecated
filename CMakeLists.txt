@@ -11,6 +11,8 @@ set (V8_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/v8/include)
 set (V8_LIBRARIES_DIR ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
 set (GLM_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/glm)
 set (FREEIMAGE_LIBRARIES_DIR ${CMAKE_SOURCE_DIR}/deps/freeimage/dist)
+set (FREETYPE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/freetype2/include)
+set (FREETYPE_LIBRARIES_DIR ${CMAKE_SOURCE_DIR}/deps/freetype2/build)
 
 # Set the sources to compile
 set (PROJECT_SRC_FILES
@@ -23,6 +25,7 @@ set (PROJECT_SRC_FILES
   ${PROJECT_SRC_DIR}/graphics/texture
   ${PROJECT_SRC_DIR}/graphics/spritebatch
   ${PROJECT_SRC_DIR}/graphics/spriteshaders
+  ${PROJECT_SRC_DIR}/graphics/spritefont
   ${PROJECT_SRC_DIR}/graphics/shader
   ${PROJECT_SRC_DIR}/graphics/shaderprogram
   ${PROJECT_SRC_DIR}/graphics/window)
@@ -41,12 +44,17 @@ set (V8_LIBRARIES
 set (FREEIMAGE_LIBRARIES
   ${FREEIMAGE_LIBRARIES_DIR}/libfreeimage.a)
 
+# Set the freetype libraries
+set (FREETYPE_LIBRARIES
+  ${FREETYPE_LIBRARIES_DIR}/libfreetype.a)
+
 find_package(GLEW REQUIRED)
 find_package(GLFW REQUIRED)
 
 set (PROJECT_LIBRARIES
   ${V8_LIBRARIES}
   ${FREEIMAGE_LIBRARIES}
+  ${FREETYPE_LIBRARIES}
   ${GLEW_LIBRARIES}
   glfw3 ${GLFW_LIBRARIES})
 
@@ -68,6 +76,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 add_definitions(-std=c++11 -stdlib=libc++)
-include_directories(${GLM_INCLUDE_DIR} ${V8_INCLUDE_DIR} ${PROJECT_SRC_DIR})
+include_directories(${GLM_INCLUDE_DIR} ${V8_INCLUDE_DIR} ${PROJECT_SRC_DIR} ${FREETYPE_INCLUDE_DIR})
 add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES})
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBRARIES})

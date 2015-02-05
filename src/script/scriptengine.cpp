@@ -40,6 +40,7 @@ Handle<ObjectTemplate> CreateCowyAndSetFunctions(Isolate* isolate)
   ScriptObject::BindFunction(tmpl, "Window", Window::New);
   ScriptObject::BindFunction(tmpl, "SpriteBatch", SpriteBatch::New);
   ScriptObject::BindFunction(tmpl, "Texture", Texture::New);
+  ScriptObject::BindFunction(tmpl, "SpriteFont", SpriteFont::New);
 
   return tmpl;
 }

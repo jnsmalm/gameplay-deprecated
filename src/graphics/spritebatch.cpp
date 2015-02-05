@@ -30,6 +30,8 @@ void SetSpriteVertexAttributes(ShaderProgram* shaderProgram)
     2, sizeof(SpriteVertex), poffsetof(SpriteVertex, size));
   shaderProgram->SetVertexAttribute("scaling", 
     2, sizeof(SpriteVertex), poffsetof(SpriteVertex, scaling));
+  shaderProgram->SetVertexAttribute("rect", 
+    4, sizeof(SpriteVertex), poffsetof(SpriteVertex, rect));
 }
 
 // Helps with setting up the script object.
@@ -61,7 +63,31 @@ public:
       auto rotation = ScriptArgs::GetNumber(args, 3);
       auto scaling = ScriptArgs::GetNumber(args, 4);
 
-      self->Draw(texture, x, y, rotation, scaling);
+      Rect rect;
+      rect.x = 0;
+      rect.y = 0;
+      rect.w = texture->GetWidth();
+      rect.h = texture->GetHeight();
+
+      self->Draw(texture, x, y, rect, rotation, scaling);
+    }
+    catch (std::exception& ex) {
+      ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+    }
+  }
+
+  static void DrawString(const FunctionCallbackInfo<Value>& args)
+  {
+    try {
+      auto self = ScriptArgs::GetThis<SpriteBatch>(args);
+
+      // Get arguments to draw the sprite.
+      auto font = ScriptArgs::GetObject<SpriteFont>(args, 0);
+      auto text = ScriptArgs::GetString(args, 1);
+      auto x = ScriptArgs::GetNumber(args, 2);
+      auto y = ScriptArgs::GetNumber(args, 3);
+
+      self->DrawString(font, text, x, y);
     }
     catch (std::exception& ex) {
       ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
@@ -73,6 +99,7 @@ public:
     ScriptObject::BindFunction(tmpl, "begin", Begin);
     ScriptObject::BindFunction(tmpl, "end", End);
     ScriptObject::BindFunction(tmpl, "draw", Draw);
+    ScriptObject::BindFunction(tmpl, "drawString", DrawString);
   }
 
 };
@@ -103,19 +130,18 @@ SpriteBatch::SpriteBatch()
     });
 
   // Set the ortho projection for the shader.
-  auto projection = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f);
+  auto projection = glm::ortho(0.0f, 1024.0f, 576.0f, 0.0f, -1.0f, 1.0f);
   shaderProgram_.SetUniformValue(
     "projection", UniformDataType::Matrix4, glm::value_ptr(projection));
 }
 
 void SpriteBatch::Draw(
-  Texture* texture, float x, float y, float rotation, float scaling)
+  Texture* texture, float x, float y, Rect rect, float rotation, float scaling)
 {
-  if (!texture) 
+  if (!texture) {
     throw std::runtime_error("Invalid texture");
-
-  if (currentTexture_ != NULL && currentTexture_ != texture)
-  {
+  }
+  if (currentTexture_ != NULL && currentTexture_ != texture) {
     Flush();
   }
   sprites_.push_back(
@@ -131,8 +157,51 @@ void SpriteBatch::Draw(
       { (float)texture->GetWidth(), (float)texture->GetHeight() },
       // Scaling
       { scaling, scaling },
+      // Rect
+      { rect.x, rect.y, rect.w, rect.h },
     });
   currentTexture_ = texture;
+}
+
+void SpriteBatch::DrawString(SpriteFont* font, std::string text, float x, float y)
+{
+  glBindTexture(GL_TEXTURE_2D, font->glTexture_);
+
+  auto apa = 0.0f;
+  auto mus = 0.0f;
+
+  for (auto c:text) {
+
+    auto glyph = font->GetGlyph(c);
+
+    sprites_.push_back(
+      SpriteVertex 
+      {
+        // Position
+        { x + glyph.offset.x, y - glyph.offset.y },
+        // Color
+        { 1.0f, 0.0f, 0.0f },
+        // Rotation
+        { -apa, -mus, 0.0f },
+        // Size
+        { (float)1024, (float)1024 },
+        // Scaling
+        { 1.0, 1.0 },
+        // Rect
+        { glyph.position.x, glyph.position.y, glyph.size.x, glyph.size.y },
+      });
+
+    apa += (glyph.advance.x);
+    mus += (glyph.advance.y);
+
+  }
+
+  vertexRenderer_.Draw(PrimitiveType::Point, sprites_);
+
+  sprites_.clear();
+
+
+
 }
 
 void SpriteBatch::Begin()
@@ -150,6 +219,9 @@ void SpriteBatch::End()
 
 void SpriteBatch::Flush()
 {
+  if (currentTexture_ == NULL || sprites_.size() == 0) {
+    return;
+  }
   currentTexture_->Bind(0);
   vertexRenderer_.Draw(PrimitiveType::Point, sprites_);
   sprites_.clear();

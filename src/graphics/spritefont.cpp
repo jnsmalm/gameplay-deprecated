@@ -1,46 +1,34 @@
 #include "graphics/spritefont.h"
+#include "graphics/texture.h"
 #include "script/scriptargs.h"
 #include "script/scriptengine.h"
+#include "script/scriptvalue.h"
 
-#include <vector>
-#include <algorithm>
+#include <gl/glew.h>
 
 using namespace v8;
 
 namespace {
 
-GLuint CreateEmptyTexture(int width, int height)
-{
-  GLuint texture;
-
-  // Create a new texture.
-  glGenTextures(1, &texture);
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, texture);
-
-  // Fill texture with empty data.
-  std::vector<GLubyte> emptyData(width * height * 4, 150);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 
-    0, GL_RED, GL_UNSIGNED_BYTE, &emptyData[0]);
-
-  return texture;
-}
-
-Glyph LoadGlyph(FT_Face face, char c)
+FontGlyph LoadGlyph(FT_Face face, char c)
 {
   // Load glyph char and check for error.
   auto error = FT_Load_Char(face, c, FT_LOAD_RENDER);
   if (error) {
-    throw std::runtime_error("Failed to load char");
+    throw std::runtime_error("Failed to load font character");
   }
 
-  Glyph glyph;
+  FontGlyph glyph;
 
-  // Get glyph information for future reference.
-  glyph.size.x = (float)face->glyph->bitmap.width;
-  glyph.size.y = (float)face->glyph->bitmap.rows;
+  glyph.source.width = (float)face->glyph->bitmap.width;
+  glyph.source.height = (float)face->glyph->bitmap.rows;
   glyph.offset.x = (float)face->glyph->bitmap_left;
   glyph.offset.y = (float)face->glyph->bitmap_top;
+
+  // We increment the pen position with the vector slot->advance, which 
+  // correspond to the glyph's advance width (also known as its escapement). 
+  // The advance vector is expressed in 1/64th of pixels, and is truncated to 
+  // integer pixels on each iteration.
   glyph.advance.x = (float)(face->glyph->advance.x >> 6);
   glyph.advance.y = (float)(face->glyph->advance.y >> 6);
 
@@ -48,6 +36,25 @@ Glyph LoadGlyph(FT_Face face, char c)
 }
 
 }
+
+// Helps with setting up the script object.
+class SpriteFont::ScriptSpriteFont {
+
+public:
+
+  static void MeasureString(const FunctionCallbackInfo<Value>& args) 
+  {
+    auto self = ScriptArgs::GetThis<SpriteFont>(args);
+    auto text = ScriptValue::ToString(args[0]);
+    ScriptArgs::SetNumberResult(args, self->MeasureString(text).width);
+  }
+
+  static void Setup(Local<ObjectTemplate> tmpl)
+  {
+    ScriptObject::BindFunction(tmpl, "measureString", MeasureString);
+  }
+
+};
 
 SpriteFont::SpriteFont(std::string filename, int size, std::string chars)
 {
@@ -69,64 +76,94 @@ SpriteFont::SpriteFont(std::string filename, int size, std::string chars)
   // Set the font size height in pixels.
   FT_Set_Pixel_Sizes(face, 0, size);
 
-  glTexture_ = CreateEmptyTexture(1024, 1024);
+  SetupGlyphs(face, chars);
+
+  FT_Done_Face(face);
+  FT_Done_FreeType(library);
+}
+
+SpriteFont::~SpriteFont()
+{
+  delete texture_;
+}
+
+Size SpriteFont::MeasureString(std::string text)
+{
+  Size size = { 0, 0 };
+  for (int i = 0; i < text.length(); i++) {
+    auto glyph = glyphs_[text.at(i)];
+    if (glyph.source.height > size.height) {
+      size.height = glyph.source.height;
+    }
+    if (i == text.length() - 1) {
+      size.width += glyph.source.width;
+    }
+    else {
+      size.width += glyph.advance.x;
+    }
+  }
+  return size;
+}
+
+void SpriteFont::SetupGlyphs(FT_Face face, std::string chars)
+{
+  // Create texture used for placing the glyphs.
+  texture_ = new Texture(1024, 1024, GL_RED);
 
   // Set texture filtering.
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+  Point position = { 0, 0 };
+  maxGlyphHeight_ = 0;
+
+  // It is also very important to disable the default 4-byte alignment 
+  // restrictions that OpenGL uses for uploading textures and other data. 
+  // Normally you won't be affected by this restriction, as most textures have 
+  // a width that is a multiple of 4, and/or use 4 bytes per pixel. The glyph 
+  // images are in a 1-byte greyscale format though, and can have any possible 
+  // width. To ensure there are no alignment restrictions, we have to use:
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-  int x = 0;
-  int y = 0;
-
-  int maxGlyphHeight = 0;
-
-  auto slot = face->glyph;
-
   for (auto c: chars) {
-
+    // Load glyph and place it on texture.
     auto glyph = LoadGlyph(face, c);
-    maxGlyphHeight = std::max(maxGlyphHeight, (int)glyph.size.y);
+    PlaceGlyph(face, &glyph, position.x, position.y);
 
-    if (x + glyph.size.x > 1024) {
-      x = 0;
-      y += maxGlyphHeight;
-      maxGlyphHeight = 0;
-    }
+    position.x = glyph.source.x + glyph.source.width;
+    position.y = glyph.source.y;
 
-    if (y + glyph.size.y > 1024) {
-      printf("full\n");
-      break;
-    }
-
-    glyph.position.x = (float)x;
-    glyph.position.y = (float)y;
-
-    // Write glyph bitmap data to texture.
-    glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, slot->bitmap.width, 
-      slot->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, slot->bitmap.buffer);
-
+    // Store glyph in map for lookup.
     glyphs_[c] = glyph;
-
-    x += glyph.size.x;
-    
-
-
-
-    /*x = glyphs_[c].position.x;
-    y = glyphs_[c].position.x;*/
   }
-
-  FT_Done_Face(face);
-  FT_Done_FreeType(library);
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
-SpriteFont::~SpriteFont()
+void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
 {
-  glDeleteTextures(1, &glTexture_);
+  if (glyph->source.height > maxGlyphHeight_) {
+    maxGlyphHeight_ = glyph->source.height;
+  }
+
+  if (x + glyph->source.width > texture_->GetWidth()) {
+    x = 0;
+    y += maxGlyphHeight_;
+    maxGlyphHeight_ = 0;
+  }
+
+  if (y + glyph->source.height > texture_->GetHeight()) {
+    throw std::runtime_error("Could not fit all characters on font texture");
+  }
+
+  glyph->source.x = x;
+  glyph->source.y = y;
+
+  auto slot = face->glyph;
+
+  // Place glyph bitmap data on texture.
+  glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)x, (GLint)y, slot->bitmap.width, 
+    slot->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, slot->bitmap.buffer);
 }
 
 void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args)
@@ -139,7 +176,8 @@ void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args)
 
     // Create sprite font and wrap in a script object.
     auto spriteFont = new SpriteFont(filename, size, chars);
-    auto object = ScriptObject::Wrap(spriteFont, NULL);
+    auto object = ScriptObject::Wrap(
+      spriteFont, SpriteFont::ScriptSpriteFont::Setup);
 
     // Set script object as the result.
     ScriptArgs::SetObjectResult(args, object);

@@ -5,6 +5,7 @@
 #include "graphics/window.h"
 
 #include "freeimage.h"
+#include <vector>
 
 namespace {
 
@@ -45,8 +46,9 @@ Texture::Texture(std::string filename)
   auto img = FreeImage_ConvertTo32Bits(
    FreeImage_Load(FreeImage_GetFileType(filename.c_str()), filename.c_str()));
 
-  if (!img)
+  if (!img) {
     throw std::runtime_error("Failed to load image '" + filename + "'");
+  }
 
   width_ = FreeImage_GetWidth(img);
   height_ = FreeImage_GetHeight(img);
@@ -65,6 +67,24 @@ Texture::Texture(std::string filename)
     GL_UNSIGNED_BYTE, FreeImage_GetBits(img));
 
   FreeImage_Unload(img);
+}
+
+Texture::Texture(int width, int height, GLenum format)
+{
+  Window::EnsureCurrentContext();
+
+  // Create a new texture.
+  glGenTextures(1, &glTexture_);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, glTexture_);
+
+  // Empty texture data.
+  std::vector<GLubyte> emptyData(width * height * 4, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, 
+    GL_UNSIGNED_BYTE, &emptyData[0]);
+
+  width_ = width;
+  height_ = height;
 }
 
 Texture::~Texture()

@@ -45,9 +45,12 @@ void ShaderProgram::SetUniformValue(
     case UniformDataType::Matrix4:
       glUniformMatrix4fv(uniformLocations_[name], 1, GL_FALSE, value);
       break;
-    case UniformDataType::Vector2:
-      glUniform2fv(uniformLocations_[name], 1, value);
+    case UniformDataType::Float:
+      glUniform1fv(uniformLocations_[name], 1, value);
       break;
+    /*case UniformDataType::Vector2:
+      glUniform2fv(uniformLocations_[name], 1, value);
+      break;*/
   }
 }
 

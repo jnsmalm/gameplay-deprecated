@@ -19,6 +19,7 @@ set (PROJECT_SRC_FILES
   ${PROJECT_SRC_DIR}/main
   ${PROJECT_SRC_DIR}/script/scriptengine
   ${PROJECT_SRC_DIR}/script/scriptobject
+  ${PROJECT_SRC_DIR}/script/scriptvalue
   ${PROJECT_SRC_DIR}/system/console
   ${PROJECT_SRC_DIR}/system/file
   ${PROJECT_SRC_DIR}/input/keyboard

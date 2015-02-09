@@ -1,7 +1,5 @@
 #include "graphics/spritebatch.h"
-#include "graphics/shader.h"
 #include "script/scriptargs.h"
-#include "graphics/texture.h"
 #include "script/scriptobject.h"
 #include "graphics/spriteshaders.h"
 #include "script/scriptengine.h"
@@ -22,16 +20,18 @@ void SetSpriteVertexAttributes(ShaderProgram* shaderProgram)
 
   shaderProgram->SetVertexAttribute("position", 
     2, sizeof(SpriteVertex), poffsetof(SpriteVertex, position));
+  shaderProgram->SetVertexAttribute("origin", 
+    2, sizeof(SpriteVertex), poffsetof(SpriteVertex, origin));
   shaderProgram->SetVertexAttribute("color", 
-    3, sizeof(SpriteVertex), poffsetof(SpriteVertex, color));
+    4, sizeof(SpriteVertex), poffsetof(SpriteVertex, color));
   shaderProgram->SetVertexAttribute("rotation", 
-    3, sizeof(SpriteVertex), poffsetof(SpriteVertex, rotation));
-  shaderProgram->SetVertexAttribute("size", 
-    2, sizeof(SpriteVertex), poffsetof(SpriteVertex, size));
+    1, sizeof(SpriteVertex), poffsetof(SpriteVertex, rotation));
   shaderProgram->SetVertexAttribute("scaling", 
     2, sizeof(SpriteVertex), poffsetof(SpriteVertex, scaling));
-  shaderProgram->SetVertexAttribute("rect", 
-    4, sizeof(SpriteVertex), poffsetof(SpriteVertex, rect));
+  shaderProgram->SetVertexAttribute("atlasSize", 
+    2, sizeof(SpriteVertex), poffsetof(SpriteVertex, atlasSize));
+  shaderProgram->SetVertexAttribute("atlasSource", 
+    4, sizeof(SpriteVertex), poffsetof(SpriteVertex, atlasSource));
 }
 
 // Helps with setting up the script object.
@@ -56,20 +56,21 @@ public:
     try {
       auto self = ScriptArgs::GetThis<SpriteBatch>(args);
 
+      // The first and only argument is an object.
+      ScriptObject arg(args.GetIsolate(), args[0]->ToObject());
+
       // Get arguments to draw the sprite.
-      auto texture = ScriptArgs::GetObject<Texture>(args, 0);
-      auto x = ScriptArgs::GetNumber(args, 1);
-      auto y = ScriptArgs::GetNumber(args, 2);
-      auto rotation = ScriptArgs::GetNumber(args, 3);
-      auto scaling = ScriptArgs::GetNumber(args, 4);
+      auto texture = arg.GetObject<Texture>("texture");
+      auto position = arg.GetVector2("position");
+      auto rotation = arg.GetNumber("rotation");
+      auto scaling = arg.GetVector2("scaling", Vector2 { 1.0f, 1.0f });
+      auto color = arg.GetColor("color");
+      auto origin = arg.GetVector2("origin");
+      auto source = arg.GetRectangle("source", Rectangle { 
+        0, 0, (float)texture->GetWidth(), (float)texture->GetHeight() 
+      });
 
-      Rect rect;
-      rect.x = 0;
-      rect.y = 0;
-      rect.w = texture->GetWidth();
-      rect.h = texture->GetHeight();
-
-      self->Draw(texture, x, y, rect, rotation, scaling);
+      self->Draw(texture, position, rotation, origin, scaling, color, source);
     }
     catch (std::exception& ex) {
       ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
@@ -86,8 +87,15 @@ public:
       auto text = ScriptArgs::GetString(args, 1);
       auto x = ScriptArgs::GetNumber(args, 2);
       auto y = ScriptArgs::GetNumber(args, 3);
+      auto rotation = ScriptArgs::GetNumber(args, 4);
+      auto originx = ScriptArgs::GetNumber(args, 5);
+      auto originy = ScriptArgs::GetNumber(args, 6);
+      struct Vector2 origin = {originx,originy};
+      struct Vector2 position = {x, y};
+      struct Vector2 scaling = {1.0f, 1.0f};
+      struct Color color = {1.0f,1.0f,1.0f,1.0f};
 
-      self->DrawString(font, text, x, y);
+      self->DrawString(font, text, position, rotation, origin, scaling, color);
     }
     catch (std::exception& ex) {
       ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
@@ -135,73 +143,50 @@ SpriteBatch::SpriteBatch()
     "projection", UniformDataType::Matrix4, glm::value_ptr(projection));
 }
 
-void SpriteBatch::Draw(
-  Texture* texture, float x, float y, Rect rect, float rotation, float scaling)
+void SpriteBatch::Draw(Texture* texture, struct Vector2 position, 
+  float rotation, struct Vector2 origin, struct Vector2 scaling, 
+  struct Color color, struct Rectangle source)
 {
-  if (!texture) {
-    throw std::runtime_error("Invalid texture");
-  }
   if (currentTexture_ != NULL && currentTexture_ != texture) {
     Flush();
   }
+  struct Vector2 size = { 
+    (float)texture->GetWidth(), 
+    (float)texture->GetHeight() 
+  };
+  // Add to list of sprites to be drawn.
   sprites_.push_back(
-    SpriteVertex 
-    {
-      // Position
-      { x, y },
-      // Color
-      { 1.0f, 1.0f, 1.0f },
-      // Rotation
-      { 0.0f, 0.0f, rotation },
-      // Size
-      { (float)texture->GetWidth(), (float)texture->GetHeight() },
-      // Scaling
-      { scaling, scaling },
-      // Rect
-      { rect.x, rect.y, rect.w, rect.h },
-    });
+    SpriteVertex { position, origin, color, rotation, scaling, source, size });
   currentTexture_ = texture;
 }
 
-void SpriteBatch::DrawString(SpriteFont* font, std::string text, float x, float y)
+void SpriteBatch::DrawString(SpriteFont* font, std::string text, 
+  struct Vector2 position, float rotation, struct Vector2 origin, 
+  struct Vector2 scaling, struct Color color)
 {
-  glBindTexture(GL_TEXTURE_2D, font->glTexture_);
-
-  auto apa = 0.0f;
-  auto mus = 0.0f;
-
-  for (auto c:text) {
-
-    auto glyph = font->GetGlyph(c);
-
-    sprites_.push_back(
-      SpriteVertex 
-      {
-        // Position
-        { x + glyph.offset.x, y - glyph.offset.y },
-        // Color
-        { 1.0f, 0.0f, 0.0f },
-        // Rotation
-        { -apa, -mus, 0.0f },
-        // Size
-        { (float)1024, (float)1024 },
-        // Scaling
-        { 1.0, 1.0 },
-        // Rect
-        { glyph.position.x, glyph.position.y, glyph.size.x, glyph.size.y },
-      });
-
-    apa += (glyph.advance.x);
-    mus += (glyph.advance.y);
-
+  auto texture = font->GetTexture();
+  if (currentTexture_ != NULL && currentTexture_ != texture) {
+    Flush();
   }
-
-  vertexRenderer_.Draw(PrimitiveType::Point, sprites_);
-
-  sprites_.clear();
-
-
-
+  for (auto c: text) {
+    auto glyph = font->GetGlyph(c);
+    struct Vector2 size { 
+      (float)texture->GetWidth(), 
+      (float)texture->GetHeight() 
+    };
+    struct Vector2 charOrigin = { 
+      origin.x - glyph.offset.x, 
+      origin.y + (float)glyph.offset.y
+    };
+    // Add to list of sprites to be drawn.
+    sprites_.push_back(
+      SpriteVertex { 
+        position, charOrigin, color, rotation, scaling, glyph.source, size
+      });
+    origin.x -= (glyph.advance.x);
+    origin.y -= (glyph.advance.y);
+  }
+  currentTexture_ = texture;
 }
 
 void SpriteBatch::Begin()

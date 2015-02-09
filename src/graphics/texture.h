@@ -10,6 +10,7 @@ class Texture {
 public:
 
   Texture(std::string filename);
+  Texture(int width, int height, GLenum format);
   ~Texture();
 
   // Binds the texture to the specified unit.

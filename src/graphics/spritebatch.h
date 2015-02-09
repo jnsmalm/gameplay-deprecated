@@ -1,6 +1,9 @@
 #ifndef SPRITEBATCH_H
 #define SPRITEBATCH_H
 
+#include "graphics/types.h"
+#include "graphics/texture.h"
+#include "graphics/shader.h"
 #include "graphics/vertexrenderer.h"
 #include "graphics/shaderprogram.h"
 #include "graphics/spritefont.h"
@@ -13,26 +16,16 @@
 // Vertex to hold the sprite data.
 struct SpriteVertex {
 
-  float position[2];
-  float color[3];
-  float rotation[3];
-  float size[2];
-  float scaling[2];
-  float rect[4];
+  struct Vector2 position;
+  struct Vector2 origin;
+  struct Color color;
+  float rotation;
+  struct Vector2 scaling;
+  struct Rectangle atlasSource;
+  struct Vector2 atlasSize;
+  bool isText;
 
 };
-
-struct Rect {
-
-  float x;
-  float y;
-  float w;
-  float h;
-
-};
-
-class Texture;
-class Shader;
 
 class SpriteBatch {
 
@@ -45,10 +38,13 @@ public:
   // End drawing sprites.
   void End();
   // Adds a sprite to the list to be drawn.
-  void Draw(Texture* texture, float x, float y, Rect rect, float rotation = 0, 
-    float scaling = 1);
-  // Draw text with the specified font.
-  void DrawString(SpriteFont* font, std::string text, float x, float y);
+  void Draw(Texture* texture, struct Vector2 position, float rotation, 
+    struct Vector2 origin, struct Vector2 scaling, struct Color color, 
+    struct Rectangle source);
+  // Draws text with the specified font.
+  void DrawString(SpriteFont* font, std::string text, struct Vector2 position, 
+    float rotation, struct Vector2 origin, struct Vector2 scaling, 
+    struct Color color);
 
   // Creates a new script instance.
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);

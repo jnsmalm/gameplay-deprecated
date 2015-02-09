@@ -1,26 +1,20 @@
 #ifndef SPRITEFONT_H
 #define SPRITEFONT_H
 
-#include <gl/glew.h>
+#include "graphics/texture.h"
+#include "graphics/types.h"
+
 #include <map>
 #include <string>
 #include "v8.h"
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-struct Vector2 {
+struct FontGlyph {
 
-  float x;
-  float y; 
-
-};
-
-struct Glyph {
-
-  struct Vector2 position;
-  struct Vector2 size;
-  struct Vector2 offset;
-  struct Vector2 advance;
+  struct Rectangle source;
+  struct Point offset;
+  struct Point advance;
 
 };
 
@@ -28,23 +22,31 @@ class SpriteFont {
 
   class ScriptSpriteFont;
 
-  friend class SpriteBatch;
-
 public:
 
   SpriteFont(std::string filename, int size, std::string chars);
   ~SpriteFont();
 
+  // Gets the size for the specified text.
+  Size MeasureString(std::string text);
   // Gets the glyph for the specified character.
-  Glyph GetGlyph(char c) { return glyphs_[c]; }
+  FontGlyph GetGlyph(char c) { return glyphs_[c]; }
+  // Gets the texture atlas used for the font.
+  Texture* GetTexture() { return texture_; }
 
   // Creates a new script instance.
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 private:
 
-  GLuint glTexture_;
-  std::map<char, Glyph> glyphs_;
+  // Setup the specified characters and create the font texture.
+  void SetupGlyphs(FT_Face face, std::string chars);
+  // Places a character glyph on the font texture.
+  void PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y);
+
+  Texture* texture_;
+  std::map<char, FontGlyph> glyphs_;
+  int maxGlyphHeight_;
 
 };
 

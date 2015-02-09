@@ -4,7 +4,7 @@
 #include <gl/glew.h>
 #include <string>
 
-enum ShaderType {
+enum class ShaderType {
 
   Vertex,
   Geometry,

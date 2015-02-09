@@ -7,7 +7,7 @@
 #include <vector>
 #include <functional>
 
-enum PrimitiveType {
+enum class PrimitiveType {
 
   Point,
 

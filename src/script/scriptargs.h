@@ -2,6 +2,7 @@
 #define SCRIPTARGS_H
 
 #include "script/scriptobject.h"
+#include "graphics/types.h"
 
 #include "v8.h"
 #include <string>
@@ -64,7 +65,7 @@ public:
 
   // Sets a number as the result.
   static void SetNumberResult(
-    const v8::PropertyCallbackInfo<v8::Value>& args, float value)
+    const v8::PropertyCallbackInfo<v8::Value>& args, double value)
   {
     v8::HandleScope scope(args.GetIsolate());
     auto number = v8::Number::New(args.GetIsolate(), value);
@@ -73,7 +74,7 @@ public:
 
   // Sets a number as the result.
   static void SetNumberResult(
-    const v8::FunctionCallbackInfo<v8::Value>& args, float value)
+    const v8::FunctionCallbackInfo<v8::Value>& args, double value)
   {
     v8::HandleScope scope(args.GetIsolate());
     auto number = v8::Number::New(args.GetIsolate(), value);

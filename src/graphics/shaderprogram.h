@@ -6,10 +6,11 @@
 #include <map>
 #include "shader.h"
 
-enum UniformDataType {
+enum class UniformDataType {
 
   Matrix4,
-  Vector2,
+  Float,
+  //Vector2,
 
 };
 

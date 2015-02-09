@@ -71,14 +71,14 @@ public:
   static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
   {
     auto self = ScriptArgs::GetThis<Window>(args);
-    auto key = ScriptArgs::GetNumber(args, 0);
+    auto key = args[0]->NumberValue();
     ScriptArgs::SetBooleanResult(args, self->keyboard_->IsKeyDown(key));
   }
 
   static void IsKeyPress(const FunctionCallbackInfo<Value>& args)
   {
     auto self = ScriptArgs::GetThis<Window>(args);
-    auto key = ScriptArgs::GetNumber(args, 0);
+    auto key = args[0]->NumberValue();
     ScriptArgs::SetBooleanResult(args, self->keyboard_->IsKeyPress(key));
   }
 

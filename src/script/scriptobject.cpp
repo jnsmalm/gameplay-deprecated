@@ -52,7 +52,16 @@ float ScriptObject::GetNumber(
   if (value->IsNull() || value->IsUndefined()) {
     return defaultValue;
   }
-  return ScriptValue::ToNumber(value);
+  return ScriptValue::ToNumber(value, defaultValue);
+}
+
+std::string ScriptObject::GetString(std::string name, std::string defaultValue)
+{
+  auto value = GetValue(object_, name);
+  if (!value->IsString()) {
+    return defaultValue;
+  }
+  return ScriptValue::ToString(value, defaultValue);
 }
 
 Handle<Object> ScriptObject::GetObject(Handle<Object> object, std::string name)

@@ -3,6 +3,7 @@
 #include "script/scriptobject.h"
 #include "graphics/spriteshaders.h"
 #include "script/scriptengine.h"
+#include "script/scriptvalue.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -32,6 +33,8 @@ void SetSpriteVertexAttributes(ShaderProgram* shaderProgram)
     2, sizeof(SpriteVertex), poffsetof(SpriteVertex, atlasSize));
   shaderProgram->SetVertexAttribute("atlasSource", 
     4, sizeof(SpriteVertex), poffsetof(SpriteVertex, atlasSource));
+  shaderProgram->SetVertexAttribute("text", 
+    1, sizeof(SpriteVertex), poffsetof(SpriteVertex, text));
 }
 
 // Helps with setting up the script object.
@@ -41,35 +44,46 @@ public:
 
   static void Begin(const FunctionCallbackInfo<Value>& args)
   {
-    auto self = ScriptArgs::GetThis<SpriteBatch>(args);
+    HandleScope scope(args.GetIsolate());
+    auto self = ScriptConvert::To<SpriteBatch>(args.Holder());
     self->Begin();
   }
 
   static void End(const FunctionCallbackInfo<Value>& args)
   {
-    auto self = ScriptArgs::GetThis<SpriteBatch>(args);
+    HandleScope scope(args.GetIsolate());
+    auto self = ScriptConvert::To<SpriteBatch>(args.Holder());
     self->End();
   }
 
   static void Draw(const FunctionCallbackInfo<Value>& args)
   {
-    try {
-      auto self = ScriptArgs::GetThis<SpriteBatch>(args);
+    if (args.Length() == 0) {
+      return;
+    }
 
-      // The first and only argument is an object.
-      ScriptObject arg(args.GetIsolate(), args[0]->ToObject());
+    HandleScope scope(args.GetIsolate());
+    auto self = ScriptValue::GetObject<SpriteBatch>(args.Holder());
 
-      // Get arguments to draw the sprite.
-      auto texture = arg.GetObject<Texture>("texture");
-      auto position = arg.GetVector2("position");
-      auto rotation = arg.GetNumber("rotation");
-      auto scaling = arg.GetVector2("scaling", Vector2 { 1.0f, 1.0f });
-      auto color = arg.GetColor("color");
-      auto origin = arg.GetVector2("origin");
-      auto source = arg.GetRectangle("source", Rectangle { 
+    // The first and only argument is an object.
+    ScriptObject arg(args.GetIsolate(), args[0]->ToObject());
+
+    // Get arguments to draw the sprite.
+    auto texture = arg.GetObject<Texture>("texture");
+    auto position = arg.GetVector2("position");
+    auto rotation = arg.GetNumber("rotation");
+    auto scaling = arg.GetVector2("scaling", Vector2 { 1.0f, 1.0f });
+    auto color = arg.GetColor("color");
+    auto origin = arg.GetVector2("origin");
+    auto source = Rectangle { 0, 0, 0, 0 };
+
+    if (texture) {
+      source = arg.GetRectangle("source", Rectangle { 
         0, 0, (float)texture->GetWidth(), (float)texture->GetHeight() 
       });
+    }
 
+    try {
       self->Draw(texture, position, rotation, origin, scaling, color, source);
     }
     catch (std::exception& ex) {
@@ -79,22 +93,26 @@ public:
 
   static void DrawString(const FunctionCallbackInfo<Value>& args)
   {
+    if (args.Length() == 0) {
+      return;
+    }
+
+    HandleScope scope(args.GetIsolate());
+    auto self = ScriptValue::GetObject<SpriteBatch>(args.Holder());
+
+    // The first and only argument is an object.
+    ScriptObject arg(args.GetIsolate(), args[0]->ToObject());
+
+    // Get arguments to draw the font.
+    auto font = arg.GetObject<SpriteFont>("font");
+    auto text = arg.GetString("text");
+    auto position = arg.GetVector2("position");
+    auto rotation = arg.GetNumber("rotation");
+    auto scaling = arg.GetVector2("scaling", Vector2 { 1.0f, 1.0f });
+    auto color = arg.GetColor("color");
+    auto origin = arg.GetVector2("origin");
+
     try {
-      auto self = ScriptArgs::GetThis<SpriteBatch>(args);
-
-      // Get arguments to draw the sprite.
-      auto font = ScriptArgs::GetObject<SpriteFont>(args, 0);
-      auto text = ScriptArgs::GetString(args, 1);
-      auto x = ScriptArgs::GetNumber(args, 2);
-      auto y = ScriptArgs::GetNumber(args, 3);
-      auto rotation = ScriptArgs::GetNumber(args, 4);
-      auto originx = ScriptArgs::GetNumber(args, 5);
-      auto originy = ScriptArgs::GetNumber(args, 6);
-      struct Vector2 origin = {originx,originy};
-      struct Vector2 position = {x, y};
-      struct Vector2 scaling = {1.0f, 1.0f};
-      struct Color color = {1.0f,1.0f,1.0f,1.0f};
-
       self->DrawString(font, text, position, rotation, origin, scaling, color);
     }
     catch (std::exception& ex) {
@@ -143,48 +161,55 @@ SpriteBatch::SpriteBatch()
     "projection", UniformDataType::Matrix4, glm::value_ptr(projection));
 }
 
-void SpriteBatch::Draw(Texture* texture, struct Vector2 position, 
-  float rotation, struct Vector2 origin, struct Vector2 scaling, 
-  struct Color color, struct Rectangle source)
+void SpriteBatch::Draw(Texture* texture, Vector2 position, float rotation, 
+  Vector2 origin, Vector2 scaling, Color color, Rectangle source)
 {
+  if (texture == NULL) {
+    throw std::runtime_error("Texture must be specified");
+  }
   if (currentTexture_ != NULL && currentTexture_ != texture) {
     Flush();
   }
-  struct Vector2 size = { 
+  Vector2 size = { 
     (float)texture->GetWidth(), 
     (float)texture->GetHeight() 
   };
   // Add to list of sprites to be drawn.
   sprites_.push_back(
-    SpriteVertex { position, origin, color, rotation, scaling, source, size });
+    SpriteVertex { 
+      position, origin, color, rotation, scaling, source, size, 0 
+    });
   currentTexture_ = texture;
 }
 
 void SpriteBatch::DrawString(SpriteFont* font, std::string text, 
-  struct Vector2 position, float rotation, struct Vector2 origin, 
-  struct Vector2 scaling, struct Color color)
+  Vector2 position, float rotation, Vector2 origin, Vector2 scaling, 
+  Color color)
 {
+  if (font == NULL) {
+    throw std::runtime_error("Font must be specified");
+  }
   auto texture = font->GetTexture();
   if (currentTexture_ != NULL && currentTexture_ != texture) {
     Flush();
   }
+  Vector2 size { 
+    (float)texture->GetWidth(), 
+    (float)texture->GetHeight() 
+  };
   for (auto c: text) {
     auto glyph = font->GetGlyph(c);
-    struct Vector2 size { 
-      (float)texture->GetWidth(), 
-      (float)texture->GetHeight() 
-    };
-    struct Vector2 charOrigin = { 
+    Vector2 charOrigin = { 
       origin.x - glyph.offset.x, 
-      origin.y + (float)glyph.offset.y
+      origin.y + glyph.offset.y
     };
-    // Add to list of sprites to be drawn.
+    // Add character to list of sprites to be drawn.
     sprites_.push_back(
       SpriteVertex { 
-        position, charOrigin, color, rotation, scaling, glyph.source, size
+        position, charOrigin, color, rotation, scaling, glyph.source, size, 1.f
       });
-    origin.x -= (glyph.advance.x);
-    origin.y -= (glyph.advance.y);
+    origin.x -= glyph.advance.x;
+    origin.y -= glyph.advance.y;
   }
   currentTexture_ = texture;
 }
@@ -214,13 +239,12 @@ void SpriteBatch::Flush()
 
 void SpriteBatch::New(const FunctionCallbackInfo<Value>& args)
 {
+  HandleScope scope(args.GetIsolate());
   try {
-    // Create spritebacth and wrap in a script object.
     auto spriteBatch = new SpriteBatch();
-    auto object = ScriptObject::Wrap(spriteBatch, ScriptSpriteBatch::Setup);
-
-    // Set script object as the result.
-    ScriptArgs::SetObjectResult(args, object);
+    auto object = ScriptObject::Create(
+      args.GetIsolate(), spriteBatch, ScriptSpriteBatch::Setup);
+    args.GetReturnValue().Set(object);
   }
   catch (std::exception& ex) {
     ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

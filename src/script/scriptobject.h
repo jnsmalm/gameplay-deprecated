@@ -14,52 +14,58 @@ public:
   ScriptObject(v8::Isolate* isolate, v8::Handle<v8::Object> object);
 
   template <typename T> 
-  T* GetObject(std::string name)
+  T* GetObject(std::string name, T* defaultValue = NULL)
   {
     auto object = GetObject(object_, name);
-    v8::Handle<v8::External> ext = v8::Handle<v8::External>::Cast(
-      object->GetInternalField(0));
-    return static_cast<T*>(ext->Value());
+    if (object->InternalFieldCount() == 0) {
+      return defaultValue;
+    }
+    auto external = v8::Handle<v8::External>::Cast(object->GetInternalField(0));
+    return static_cast<T*>(external->Value());
   }
 
   // Gets a vector with the specified name.
   Vector2 GetVector2(std::string name, Vector2 defaultValue = Vector2 { 0, 0 });
+
   // Gets a rectangle with the specified name.
   Rectangle GetRectangle(
     std::string name, Rectangle defaultValue = Rectangle { 0, 0, 0, 0 });
+
   // Gets a color with the specified name.
   Color GetColor(
     std::string name, Color defaultValue = Color { 1.0f, 1.0f, 1.0f, 1.0f });
+
   // Gets a number with the specified name.
   float GetNumber(std::string name);
+
   // Gets a number with the specified name.
   float GetNumber(
     v8::Handle<v8::Object> object, std::string name, float defaultValue = 0);
+
+  // Gets a string with the specified name.
+  std::string GetString(std::string name, std::string defaultValue = "");
+
   // Gets an object with the specified name.
   v8::Handle<v8::Object> GetObject(
     v8::Handle<v8::Object> object, std::string name);
+
   // Gets a value with the specified name.
   v8::Handle<v8::Value> GetValue(
     v8::Handle<v8::Object> object, std::string name);
 
   // Wraps tbe specified pointer to a v8 script object.
   template <typename T> 
-  static v8::Handle<v8::Object> Wrap(
-    T* obj, std::function<void(const v8::Local<v8::ObjectTemplate>)> setup)
+  static v8::Handle<v8::Object> Create(v8::Isolate* isolate, 
+    T* ptr, std::function<void(const v8::Local<v8::ObjectTemplate>)> setup)
   {
-    auto isolate = v8::Isolate::GetCurrent();
-    v8::EscapableHandleScope scope(isolate);
-
-    auto tmpl = v8::ObjectTemplate::New(isolate);
-    tmpl->SetInternalFieldCount(1);
-
-    if (setup != NULL)
-      setup(tmpl);
-
-    auto result = tmpl->NewInstance();
-    result->SetInternalField(0, v8::External::New(isolate, obj));
-
-    return scope.Escape(result);
+    auto objectTemplate = v8::ObjectTemplate::New(isolate);
+    objectTemplate->SetInternalFieldCount(1);
+    if (setup != NULL) {
+      setup(objectTemplate);
+    } 
+    auto object = objectTemplate->NewInstance();
+    object->SetInternalField(0, v8::External::New(isolate, ptr));
+    return object;
   }
 
   // Unwraps the specified v8 object to a pointer.

@@ -13,17 +13,24 @@
 #include <vector>
 #include <string>
 
-// Vertex to hold the sprite data.
 struct SpriteVertex {
 
-  struct Vector2 position;
-  struct Vector2 origin;
-  struct Color color;
+  // Position of the sprite to be drawn.
+  Vector2 position;
+  // Origin of the sprite. This will affect the position and rotation.
+  Vector2 origin;
+  // Color for the sprite (values should be in range 0.0-1.0).
+  Color color;
+  // Rotates the sprite around it's origin (value should be in radians).
   float rotation;
-  struct Vector2 scaling;
-  struct Rectangle atlasSource;
-  struct Vector2 atlasSize;
-  bool isText;
+  // Scales the sprite.
+  Vector2 scaling;
+  // The source rectangle of the texture to draw.
+  Rectangle atlasSource;
+  // The total size of the texture used.
+  Vector2 atlasSize;
+  // Specifies if the sprite should be drawn as text. 
+  float text;
 
 };
 
@@ -38,13 +45,11 @@ public:
   // End drawing sprites.
   void End();
   // Adds a sprite to the list to be drawn.
-  void Draw(Texture* texture, struct Vector2 position, float rotation, 
-    struct Vector2 origin, struct Vector2 scaling, struct Color color, 
-    struct Rectangle source);
+  void Draw(Texture* texture, Vector2 position, float rotation, Vector2 origin,
+    Vector2 scaling, Color color, Rectangle source);
   // Draws text with the specified font.
-  void DrawString(SpriteFont* font, std::string text, struct Vector2 position, 
-    float rotation, struct Vector2 origin, struct Vector2 scaling, 
-    struct Color color);
+  void DrawString(SpriteFont* font, std::string text, Vector2 position, 
+    float rotation, Vector2 origin, Vector2 scaling, Color color);
 
   // Creates a new script instance.
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);

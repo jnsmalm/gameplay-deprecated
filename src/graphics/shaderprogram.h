@@ -1,16 +1,15 @@
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
 
+#include "shader.h"
+
 #include "v8.h"
 #include <gl/glew.h>
 #include <map>
-#include "shader.h"
 
 enum class UniformDataType {
 
   Matrix4,
-  Float,
-  //Vector2,
 
 };
 

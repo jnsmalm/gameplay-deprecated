@@ -42,7 +42,7 @@ public:
   {
     glBindBuffer(GL_ARRAY_BUFFER, vertexArray_);
     glBufferData(GL_ARRAY_BUFFER, 
-      vertices.size() * sizeof(T), &vertices[0], GL_STREAM_DRAW);
+      vertices.size() * sizeof(T), &vertices[0], GL_STATIC_DRAW);
 
     switch (type) {
       case PrimitiveType::Point:

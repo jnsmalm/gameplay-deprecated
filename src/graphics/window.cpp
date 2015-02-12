@@ -34,50 +34,50 @@ public:
 
   static void Close(const FunctionCallbackInfo<Value>& args) 
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     self->Close();
   }
 
   static void GetTime(const FunctionCallbackInfo<Value>& args) 
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     ScriptArgs::SetNumberResult(args, self->GetTime());
   }
 
   static void PollEvents(const FunctionCallbackInfo<Value>& args) 
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     self->PollEvents();
   }
 
   static void IsClosing(const FunctionCallbackInfo<Value>& args) 
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     ScriptArgs::SetBooleanResult(args, self->IsClosing());
   }
 
   static void SwapBuffers(const FunctionCallbackInfo<Value>& args) 
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     self->SwapBuffers();
   }
 
   static void Clear(const FunctionCallbackInfo<Value>& args) 
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     self->Clear();
   }
 
   static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     auto key = args[0]->NumberValue();
     ScriptArgs::SetBooleanResult(args, self->keyboard_->IsKeyDown(key));
   }
 
   static void IsKeyPress(const FunctionCallbackInfo<Value>& args)
   {
-    auto self = ScriptArgs::GetThis<Window>(args);
+    auto self = ScriptArgs::GetSelf<Window>(args);
     auto key = args[0]->NumberValue();
     ScriptArgs::SetBooleanResult(args, self->keyboard_->IsKeyPress(key));
   }
@@ -183,10 +183,11 @@ void Window::New(const FunctionCallbackInfo<Value>& args)
 
     // Create texture and wrap in a script object.
     auto window = new Window(width, height, fullscreen);
-    auto object = ScriptObject::Wrap(window, Window::ScriptWindow::Setup);
+    auto object = ScriptObject::Create(
+      args.GetIsolate(), window, Window::ScriptWindow::Setup);
 
     // Set script object as the result.
-    ScriptArgs::SetObjectResult(args, object);
+    args.GetReturnValue().Set(object);
   }
   catch (std::exception& ex) {
     ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

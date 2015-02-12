@@ -17,15 +17,15 @@ public:
   static void GetWidth(
     v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& args)
   {
-    auto texture = ScriptArgs::GetThis<Texture>(args);
-    ScriptArgs::SetNumberResult(args, texture->GetWidth());
+    auto self = ScriptArgs::GetSelf<Texture>(args);
+    ScriptArgs::SetNumberResult(args, self->GetWidth());
   }
 
   static void GetHeight(
     v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& args)
   {
-    auto texture = ScriptArgs::GetThis<Texture>(args);
-    ScriptArgs::SetNumberResult(args, texture->GetHeight());
+    auto self = ScriptArgs::GetSelf<Texture>(args);
+    ScriptArgs::SetNumberResult(args, self->GetHeight());
   }
 
   static void Setup(v8::Local<v8::ObjectTemplate> tmpl)
@@ -118,10 +118,11 @@ void Texture::New(const v8::FunctionCallbackInfo<v8::Value>& args)
 
     // Create texture and wrap in a script object.
     auto texture = new Texture(filename);
-    auto object = ScriptObject::Wrap(texture, ScriptTexture::Setup);
+    auto object = ScriptObject::Create(
+      args.GetIsolate(), texture, ScriptTexture::Setup);
 
     // Set script object as the result.
-    ScriptArgs::SetObjectResult(args, object);
+    args.GetReturnValue().Set(object);
   }
   catch (std::exception& ex) {
     ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

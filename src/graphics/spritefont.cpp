@@ -44,7 +44,7 @@ public:
 
   static void MeasureString(const FunctionCallbackInfo<Value>& args) 
   {
-    auto self = ScriptArgs::GetThis<SpriteFont>(args);
+    auto self = ScriptArgs::GetSelf<SpriteFont>(args);
     auto text = ScriptValue::ToString(args[0]);
     ScriptArgs::SetNumberResult(args, self->MeasureString(text).width);
   }
@@ -95,12 +95,14 @@ Size SpriteFont::MeasureString(std::string text)
     if (glyph.source.height > size.height) {
       size.height = glyph.source.height;
     }
-    if (i == text.length() - 1) {
+    /*if (i == text.length() - 1) {
       size.width += glyph.source.width;
     }
     else {
       size.width += glyph.advance.x;
-    }
+    }*/
+    //size.width += glyph.source.width;
+      size.width += glyph.advance.x;
   }
   return size;
 }
@@ -130,7 +132,7 @@ void SpriteFont::SetupGlyphs(FT_Face face, std::string chars)
     auto glyph = LoadGlyph(face, c);
     PlaceGlyph(face, &glyph, position.x, position.y);
 
-    position.x = glyph.source.x + glyph.source.width;
+    position.x = glyph.source.x + glyph.source.width + 1;
     position.y = glyph.source.y;
 
     // Store glyph in map for lookup.
@@ -159,11 +161,11 @@ void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
   glyph->source.x = x;
   glyph->source.y = y;
 
-  auto slot = face->glyph;
+  auto bitmap = face->glyph->bitmap;
 
   // Place glyph bitmap data on texture.
-  glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)x, (GLint)y, slot->bitmap.width, 
-    slot->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, slot->bitmap.buffer);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)x, (GLint)y, bitmap.width, 
+    bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 }
 
 void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args)
@@ -176,11 +178,11 @@ void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args)
 
     // Create sprite font and wrap in a script object.
     auto spriteFont = new SpriteFont(filename, size, chars);
-    auto object = ScriptObject::Wrap(
-      spriteFont, SpriteFont::ScriptSpriteFont::Setup);
+    auto object = ScriptObject::Create(
+      args.GetIsolate(), spriteFont, SpriteFont::ScriptSpriteFont::Setup);
 
     // Set script object as the result.
-    ScriptArgs::SetObjectResult(args, object);
+    args.GetReturnValue().Set(object);
   }
   catch (std::exception& ex) {
     ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

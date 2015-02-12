@@ -23,16 +23,16 @@ public:
     return static_cast<T*>(ext->Value());
   }
 
-  // Gets the argument as this (the caller) at the specified index.
+  // Gets the argument as self (the caller).
   template <typename T> 
-  static T* GetThis(const v8::FunctionCallbackInfo<v8::Value>& args)
+  static T* GetSelf(const v8::FunctionCallbackInfo<v8::Value>& args)
   {
     return ScriptObject::Unwrap<T>(args.Holder());
   }
 
-  // Gets the argument as this (the caller) at the specified index.
+  // Gets the argument as self (the caller).
   template <typename T> 
-  static T* GetThis(const v8::PropertyCallbackInfo<v8::Value>& args)
+  static T* GetSelf(const v8::PropertyCallbackInfo<v8::Value>& args)
   {
     return ScriptObject::Unwrap<T>(args.Holder());
   }

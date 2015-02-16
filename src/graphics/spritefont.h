@@ -20,6 +20,7 @@ struct FontGlyph {
 
 class SpriteFont {
 
+  // Class that is only available to spritefont.
   class ScriptSpriteFont;
 
 public:
@@ -34,8 +35,10 @@ public:
   // Gets the texture atlas used for the font.
   Texture* GetTexture() { return texture_; }
 
-  // Creates a new script instance.
-  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  // Initializes the script object.
+  static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
+
+  Texture* texture_;
 
 private:
 
@@ -44,7 +47,7 @@ private:
   // Places a character glyph on the font texture.
   void PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y);
 
-  Texture* texture_;
+  
   std::map<char, FontGlyph> glyphs_;
   int maxGlyphHeight_;
 

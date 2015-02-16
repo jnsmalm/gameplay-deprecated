@@ -1,6 +1,6 @@
 #include "graphics/shader.h"
-#include "script/scriptengine.h"
 #include "graphics/window.h"
+#include "script/scriptengine.h"
 
 namespace {
 

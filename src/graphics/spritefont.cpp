@@ -1,8 +1,6 @@
 #include "graphics/spritefont.h"
 #include "graphics/texture.h"
-#include "script/scriptargs.h"
 #include "script/scriptengine.h"
-#include "script/scriptvalue.h"
 
 #include <gl/glew.h>
 
@@ -38,20 +36,42 @@ FontGlyph LoadGlyph(FT_Face face, char c)
 }
 
 // Helps with setting up the script object.
-class SpriteFont::ScriptSpriteFont {
+class SpriteFont::ScriptSpriteFont : public ScriptObject<ScriptSpriteFont> {
 
 public:
 
-  static void MeasureString(const FunctionCallbackInfo<Value>& args) 
+  void Setup()
   {
-    auto self = ScriptArgs::GetSelf<SpriteFont>(args);
-    auto text = ScriptValue::ToString(args[0]);
-    ScriptArgs::SetNumberResult(args, self->MeasureString(text).width);
+    AddFunction("measureString", MeasureString);
   }
 
-  static void Setup(Local<ObjectTemplate> tmpl)
+  static void New(const v8::FunctionCallbackInfo<v8::Value>& args)
   {
-    ScriptObject::BindFunction(tmpl, "measureString", MeasureString);
+    HandleScope scope(args.GetIsolate());
+    try {
+      // The first and only argument is an object.
+      auto arg = args[0]->ToObject();
+
+      // Get arguments from object.
+      auto filename = GetString(arg, "filename");
+      auto size = GetNumber(arg, "size");
+      auto chars = GetString(arg, "chars");
+
+      auto object = Wrap(new SpriteFont(filename, size, chars));
+      args.GetReturnValue().Set(object);
+    }
+    catch (std::exception& ex) {
+      ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+    }
+  }
+
+  static void MeasureString(const FunctionCallbackInfo<Value>& args) 
+  {
+    HandleScope scope(args.GetIsolate());
+    auto self = Unwrap<SpriteFont>(args.Holder());
+    auto text = GetString(args[0]);
+    auto width = self->MeasureString(text).width;
+    args.GetReturnValue().Set(width);
   }
 
 };
@@ -151,7 +171,7 @@ void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
   if (x + glyph->source.width > texture_->GetWidth()) {
     x = 0;
     y += maxGlyphHeight_;
-    maxGlyphHeight_ = 0;
+    maxGlyphHeight_ = glyph->source.height;
   }
 
   if (y + glyph->source.height > texture_->GetHeight()) {
@@ -168,23 +188,7 @@ void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
     bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 }
 
-void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args)
+void SpriteFont::Init(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  try {
-    // Get the arguments for creating a sprite font.
-    auto filename = ScriptArgs::GetString(args, 0);
-    auto size = ScriptArgs::GetNumber(args, 1);
-    auto chars = ScriptArgs::GetString(args, 2);
-
-    // Create sprite font and wrap in a script object.
-    auto spriteFont = new SpriteFont(filename, size, chars);
-    auto object = ScriptObject::Create(
-      args.GetIsolate(), spriteFont, SpriteFont::ScriptSpriteFont::Setup);
-
-    // Set script object as the result.
-    args.GetReturnValue().Set(object);
-  }
-  catch (std::exception& ex) {
-    ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
-  }
+  ScriptSpriteFont::GetCurrent().Init(isolate, "SpriteFont", parent);
 }

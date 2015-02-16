@@ -1,11 +1,16 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "script/scriptobject.h"
+
 #include <gl/glew.h>
 #include "v8.h"
 #include <string>
 
 class Texture {
+
+  // Class that is only available to texture.
+  class ScriptTexture;
 
 public:
 
@@ -21,7 +26,9 @@ public:
   int GetHeight() { return height_; }
 
   // Creates a new script instance.
-  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  //static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+  static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
 private:
 

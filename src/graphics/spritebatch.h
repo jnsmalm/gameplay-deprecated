@@ -1,12 +1,12 @@
 #ifndef SPRITEBATCH_H
 #define SPRITEBATCH_H
 
-#include "graphics/types.h"
 #include "graphics/texture.h"
 #include "graphics/shader.h"
 #include "graphics/vertexrenderer.h"
 #include "graphics/shaderprogram.h"
 #include "graphics/spritefont.h"
+#include "graphics/types.h"
 
 #include "v8.h"
 #include <gl/glew.h>
@@ -36,6 +36,9 @@ struct SpriteVertex {
 
 class SpriteBatch {
 
+  // Class that is only available to spritebatch.
+  class ScriptSpriteBatch;
+
 public:
 
   SpriteBatch();
@@ -51,8 +54,8 @@ public:
   void DrawString(SpriteFont* font, std::string text, Vector2 position, 
     float rotation, Vector2 origin, Vector2 scaling, Color color);
 
-  // Creates a new script instance.
-  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  // Initializes the script object.
+  static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> parent);
 
 private:
 

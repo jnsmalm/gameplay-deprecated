@@ -1,42 +1,54 @@
 #include "graphics/texture.h"
 #include "script/scriptengine.h"
-#include "script/scriptargs.h"
 #include "script/scriptobject.h"
 #include "graphics/window.h"
 
 #include "freeimage.h"
 #include <vector>
 
-namespace {
+using namespace v8;
 
 // Helps with setting up the script object.
-class ScriptTexture {
+class Texture::ScriptTexture : public ScriptObject<ScriptTexture> {
 
 public:
 
-  static void GetWidth(
-    v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& args)
+  void Setup()
   {
-    auto self = ScriptArgs::GetSelf<Texture>(args);
-    ScriptArgs::SetNumberResult(args, self->GetWidth());
+    AddAccessor("width", GetWidth);
+    AddAccessor("height", GetHeight);
+  }
+
+  static void New(const FunctionCallbackInfo<Value>& args)
+  {
+    HandleScope scope(GetIsolate());
+    try {
+      auto filename = GetString(args[0]);
+      auto object = Wrap(new Texture(filename));
+      args.GetReturnValue().Set(object);
+    }
+    catch (std::exception& ex) {
+      ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+    }
+  }
+
+  static void GetWidth(
+    Local<String> name, const PropertyCallbackInfo<Value>& args)
+  {
+    HandleScope scope(GetIsolate());
+    auto self = Unwrap<Texture>(args.Holder());
+    args.GetReturnValue().Set(self->GetWidth());
   }
 
   static void GetHeight(
-    v8::Local<v8::String> name, const v8::PropertyCallbackInfo<v8::Value>& args)
+    Local<String> name, const PropertyCallbackInfo<Value>& args)
   {
-    auto self = ScriptArgs::GetSelf<Texture>(args);
-    ScriptArgs::SetNumberResult(args, self->GetHeight());
-  }
-
-  static void Setup(v8::Local<v8::ObjectTemplate> tmpl)
-  {
-    ScriptObject::BindProperty(tmpl, "width", GetWidth);
-    ScriptObject::BindProperty(tmpl, "height", GetHeight);
+    HandleScope scope(GetIsolate());
+    auto self = Unwrap<Texture>(args.Holder());
+    args.GetReturnValue().Set(self->GetHeight());
   }
 
 };
-
-}
 
 Texture::Texture(std::string filename)
 {
@@ -110,21 +122,7 @@ void Texture::Bind(int unit)
   glBindTexture(GL_TEXTURE_2D, glTexture_);
 }
 
-void Texture::New(const v8::FunctionCallbackInfo<v8::Value>& args)
+void Texture::Init(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  try {
-    // Get the filename argument.
-    auto filename = ScriptArgs::GetString(args, 0);
-
-    // Create texture and wrap in a script object.
-    auto texture = new Texture(filename);
-    auto object = ScriptObject::Create(
-      args.GetIsolate(), texture, ScriptTexture::Setup);
-
-    // Set script object as the result.
-    args.GetReturnValue().Set(object);
-  }
-  catch (std::exception& ex) {
-    ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
-  }
+  ScriptTexture::GetCurrent().Init(isolate, "Texture", parent);
 }

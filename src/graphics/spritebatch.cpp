@@ -1,9 +1,7 @@
 #include "graphics/spritebatch.h"
-#include "script/scriptargs.h"
-#include "script/scriptobject.h"
 #include "graphics/spriteshaders.h"
+#include "script/scriptobject.h"
 #include "script/scriptengine.h"
-#include "script/scriptvalue.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -37,22 +35,44 @@ void SetSpriteVertexAttributes(ShaderProgram* shaderProgram)
     1, sizeof(SpriteVertex), poffsetof(SpriteVertex, text));
 }
 
+}
+
 // Helps with setting up the script object.
-class ScriptSpriteBatch {
+class SpriteBatch::ScriptSpriteBatch : public ScriptObject<ScriptSpriteBatch> {
 
 public:
+
+  void Setup()
+  {
+    AddFunction("begin", Begin);
+    AddFunction("end", End);
+    AddFunction("draw", Draw);
+    AddFunction("drawString", DrawString);
+  }
+
+  static void New(const FunctionCallbackInfo<Value>& args)
+  {
+    HandleScope scope(args.GetIsolate());
+    try {
+      auto object = Wrap(new SpriteBatch());
+      args.GetReturnValue().Set(object);
+    }
+    catch (std::exception& ex) {
+      ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+    }
+  }
 
   static void Begin(const FunctionCallbackInfo<Value>& args)
   {
     HandleScope scope(args.GetIsolate());
-    auto self = ScriptConvert::To<SpriteBatch>(args.Holder());
+    auto self = Unwrap<SpriteBatch>(args.Holder());
     self->Begin();
   }
 
   static void End(const FunctionCallbackInfo<Value>& args)
   {
     HandleScope scope(args.GetIsolate());
-    auto self = ScriptConvert::To<SpriteBatch>(args.Holder());
+    auto self = Unwrap<SpriteBatch>(args.Holder());
     self->End();
   }
 
@@ -63,22 +83,22 @@ public:
     }
 
     HandleScope scope(args.GetIsolate());
-    auto self = ScriptValue::GetObject<SpriteBatch>(args.Holder());
+    auto self = Unwrap<SpriteBatch>(args.Holder());
 
     // The first and only argument is an object.
-    ScriptObject arg(args.GetIsolate(), args[0]->ToObject());
+    auto arg = args[0]->ToObject();
 
-    // Get arguments to draw the sprite.
-    auto texture = arg.GetObject<Texture>("texture");
-    auto position = arg.GetVector2("position");
-    auto rotation = arg.GetNumber("rotation");
-    auto scaling = arg.GetVector2("scaling", Vector2 { 1.0f, 1.0f });
-    auto color = arg.GetColor("color");
-    auto origin = arg.GetVector2("origin");
+    // Get arguments from object.
+    auto texture = GetObject<Texture>(arg, "texture");
+    auto position = GetVector2(arg, "position");
+    auto rotation = GetNumber(arg, "rotation");
+    auto scaling = GetVector2(arg, "scaling", Vector2 { 1.0f, 1.0f });
+    auto color = GetColor(arg, "color");
+    auto origin = GetVector2(arg, "origin");
     auto source = Rectangle { 0, 0, 0, 0 };
 
     if (texture) {
-      source = arg.GetRectangle("source", Rectangle { 
+      source = GetRectangle(arg, "source", Rectangle { 
         0, 0, (float)texture->GetWidth(), (float)texture->GetHeight() 
       });
     }
@@ -98,19 +118,19 @@ public:
     }
 
     HandleScope scope(args.GetIsolate());
-    auto self = ScriptValue::GetObject<SpriteBatch>(args.Holder());
+    auto self = Unwrap<SpriteBatch>(args.Holder());
 
     // The first and only argument is an object.
-    ScriptObject arg(args.GetIsolate(), args[0]->ToObject());
+    auto arg = args[0]->ToObject();
 
     // Get arguments to draw the font.
-    auto font = arg.GetObject<SpriteFont>("font");
-    auto text = arg.GetString("text");
-    auto position = arg.GetVector2("position");
-    auto rotation = arg.GetNumber("rotation");
-    auto scaling = arg.GetVector2("scaling", Vector2 { 1.0f, 1.0f });
-    auto color = arg.GetColor("color");
-    auto origin = arg.GetVector2("origin");
+    auto font = GetObject<SpriteFont>(arg, "font");
+    auto text = GetString(arg, "text");
+    auto position = GetVector2(arg, "position");
+    auto rotation = GetNumber(arg, "rotation");
+    auto scaling = GetVector2(arg, "scaling", Vector2 { 1.0f, 1.0f });
+    auto color = GetColor(arg, "color");
+    auto origin = GetVector2(arg, "origin");
 
     try {
       self->DrawString(font, text, position, rotation, origin, scaling, color);
@@ -120,17 +140,41 @@ public:
     }
   }
 
-  static void Setup(Local<ObjectTemplate> tmpl)
+  static Vector2 GetVector2(v8::Handle<v8::Object> object, 
+    std::string name, Vector2 defaultValue = { 0, 0 })
   {
-    ScriptObject::BindFunction(tmpl, "begin", Begin);
-    ScriptObject::BindFunction(tmpl, "end", End);
-    ScriptObject::BindFunction(tmpl, "draw", Draw);
-    ScriptObject::BindFunction(tmpl, "drawString", DrawString);
+    auto vector = GetObject(object, name);
+    return Vector2 {
+      GetNumber(vector, "x", defaultValue.x),
+      GetNumber(vector, "y", defaultValue.y),
+    };
+  }
+
+  static Rectangle GetRectangle(v8::Handle<v8::Object> object, 
+    std::string name, Rectangle defaultValue = { 0, 0, 0, 0})
+  {
+    auto rectangle = GetObject(object, name);
+    return Rectangle {
+      GetNumber(rectangle, "x", defaultValue.x),
+      GetNumber(rectangle, "y", defaultValue.y),
+      GetNumber(rectangle, "width", defaultValue.width),
+      GetNumber(rectangle, "height", defaultValue.height),
+    };
+  }
+
+  static Color GetColor(v8::Handle<v8::Object> object, 
+    std::string name, Color defaultValue = { 1.f, 1.f, 1.f, 1.f })
+  {
+    auto color = GetObject(object, name);
+    return Color {
+      GetNumber(color, "r", defaultValue.r),
+      GetNumber(color, "g", defaultValue.g),
+      GetNumber(color, "b", defaultValue.b),
+      GetNumber(color, "a", defaultValue.a),
+    };
   }
 
 };
-
-}
 
 SpriteBatch::SpriteBatch()
 {
@@ -237,16 +281,7 @@ void SpriteBatch::Flush()
   sprites_.clear();
 }
 
-void SpriteBatch::New(const FunctionCallbackInfo<Value>& args)
+void SpriteBatch::Init(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  HandleScope scope(args.GetIsolate());
-  try {
-    auto spriteBatch = new SpriteBatch();
-    auto object = ScriptObject::Create(
-      args.GetIsolate(), spriteBatch, ScriptSpriteBatch::Setup);
-    args.GetReturnValue().Set(object);
-  }
-  catch (std::exception& ex) {
-    ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
-  }
+  ScriptSpriteBatch::GetCurrent().Init(isolate, "SpriteBatch", parent);
 }

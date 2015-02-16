@@ -7,6 +7,8 @@
 
 class ScriptEngine {
 
+  class ScriptGlobal;
+
 public:
 
   // Compile and execute the specified script.
@@ -28,6 +30,9 @@ private:
   // Constructor and destructor is private when singleton.
   ScriptEngine();
   ~ScriptEngine();
+
+  // Initializes the global object.
+  v8::Handle<v8::ObjectTemplate> InitGlobal(v8::Isolate* isolate);
 
   // Overload operators to make singleton work as expected.
   ScriptEngine(ScriptEngine const& copy);

@@ -148,13 +148,10 @@ const std::string SpriteShaders::fragmentShaderSource = GLSL(
   {
     if (fText > 0) {
       outColor = vec4(fColor.rgb, texture(tex0, texcoord).r * fColor.a);
-      //outColor = vec4(1, 1, 1, texture(tex0, texcoord).r);
     }
     else {
       outColor = texture(tex0, texcoord) * fColor;
     }
-    //outColor = vec4(fColor.rgb, texture(tex0, texcoord).r * fColor.a);
-    //outColor = vec4(1, 1, 1, texture(tex0, texcoord).r);
   }
 
 );

@@ -1,49 +1,17 @@
 #include "script/scriptengine.h"
+#include "script/scriptobject.h"
+#include "system/file.h"
+#include "input/keyboard.h"
+#include "graphics/spritebatch.h"
 #include "graphics/window.h"
 #include "graphics/texture.h"
-#include "system/console.h"
-#include "system/file.h"
-#include "script/scriptobject.h"
-#include "script/scriptargs.h"
-#include "graphics/spritebatch.h"
-#include "input/keyboard.h"
 
 #include <string>
 #include <iostream>
-#include <fstream>
 
 using namespace v8;
 
 namespace {
-
-void Include(const FunctionCallbackInfo<Value>& args) 
-{
-  // Get filename argument and execute it.
-  auto filename = ScriptArgs::GetString(args, 0);
-  ScriptEngine::GetCurrent().Execute(filename);
-}
-
-Handle<ObjectTemplate> CreateGlobalAndSetFunctions(Isolate* isolate)
-{
-  auto tmpl = ObjectTemplate::New(isolate);
-
-  ScriptObject::BindFunction(tmpl, "include", Include);
-  ScriptObject::BindFunction(tmpl, "print", Console::Print);
-
-  return tmpl;
-}
-
-Handle<ObjectTemplate> CreateCowyAndSetFunctions(Isolate* isolate)
-{
-  auto tmpl = ObjectTemplate::New(isolate);
-
-  ScriptObject::BindFunction(tmpl, "Window", Window::New);
-  ScriptObject::BindFunction(tmpl, "SpriteBatch", SpriteBatch::New);
-  ScriptObject::BindFunction(tmpl, "Texture", Texture::New);
-  ScriptObject::BindFunction(tmpl, "SpriteFont", SpriteFont::New);
-
-  return tmpl;
-}
 
 Handle<String> ReadFile(std::string filename)
 {
@@ -55,15 +23,49 @@ void PrintStackTrace(TryCatch* tryCatch)
 {
   HandleScope scope(Isolate::GetCurrent());
   String::Utf8Value stackTrace(tryCatch->StackTrace());
-  if (stackTrace.length() > 0)
+  if (stackTrace.length() > 0) {
     std::cout << *stackTrace << "\n";
+  }
 }
 
 }
+
+class ScriptEngine::ScriptGlobal : public ScriptObject<ScriptGlobal> {
+
+public:
+
+  void Setup()
+  {
+    AddFunction("include", Include);
+    AddFunction("print", Print);
+  }
+
+  static void Include(const FunctionCallbackInfo<Value>& args) 
+  {
+    auto filename = GetString(args[0]);
+    ScriptEngine::GetCurrent().Execute(filename);
+  }
+
+  static void Print(const FunctionCallbackInfo<Value>& args)
+  {
+    bool first = true;
+    for (int i = 0; i < args.Length(); i++) {
+      HandleScope scope(args.GetIsolate());
+      if (first) {
+        first = false;
+      } 
+      else {
+        std::cout << " ";
+      }
+      std::cout << *String::Utf8Value(args[i]);
+    }
+    std::cout << "\n";
+  }
+
+};
 
 ScriptEngine::ScriptEngine()
 {
-  // Initialize V8
   V8::InitializeICU();
   platform_ = v8::platform::CreateDefaultPlatform();
   V8::InitializePlatform(platform_);
@@ -72,7 +74,6 @@ ScriptEngine::ScriptEngine()
 
 ScriptEngine::~ScriptEngine()
 {
-  // Shutdown V8
   V8::Dispose();
   V8::ShutdownPlatform();
   delete platform_;
@@ -84,16 +85,9 @@ void ScriptEngine::Run(std::string filename)
   Isolate* isolate = Isolate::New();
   {
     Isolate::Scope isolateScope(isolate);
-
-    // Create a handle scope to hold the temporary references
     HandleScope handleScope(isolate);
 
-    // Create cowy and global template objects and set built-in functions.
-    auto global = CreateGlobalAndSetFunctions(isolate);
-    auto cowy = CreateCowyAndSetFunctions(isolate);
-
-    // Add cowy object to global.
-    global->Set(String::NewFromUtf8(isolate, "cowy"), cowy);
+    auto global = InitGlobal(isolate);
 
     // Enter the new context so all the following operations take place
     // within it.
@@ -107,7 +101,7 @@ void ScriptEngine::Run(std::string filename)
 
 bool ScriptEngine::Execute(std::string filename)
 {
-  HandleScope handleScope(Isolate::GetCurrent());
+  HandleScope scope(Isolate::GetCurrent());
 
   // Get the script to execute
   auto script = ReadFile(filename);
@@ -143,4 +137,24 @@ void ScriptEngine::ThrowTypeError(std::string message)
   auto isolate = Isolate::GetCurrent();
   isolate->ThrowException(Exception::TypeError(
     String::NewFromUtf8(isolate, message.c_str())));
+}
+
+Handle<ObjectTemplate> ScriptEngine::InitGlobal(Isolate* isolate)
+{
+  // Initialize the global object.
+  ScriptGlobal::GetCurrent().Init(isolate);
+  auto global = ScriptGlobal::GetTemplate();
+
+  // Create namespace.
+  auto ns = ObjectTemplate::New(isolate);
+
+  Window::Init(isolate, ns);
+  SpriteBatch::Init(isolate, ns);
+  SpriteFont::Init(isolate, ns);
+  Texture::Init(isolate, ns);
+
+  // Add namespace to global.
+  global->Set(String::NewFromUtf8(isolate, "cowy"), ns);
+
+  return global;
 }

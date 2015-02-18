@@ -43,7 +43,8 @@ public:
   static void Include(const FunctionCallbackInfo<Value>& args) 
   {
     auto filename = GetString(args[0]);
-    ScriptEngine::GetCurrent().Execute(filename);
+    auto result = ScriptEngine::GetCurrent().Execute(filename);
+    args.GetReturnValue().Set(result);
   }
 
   static void Print(const FunctionCallbackInfo<Value>& args)
@@ -92,16 +93,20 @@ void ScriptEngine::Run(std::string filename)
     // Enter the new context so all the following operations take place
     // within it.
     auto context = Context::New(isolate, NULL, global);
-    Context::Scope contextScope(context);
+    context_.Reset(isolate, context);
 
     // Compile and run the script
     Execute(filename);
   }
 }
 
-bool ScriptEngine::Execute(std::string filename)
+Handle<Value> ScriptEngine::Execute(std::string filename)
 {
-  HandleScope scope(Isolate::GetCurrent());
+  // Every script gets it's own context.
+  Context::Scope contextScope(
+    Local<Context>::New(Isolate::GetCurrent(), context_));
+
+  EscapableHandleScope handleScope(Isolate::GetCurrent());
 
   // Get the script to execute
   auto script = ReadFile(filename);
@@ -116,20 +121,16 @@ bool ScriptEngine::Execute(std::string filename)
 
   if (compiled.IsEmpty()) {
     PrintStackTrace(&tryCatch);
-    // The script failed to compile; bail out.
-    return false;
   }
 
   // Run the script!
   auto result = compiled->Run();
 
   if (result.IsEmpty()) {
-    // The TryCatch above is still in effect and will have caught the error.
     PrintStackTrace(&tryCatch);
-    // Running the script failed; bail out.
-    return false;
   }
-  return true;
+
+  return handleScope.Escape(result);
 }
 
 void ScriptEngine::ThrowTypeError(std::string message)

@@ -12,7 +12,7 @@ class ScriptEngine {
 public:
 
   // Compile and execute the specified script.
-  bool Execute(std::string filename);
+  v8::Handle<v8::Value> Execute(std::string filename);
   // Start running the specified script.
   void Run(std::string filename);
   // Throws the type error exception.
@@ -39,6 +39,7 @@ private:
   ScriptEngine& operator=(ScriptEngine const& copy);
 
   v8::Platform* platform_;
+  v8::Persistent<v8::Context> context_;
 };
 
 #endif

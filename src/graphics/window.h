@@ -32,18 +32,22 @@ public:
   void SwapBuffers();
   // Clears the back buffer.
   void Clear();
+  // Gets the width of the window.
+  int GetWidth() { return width_; }
+  // Gets the height of the window.
+  int GetHeight() { return height_; }
 
   // Ensures that a OpenGL context exists, throws exception otherwise.
   static void EnsureCurrentContext();
-  // Creates a new script instance.
-  //static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-
+  // Initializes the script object.
   static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
 private:
 
   Keyboard* keyboard_;
   GLFWwindow* glfwWindow_;
+  int width_;
+  int height_;
 
 };
 

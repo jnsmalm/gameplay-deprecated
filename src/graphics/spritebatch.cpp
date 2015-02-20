@@ -54,7 +54,8 @@ public:
   {
     HandleScope scope(args.GetIsolate());
     try {
-      auto object = Wrap(new SpriteBatch());
+      auto window = Unwrap<Window>(args[0]->ToObject());
+      auto object = Wrap(new SpriteBatch(window));
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {
@@ -176,7 +177,7 @@ public:
 
 };
 
-SpriteBatch::SpriteBatch()
+SpriteBatch::SpriteBatch(Window* window)
 {
   Window::EnsureCurrentContext();
 
@@ -199,8 +200,11 @@ SpriteBatch::SpriteBatch()
       SetSpriteVertexAttributes(&shaderProgram_);
     });
 
+  auto w = (float)window->GetWidth();
+  auto h = (float)window->GetHeight();
+
   // Set the ortho projection for the shader.
-  auto projection = glm::ortho(0.0f, 1024.0f, 576.0f, 0.0f, -1.0f, 1.0f);
+  auto projection = glm::ortho(0.0f, w, h, 0.0f, -1.0f, 1.0f);
   shaderProgram_.SetUniformValue(
     "projection", UniformDataType::Matrix4, glm::value_ptr(projection));
 }

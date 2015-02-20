@@ -25,9 +25,7 @@ public:
   // Gets the height of the texture.
   int GetHeight() { return height_; }
 
-  // Creates a new script instance.
-  //static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-
+  // Initializes the script object.
   static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
 private:

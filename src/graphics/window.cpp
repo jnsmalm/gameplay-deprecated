@@ -41,6 +41,8 @@ public:
     AddFunction("isClosing", IsClosing);
     AddFunction("isKeyDown", IsKeyDown);
     AddFunction("isKeyPress", IsKeyPress);
+    AddAccessor("width", GetWidth);
+    AddAccessor("height", GetHeight);
   }
 
   static void New(const FunctionCallbackInfo<Value>& args) 
@@ -108,6 +110,22 @@ public:
     self->Clear();
   }
 
+  static void GetWidth(
+    Local<String> name, const PropertyCallbackInfo<Value>& args) 
+  {
+    HandleScope scope(GetIsolate());
+    auto self = Unwrap<Window>(args.Holder());
+    args.GetReturnValue().Set(self->GetWidth());
+  }
+
+  static void GetHeight(
+    Local<String> name, const PropertyCallbackInfo<Value>& args) 
+  {
+    HandleScope scope(GetIsolate());
+    auto self = Unwrap<Window>(args.Holder());
+    args.GetReturnValue().Set(self->GetHeight());
+  }
+
   static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
   {
     HandleScope scope(GetIsolate());
@@ -148,6 +166,8 @@ Window::Window(int width, int height, bool fullscreen)
     glfwTerminate();
     return;
   }
+
+  glfwGetWindowSize(glfwWindow_, &width_, &height_);
 
   // Create the keyboard associated with this window.
   keyboard_ = new Keyboard(this);

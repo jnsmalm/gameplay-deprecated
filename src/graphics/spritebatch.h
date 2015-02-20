@@ -41,7 +41,7 @@ class SpriteBatch {
 
 public:
 
-  SpriteBatch();
+  SpriteBatch(Window* window);
 
   // Begin drawing sprites.
   void Begin();

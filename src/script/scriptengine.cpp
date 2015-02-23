@@ -8,6 +8,7 @@
 
 #include <string>
 #include <iostream>
+#include <numeric>
 
 using namespace v8;
 
@@ -26,6 +27,15 @@ void PrintStackTrace(TryCatch* tryCatch)
   if (stackTrace.length() > 0) {
     std::cout << *stackTrace << "\n";
   }
+}
+
+std::string GetFilePath(std::string filename)
+{
+  auto index = filename.find_last_of("\\/");
+  if (index == std::string::npos) {
+    return "";
+  }
+  return filename.substr(0, index + 1);
 }
 
 }
@@ -95,6 +105,8 @@ void ScriptEngine::Run(std::string filename)
     auto context = Context::New(isolate, NULL, global);
     context_.Reset(isolate, context);
 
+    executionPath_ = GetFilePath(filename);
+
     // Compile and run the script
     Execute(filename);
   }
@@ -102,6 +114,9 @@ void ScriptEngine::Run(std::string filename)
 
 Handle<Value> ScriptEngine::Execute(std::string filename)
 {
+  filename = GetCurrentScriptPath() + filename;
+  auto pathWasPushed = PushScriptPath(filename);
+
   // Every script gets it's own context.
   Context::Scope contextScope(
     Local<Context>::New(Isolate::GetCurrent(), context_));
@@ -121,6 +136,10 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
   if (compiled.IsEmpty()) {
     PrintStackTrace(&tryCatch);
+    if (pathWasPushed) {
+      PopScriptPath();
+    }
+    return v8::Null(Isolate::GetCurrent());
   }
 
   // Run the script!
@@ -128,7 +147,15 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
   if (result.IsEmpty()) {
     PrintStackTrace(&tryCatch);
+    if (pathWasPushed) {
+      PopScriptPath();
+    }
+    return v8::Null(Isolate::GetCurrent());
   }
+
+  if (pathWasPushed) {
+    PopScriptPath();
+  }  
 
   return handleScope.Escape(result);
 }
@@ -138,6 +165,33 @@ void ScriptEngine::ThrowTypeError(std::string message)
   auto isolate = Isolate::GetCurrent();
   isolate->ThrowException(Exception::TypeError(
     String::NewFromUtf8(isolate, message.c_str())));
+}
+
+bool ScriptEngine::PushScriptPath(std::string filename)
+{
+  auto index = filename.find_last_of("\\/");
+  if (index == std::string::npos) {
+    return false;
+  }
+  auto path = filename.substr(0, index + 1);
+  auto last = folders_.empty() ? "" : folders_.back();
+  if (path != last) {
+    folders_.push_back(path);
+    return true;
+  }
+  return false;
+}
+
+void ScriptEngine::PopScriptPath()
+{
+  if (!folders_.empty()) {
+    folders_.pop_back();
+  }
+}
+
+std::string ScriptEngine::GetCurrentScriptPath()
+{
+  return std::accumulate(folders_.begin(), folders_.end(), std::string(""));
 }
 
 Handle<ObjectTemplate> ScriptEngine::InitGlobal(Isolate* isolate)

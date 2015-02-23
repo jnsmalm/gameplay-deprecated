@@ -54,6 +54,7 @@ public:
 
       // Get arguments from object.
       auto filename = GetString(arg, "filename");
+      filename = ScriptEngine::GetCurrent().GetCurrentScriptPath() + filename;
       auto size = GetNumber(arg, "size");
       auto chars = GetString(arg, "chars");
 

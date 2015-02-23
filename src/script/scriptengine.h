@@ -4,6 +4,7 @@
 #include "v8.h"
 #include "libplatform/libplatform.h"
 #include <string>
+#include <vector>
 
 class ScriptEngine {
 
@@ -17,6 +18,10 @@ public:
   void Run(std::string filename);
   // Throws the type error exception.
   void ThrowTypeError(std::string message);
+  // Gets the execution path for the initial script.
+  std::string GetExecutionPath() { return executionPath_; }
+  // Gets the current path for the script.
+  std::string GetCurrentScriptPath();
 
   // Gets the singleton instance.
   static ScriptEngine& GetCurrent()
@@ -31,6 +36,8 @@ private:
   ScriptEngine();
   ~ScriptEngine();
 
+  bool PushScriptPath(std::string filename);
+  void PopScriptPath();
   // Initializes the global object.
   v8::Handle<v8::ObjectTemplate> InitGlobal(v8::Isolate* isolate);
 
@@ -40,6 +47,8 @@ private:
 
   v8::Platform* platform_;
   v8::Persistent<v8::Context> context_;
+  std::vector<std::string> folders_;
+  std::string executionPath_;
 };
 
 #endif

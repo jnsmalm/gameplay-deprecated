@@ -24,7 +24,7 @@ public:
     HandleScope scope(GetIsolate());
     try {
       auto filename = GetString(args[0]);
-      filename = ScriptEngine::GetCurrent().GetCurrentScriptPath() + filename;
+      filename = ScriptEngine::GetCurrent().GetExecutionPath() + filename;
       auto object = Wrap(new Texture(filename));
       args.GetReturnValue().Set(object);
     }

@@ -56,8 +56,10 @@ Texture::Texture(std::string filename)
   Window::EnsureCurrentContext();
 
   // Load the image for the texture.
+  auto fileType = FreeImage_GetFileType(filename.c_str());
   auto img = FreeImage_ConvertTo32Bits(
-   FreeImage_Load(FreeImage_GetFileType(filename.c_str()), filename.c_str()));
+    FreeImage_Load(fileType, filename.c_str()));
+  FreeImage_FlipVertical(img);
 
   if (!img) {
     throw std::runtime_error("Failed to load image '" + filename + "'");

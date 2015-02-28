@@ -1,2 +1,2 @@
-# cowy-runtime
-Runtime for Cowy Framework
+# Kore.js
+Framework for creating desktop games with JavaScript

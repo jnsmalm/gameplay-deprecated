@@ -36,7 +36,8 @@ public:
   Texture* GetTexture() { return texture_; }
 
   // Initializes the script object.
-  static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
+  static void Initialize(
+    v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
   Texture* texture_;
 

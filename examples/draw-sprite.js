@@ -1,4 +1,4 @@
-var game = include("../lib/game.js");
+var game = ko.include("../lib/game.js");
 
 game.init({
   width: 1024,
@@ -6,8 +6,10 @@ game.init({
   fullscreen: false, 
 });
 
-var spriteBatch = new cowy.SpriteBatch(game.window);
-var texture = new cowy.Texture("assets/cow.png");
+var spriteBatch = new ko.SpriteBatch(game.window);
+
+var texture = new ko.Texture("assets/cow.png");
+
 var sprite = {
   texture: texture,
   position: {

@@ -285,7 +285,7 @@ void SpriteBatch::Flush()
   sprites_.clear();
 }
 
-void SpriteBatch::Init(Isolate* isolate, Handle<ObjectTemplate> parent)
+void SpriteBatch::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptSpriteBatch::GetCurrent().Init(isolate, "SpriteBatch", parent);
+  ScriptSpriteBatch::GetCurrent().Initialize(isolate, "SpriteBatch", parent);
 }

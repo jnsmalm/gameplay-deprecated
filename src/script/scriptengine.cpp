@@ -1,5 +1,5 @@
 #include "script/scriptengine.h"
-#include "script/scriptobject.h"
+#include "script/scriptglobal.h"
 #include "system/file.h"
 #include "input/keyboard.h"
 #include "graphics/spritebatch.h"
@@ -38,42 +38,19 @@ std::string GetFilePath(std::string filename)
   return filename.substr(0, index + 1);
 }
 
+Handle<ObjectTemplate> InitializeGlobalObject(Isolate* isolate)
+{
+  auto object = ScriptGlobal::GetCurrent().Initialize(isolate);
+
+  Window::Initialize(isolate, object);
+  SpriteBatch::Initialize(isolate, object);
+  SpriteFont::Initialize(isolate, object);
+  Texture::Initialize(isolate, object);
+
+  return object;
 }
 
-class ScriptEngine::ScriptGlobal : public ScriptObject<ScriptGlobal> {
-
-public:
-
-  void Setup()
-  {
-    AddFunction("include", Include);
-    AddFunction("print", Print);
-  }
-
-  static void Include(const FunctionCallbackInfo<Value>& args) 
-  {
-    auto filename = GetString(args[0]);
-    auto result = ScriptEngine::GetCurrent().Execute(filename);
-    args.GetReturnValue().Set(result);
-  }
-
-  static void Print(const FunctionCallbackInfo<Value>& args)
-  {
-    bool first = true;
-    for (int i = 0; i < args.Length(); i++) {
-      HandleScope scope(args.GetIsolate());
-      if (first) {
-        first = false;
-      } 
-      else {
-        std::cout << " ";
-      }
-      std::cout << *String::Utf8Value(args[i]);
-    }
-    std::cout << "\n";
-  }
-
-};
+}
 
 ScriptEngine::ScriptEngine()
 {
@@ -98,7 +75,9 @@ void ScriptEngine::Run(std::string filename)
     Isolate::Scope isolateScope(isolate);
     HandleScope handleScope(isolate);
 
-    auto global = InitGlobal(isolate);
+    auto global = ObjectTemplate::New(isolate);
+    global->Set(String::NewFromUtf8(isolate, "ko"), 
+      InitializeGlobalObject(isolate));
 
     // Enter the new context so all the following operations take place
     // within it.
@@ -114,8 +93,8 @@ void ScriptEngine::Run(std::string filename)
 
 Handle<Value> ScriptEngine::Execute(std::string filename)
 {
-  filename = GetCurrentScriptPath() + filename;
-  auto pathWasPushed = PushScriptPath(filename);
+  auto filepath = GetCurrentScriptPath() + filename;
+  auto appended = AppendScriptPath(filename);
 
   // Every script gets it's own context.
   Context::Scope contextScope(
@@ -124,7 +103,7 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
   EscapableHandleScope handleScope(Isolate::GetCurrent());
 
   // Get the script to execute
-  auto script = ReadFile(filename);
+  auto script = ReadFile(filepath);
 
   // We're just about to compile the script; set up an error handler to
   // catch any exceptions the script might throw.
@@ -136,8 +115,8 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
   if (compiled.IsEmpty()) {
     PrintStackTrace(&tryCatch);
-    if (pathWasPushed) {
-      PopScriptPath();
+    if (appended) {
+      RemoveScriptPath();
     }
     return v8::Null(Isolate::GetCurrent());
   }
@@ -147,14 +126,14 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
   if (result.IsEmpty()) {
     PrintStackTrace(&tryCatch);
-    if (pathWasPushed) {
-      PopScriptPath();
+    if (appended) {
+      RemoveScriptPath();
     }
     return v8::Null(Isolate::GetCurrent());
   }
 
-  if (pathWasPushed) {
-    PopScriptPath();
+  if (appended) {
+    RemoveScriptPath();
   }  
 
   return handleScope.Escape(result);
@@ -167,7 +146,7 @@ void ScriptEngine::ThrowTypeError(std::string message)
     String::NewFromUtf8(isolate, message.c_str())));
 }
 
-bool ScriptEngine::PushScriptPath(std::string filename)
+bool ScriptEngine::AppendScriptPath(std::string filename)
 {
   auto index = filename.find_last_of("\\/");
   if (index == std::string::npos) {
@@ -182,7 +161,7 @@ bool ScriptEngine::PushScriptPath(std::string filename)
   return false;
 }
 
-void ScriptEngine::PopScriptPath()
+void ScriptEngine::RemoveScriptPath()
 {
   if (!folders_.empty()) {
     folders_.pop_back();
@@ -192,24 +171,4 @@ void ScriptEngine::PopScriptPath()
 std::string ScriptEngine::GetCurrentScriptPath()
 {
   return std::accumulate(folders_.begin(), folders_.end(), std::string(""));
-}
-
-Handle<ObjectTemplate> ScriptEngine::InitGlobal(Isolate* isolate)
-{
-  // Initialize the global object.
-  ScriptGlobal::GetCurrent().Init(isolate);
-  auto global = ScriptGlobal::GetTemplate();
-
-  // Create namespace.
-  auto ns = ObjectTemplate::New(isolate);
-
-  Window::Init(isolate, ns);
-  SpriteBatch::Init(isolate, ns);
-  SpriteFont::Init(isolate, ns);
-  Texture::Init(isolate, ns);
-
-  // Add namespace to global.
-  global->Set(String::NewFromUtf8(isolate, "cowy"), ns);
-
-  return global;
 }

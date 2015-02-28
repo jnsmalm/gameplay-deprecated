@@ -189,7 +189,7 @@ void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
     bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 }
 
-void SpriteFont::Init(Isolate* isolate, Handle<ObjectTemplate> parent)
+void SpriteFont::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptSpriteFont::GetCurrent().Init(isolate, "SpriteFont", parent);
+  ScriptSpriteFont::GetCurrent().Initialize(isolate, "SpriteFont", parent);
 }

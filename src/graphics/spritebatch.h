@@ -55,7 +55,8 @@ public:
     float rotation, Vector2 origin, Vector2 scaling, Color color);
 
   // Initializes the script object.
-  static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> parent);
+  static void Initialize(
+    v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> parent);
 
 private:
 

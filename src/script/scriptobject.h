@@ -9,7 +9,7 @@ class ScriptObject {
 
 public:
 
-  void Init(v8::Isolate* isolate)
+  v8::Handle<v8::ObjectTemplate> Initialize(v8::Isolate* isolate)
   {
     isolate_ = isolate;
 
@@ -17,9 +17,12 @@ public:
     template_.Reset(isolate, objectTemplate);
 
     Setup();
+
+    return objectTemplate;
   }
 
-  void Init(v8::Isolate* isolate, std::string name, v8::Handle<v8::ObjectTemplate> parent)
+  void Initialize(v8::Isolate* isolate,
+    std::string name, v8::Handle<v8::ObjectTemplate> parent)
   {
     isolate_ = isolate;
 
@@ -90,6 +93,14 @@ protected:
     v8::HandleScope scope(GetIsolate());
     auto field = v8::Handle<v8::External>::Cast(object->GetInternalField(0));
     return static_cast<U*>(field->Value());
+  }
+
+  static v8::Handle<v8::Object> GetObject(v8::Handle<v8::Value> value)
+  {
+    if (!value->IsObject()) {
+      return v8::Object::New(GetIsolate());
+    }
+    return value->ToObject();
   }
 
   // Gets an object with the specified name.

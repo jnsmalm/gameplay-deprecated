@@ -1,4 +1,4 @@
-var game = include("../lib/game.js");
+var game = ko.include("../lib/game.js");
 
 game.init({
   width: 1024,
@@ -6,11 +6,11 @@ game.init({
   fullscreen: false, 
 });
 
-var chars = "Kobingo.js";
+var chars = "Kore.js";
 
-var spriteBatch = new cowy.SpriteBatch(game.window);
+var spriteBatch = new ko.SpriteBatch(game.window);
 
-var font = new cowy.SpriteFont({
+var font = new ko.SpriteFont({
   filename:"assets/andyb.ttf",
   size: 100,
   chars: chars

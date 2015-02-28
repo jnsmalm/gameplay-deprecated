@@ -8,8 +8,6 @@
 
 class ScriptEngine {
 
-  class ScriptGlobal;
-
 public:
 
   // Compile and execute the specified script.
@@ -36,10 +34,8 @@ private:
   ScriptEngine();
   ~ScriptEngine();
 
-  bool PushScriptPath(std::string filename);
-  void PopScriptPath();
-  // Initializes the global object.
-  v8::Handle<v8::ObjectTemplate> InitGlobal(v8::Isolate* isolate);
+  bool AppendScriptPath(std::string filename);
+  void RemoveScriptPath();
 
   // Overload operators to make singleton work as expected.
   ScriptEngine(ScriptEngine const& copy);

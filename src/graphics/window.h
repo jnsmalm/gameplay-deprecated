@@ -31,7 +31,7 @@ public:
   // Swaps the front and back buffers.
   void SwapBuffers();
   // Clears the back buffer.
-  void Clear();
+  void Clear(float r, float g, float b, float a);
   // Gets the width of the window.
   int GetWidth() { return width_; }
   // Gets the height of the window.
@@ -40,7 +40,8 @@ public:
   // Ensures that a OpenGL context exists, throws exception otherwise.
   static void EnsureCurrentContext();
   // Initializes the script object.
-  static void Init(v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
+  static void Initialize(
+    v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
 private:
 

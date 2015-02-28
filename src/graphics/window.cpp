@@ -21,7 +21,7 @@ GLFWwindow* CreateWindow(int width, int height, bool fullscreen)
   // Get primary monitor when fullscreen.
   auto monitor = fullscreen ? glfwGetPrimaryMonitor() : NULL;
 
-  return glfwCreateWindow(width, height, "Game", monitor, NULL);
+  return glfwCreateWindow(width, height, "Kore.js", monitor, NULL);
 }
 
 }
@@ -50,12 +50,12 @@ public:
     HandleScope scope(GetIsolate());
     try {
       // The first and only argument is an object.
-      auto arg = args[0]->ToObject();
+      auto arg = GetObject(args[0]);
 
       // Get arguments from object.
       auto fullscreen = GetBoolean(arg, "fullscreen");
-      auto width = (int)GetNumber(arg, "width");
-      auto height = (int)GetNumber(arg, "height");
+      auto width = (int)GetNumber(arg, "width", 800);
+      auto height = (int)GetNumber(arg, "height", 600);
 
       // Create texture and wrap in a script object.
       auto object = Wrap(new Window(width, height, fullscreen));
@@ -107,7 +107,17 @@ public:
   {
     HandleScope scope(GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
-    self->Clear();
+
+    // The first and only argument is an object.
+    auto arg = GetObject(args[0]);
+
+    // Get arguments from object.
+    auto r = GetNumber(arg, "r");
+    auto g = GetNumber(arg, "g");
+    auto b = GetNumber(arg, "b");
+    auto a = GetNumber(arg, "a");
+
+    self->Clear(r, g, b, a);
   }
 
   static void GetWidth(
@@ -212,9 +222,9 @@ void Window::SwapBuffers()
   glfwSwapBuffers(glfwWindow_);
 }
 
-void Window::Clear()
+void Window::Clear(float r, float g, float b, float a)
 {
-  glClearColor(100.0/255.0, 149.0/255.0, 237.0/255.0, 1);
+  glClearColor(r, g, b, a);
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -225,7 +235,7 @@ void Window::EnsureCurrentContext()
   }
 }
 
-void Window::Init(Isolate* isolate, Handle<ObjectTemplate> parent)
+void Window::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptWindow::GetCurrent().Init(isolate, "Window", parent);
+  ScriptWindow::GetCurrent().Initialize(isolate, "Window", parent);
 }

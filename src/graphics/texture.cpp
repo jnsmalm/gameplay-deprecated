@@ -125,7 +125,7 @@ void Texture::Bind(int unit)
   glBindTexture(GL_TEXTURE_2D, glTexture_);
 }
 
-void Texture::Init(Isolate* isolate, Handle<ObjectTemplate> parent)
+void Texture::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptTexture::GetCurrent().Init(isolate, "Texture", parent);
+  ScriptTexture::GetCurrent().Initialize(isolate, "Texture", parent);
 }

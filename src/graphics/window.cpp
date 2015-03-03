@@ -22,7 +22,7 @@ GLFWwindow* CreateWindow(int width, int height, bool fullscreen)
   // Get primary monitor when fullscreen.
   auto monitor = fullscreen ? glfwGetPrimaryMonitor() : NULL;
 
-  return glfwCreateWindow(width, height, "Kore.js", monitor, NULL);
+  return glfwCreateWindow(width, height, "Ko.js", monitor, NULL);
 }
 
 }

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-set (PROJECT_NAME "kore")
+set (PROJECT_NAME "ko")
 project(${PROJECT_NAME})
 
 # Set the source directory root

@@ -6,13 +6,13 @@ game.init({
   fullscreen: false, 
 });
 
-var chars = "Kore.js";
+var chars = "Let's build desktop games with JavaScript!";
 
 var spriteBatch = new ko.SpriteBatch(game.window);
 
 var font = new ko.SpriteFont({
   filename:"assets/andyb.ttf",
-  size: 100,
+  size: 50,
   chars: chars
 });
 

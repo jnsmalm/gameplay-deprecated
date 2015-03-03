@@ -1,0 +1,12 @@
+{
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-jshint": "^1.9.2",
+    "gulp-sequence": "^0.3.2",
+    "gulp-shell": "^0.3.0"
+  },
+  "private": true
+}

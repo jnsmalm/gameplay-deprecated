@@ -40,7 +40,7 @@ public:
   // Ensures that a OpenGL context exists, throws exception otherwise.
   static void EnsureCurrentContext();
   // Initializes the script object.
-  static void Initialize(
+  static void InstallScript(
     v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
 private:

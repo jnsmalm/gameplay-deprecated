@@ -1,6 +1,7 @@
 #include "graphics/texture.h"
 #include "script/scriptengine.h"
 #include "script/scriptobject.h"
+#include "script/scripthelper.h"
 #include "graphics/window.h"
 
 #include "freeimage.h"
@@ -9,23 +10,28 @@
 using namespace v8;
 
 // Helps with setting up the script object.
-class Texture::ScriptTexture : public ScriptObject<ScriptTexture> {
+class Texture::ScriptTexture : public ScriptObject<Texture> {
 
 public:
 
-  void Setup()
+  void Initialize()
   {
+    ScriptObject::Initialize();
     AddAccessor("width", GetWidth);
     AddAccessor("height", GetHeight);
   }
 
   static void New(const FunctionCallbackInfo<Value>& args)
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto filename = ScriptEngine::GetCurrent().GetExecutionPath() + 
+      helper.GetString(args[0]);
+
     try {
-      auto filename = GetString(args[0]);
-      filename = ScriptEngine::GetCurrent().GetExecutionPath() + filename;
-      auto object = Wrap(new Texture(filename));
+      auto scriptObject = new ScriptTexture(args.GetIsolate());
+      auto object = scriptObject->Wrap(new Texture(filename));
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {
@@ -36,7 +42,7 @@ public:
   static void GetWidth(
     Local<String> name, const PropertyCallbackInfo<Value>& args)
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Texture>(args.Holder());
     args.GetReturnValue().Set(self->GetWidth());
   }
@@ -44,10 +50,15 @@ public:
   static void GetHeight(
     Local<String> name, const PropertyCallbackInfo<Value>& args)
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Texture>(args.Holder());
     args.GetReturnValue().Set(self->GetHeight());
   }
+
+private:
+
+  // Inherit constructors.
+  using ScriptObject::ScriptObject;
 
 };
 
@@ -125,7 +136,7 @@ void Texture::Bind(int unit)
   glBindTexture(GL_TEXTURE_2D, glTexture_);
 }
 
-void Texture::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
+void Texture::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptTexture::GetCurrent().Initialize(isolate, "Texture", parent);
+  ScriptTexture::Install<ScriptTexture>(isolate, "Texture", parent);
 }

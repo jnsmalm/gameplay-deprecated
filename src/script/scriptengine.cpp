@@ -38,16 +38,16 @@ std::string GetFilePath(std::string filename)
   return filename.substr(0, index + 1);
 }
 
-Handle<ObjectTemplate> InitializeGlobalObject(Isolate* isolate)
+Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
 {
-  auto object = ScriptGlobal::GetCurrent().Initialize(isolate);
+  auto global = ScriptGlobal::Create(isolate);
 
-  Window::Initialize(isolate, object);
-  SpriteBatch::Initialize(isolate, object);
-  SpriteFont::Initialize(isolate, object);
-  Texture::Initialize(isolate, object);
+  Window::InstallScript(isolate, global);
+  SpriteBatch::InstallScript(isolate, global);
+  SpriteFont::InstallScript(isolate, global);
+  Texture::InstallScript(isolate, global);
 
-  return object;
+  return global;
 }
 
 }
@@ -77,7 +77,7 @@ void ScriptEngine::Run(std::string filename)
 
     auto global = ObjectTemplate::New(isolate);
     global->Set(String::NewFromUtf8(isolate, "ko"), 
-      InitializeGlobalObject(isolate));
+      InstallGlobalScript(isolate));
 
     // Enter the new context so all the following operations take place
     // within it.

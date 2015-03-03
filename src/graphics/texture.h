@@ -26,7 +26,7 @@ public:
   int GetHeight() { return height_; }
 
   // Initializes the script object.
-  static void Initialize(
+  static void InstallScript(
     v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
 private:

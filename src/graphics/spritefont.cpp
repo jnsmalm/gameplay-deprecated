@@ -1,6 +1,7 @@
 #include "graphics/spritefont.h"
 #include "graphics/texture.h"
 #include "script/scriptengine.h"
+#include "script/scripthelper.h"
 
 #include <gl/glew.h>
 
@@ -36,29 +37,30 @@ FontGlyph LoadGlyph(FT_Face face, char c)
 }
 
 // Helps with setting up the script object.
-class SpriteFont::ScriptSpriteFont : public ScriptObject<ScriptSpriteFont> {
+class SpriteFont::ScriptSpriteFont : public ScriptObject<SpriteFont> {
 
 public:
 
-  void Setup()
+  void Initialize()
   {
+    ScriptObject::Initialize();
     AddFunction("measureString", MeasureString);
   }
 
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args)
   {
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto arg = args[0]->ToObject();
+    auto filename = ScriptEngine::GetCurrent().GetExecutionPath() + 
+      helper.GetString(arg, "filename");
+    auto size = helper.GetInteger(arg, "size");
+    auto chars = helper.GetString(arg, "chars");
+
     try {
-      // The first and only argument is an object.
-      auto arg = args[0]->ToObject();
-
-      // Get arguments from object.
-      auto filename = GetString(arg, "filename");
-      filename = ScriptEngine::GetCurrent().GetExecutionPath() + filename;
-      auto size = GetNumber(arg, "size");
-      auto chars = GetString(arg, "chars");
-
-      auto object = Wrap(new SpriteFont(filename, size, chars));
+      auto scriptObject = new ScriptSpriteFont(args.GetIsolate());
+      auto object = scriptObject->Wrap(new SpriteFont(filename, size, chars));
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {
@@ -69,11 +71,17 @@ public:
   static void MeasureString(const FunctionCallbackInfo<Value>& args) 
   {
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
     auto self = Unwrap<SpriteFont>(args.Holder());
-    auto text = GetString(args[0]);
+    auto text = helper.GetString(args[0]);
     auto width = self->MeasureString(text).width;
     args.GetReturnValue().Set(width);
   }
+
+private:
+
+  // Inherit constructors.
+  using ScriptObject::ScriptObject;
 
 };
 
@@ -116,14 +124,7 @@ Size SpriteFont::MeasureString(std::string text)
     if (glyph.source.height > size.height) {
       size.height = glyph.source.height;
     }
-    /*if (i == text.length() - 1) {
-      size.width += glyph.source.width;
-    }
-    else {
-      size.width += glyph.advance.x;
-    }*/
-    //size.width += glyph.source.width;
-      size.width += glyph.advance.x;
+    size.width += glyph.advance.x;
   }
   return size;
 }
@@ -189,7 +190,7 @@ void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
     bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 }
 
-void SpriteFont::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
+void SpriteFont::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptSpriteFont::GetCurrent().Initialize(isolate, "SpriteFont", parent);
+  ScriptSpriteFont::Install<ScriptSpriteFont>(isolate, "SpriteFont", parent);
 }

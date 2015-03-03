@@ -2,6 +2,7 @@
 #include "graphics/spriteshaders.h"
 #include "script/scriptobject.h"
 #include "script/scriptengine.h"
+#include "script/scripthelper.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -38,12 +39,13 @@ void SetSpriteVertexAttributes(ShaderProgram* shaderProgram)
 }
 
 // Helps with setting up the script object.
-class SpriteBatch::ScriptSpriteBatch : public ScriptObject<ScriptSpriteBatch> {
+class SpriteBatch::ScriptSpriteBatch : public ScriptObject<SpriteBatch> {
 
 public:
 
-  void Setup()
+  void Initialize()
   {
+    ScriptObject::Initialize();
     AddFunction("begin", Begin);
     AddFunction("end", End);
     AddFunction("draw", Draw);
@@ -53,9 +55,12 @@ public:
   static void New(const FunctionCallbackInfo<Value>& args)
   {
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
     try {
       auto window = Unwrap<Window>(args[0]->ToObject());
-      auto object = Wrap(new SpriteBatch(window));
+      auto scriptObject = new ScriptSpriteBatch(args.GetIsolate());
+      auto object = scriptObject->Wrap(new SpriteBatch(window));
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {
@@ -84,22 +89,20 @@ public:
     }
 
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
     auto self = Unwrap<SpriteBatch>(args.Holder());
-
-    // The first and only argument is an object.
     auto arg = args[0]->ToObject();
-
-    // Get arguments from object.
-    auto texture = GetObject<Texture>(arg, "texture");
-    auto position = GetVector2(arg, "position");
-    auto rotation = GetNumber(arg, "rotation");
-    auto scaling = GetVector2(arg, "scaling", Vector2 { 1.0f, 1.0f });
-    auto color = GetColor(arg, "color");
-    auto origin = GetVector2(arg, "origin");
+    auto texture = helper.GetObject<Texture>(arg, "texture");
+    auto position = helper.GetVector2(arg, "position");
+    auto rotation = helper.GetFloat(arg, "rotation");
+    auto scaling = helper.GetVector2(arg, "scaling", Vector2 { 1.0f, 1.0f });
+    auto color = helper.GetColor(arg, "color");
+    auto origin = helper.GetVector2(arg, "origin");
     auto source = Rectangle { 0, 0, 0, 0 };
 
     if (texture) {
-      source = GetRectangle(arg, "source", Rectangle { 
+      source = helper.GetRectangle(arg, "source", Rectangle { 
         0, 0, (float)texture->GetWidth(), (float)texture->GetHeight() 
       });
     }
@@ -119,19 +122,17 @@ public:
     }
 
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
     auto self = Unwrap<SpriteBatch>(args.Holder());
-
-    // The first and only argument is an object.
     auto arg = args[0]->ToObject();
-
-    // Get arguments to draw the font.
-    auto font = GetObject<SpriteFont>(arg, "font");
-    auto text = GetString(arg, "text");
-    auto position = GetVector2(arg, "position");
-    auto rotation = GetNumber(arg, "rotation");
-    auto scaling = GetVector2(arg, "scaling", Vector2 { 1.0f, 1.0f });
-    auto color = GetColor(arg, "color");
-    auto origin = GetVector2(arg, "origin");
+    auto font = helper.GetObject<SpriteFont>(arg, "font");
+    auto text = helper.GetString(arg, "text");
+    auto position = helper.GetVector2(arg, "position");
+    auto rotation = helper.GetFloat(arg, "rotation");
+    auto scaling = helper.GetVector2(arg, "scaling", Vector2 { 1.0f, 1.0f });
+    auto color = helper.GetColor(arg, "color");
+    auto origin = helper.GetVector2(arg, "origin");
 
     try {
       self->DrawString(font, text, position, rotation, origin, scaling, color);
@@ -141,39 +142,10 @@ public:
     }
   }
 
-  static Vector2 GetVector2(v8::Handle<v8::Object> object, 
-    std::string name, Vector2 defaultValue = { 0, 0 })
-  {
-    auto vector = GetObject(object, name);
-    return Vector2 {
-      GetNumber(vector, "x", defaultValue.x),
-      GetNumber(vector, "y", defaultValue.y),
-    };
-  }
+private:
 
-  static Rectangle GetRectangle(v8::Handle<v8::Object> object, 
-    std::string name, Rectangle defaultValue = { 0, 0, 0, 0})
-  {
-    auto rectangle = GetObject(object, name);
-    return Rectangle {
-      GetNumber(rectangle, "x", defaultValue.x),
-      GetNumber(rectangle, "y", defaultValue.y),
-      GetNumber(rectangle, "width", defaultValue.width),
-      GetNumber(rectangle, "height", defaultValue.height),
-    };
-  }
-
-  static Color GetColor(v8::Handle<v8::Object> object, 
-    std::string name, Color defaultValue = { 1.f, 1.f, 1.f, 1.f })
-  {
-    auto color = GetObject(object, name);
-    return Color {
-      GetNumber(color, "r", defaultValue.r),
-      GetNumber(color, "g", defaultValue.g),
-      GetNumber(color, "b", defaultValue.b),
-      GetNumber(color, "a", defaultValue.a),
-    };
-  }
+  // Inherit constructors.
+  using ScriptObject::ScriptObject;
 
 };
 
@@ -285,7 +257,7 @@ void SpriteBatch::Flush()
   sprites_.clear();
 }
 
-void SpriteBatch::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
+void SpriteBatch::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptSpriteBatch::GetCurrent().Initialize(isolate, "SpriteBatch", parent);
+  ScriptSpriteBatch::Install<ScriptSpriteBatch>(isolate, "SpriteBatch", parent);
 }

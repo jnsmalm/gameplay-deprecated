@@ -1,6 +1,7 @@
 #include "graphics/window.h"
 #include "script/scriptengine.h"
 #include "script/scriptobject.h"
+#include "script/scripthelper.h"
 #include "input/keyboard.h"
 
 using namespace v8;
@@ -27,12 +28,13 @@ GLFWwindow* CreateWindow(int width, int height, bool fullscreen)
 }
 
 // Helps with setting up the script object.
-class Window::ScriptWindow : public ScriptObject<ScriptWindow> {
+class Window::ScriptWindow : public ScriptObject<Window> {
 
 public:
 
-  void Setup()
+  void Initialize()
   {
+    ScriptObject::Initialize();
     AddFunction("swapBuffers", SwapBuffers);
     AddFunction("clear", Clear);
     AddFunction("close", Close);
@@ -47,20 +49,17 @@ public:
 
   static void New(const FunctionCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto arg = helper.GetObject(args[0]);
+    auto fullscreen = helper.GetBoolean(arg, "fullscreen");
+    auto width = helper.GetInteger(arg, "width", 800);
+    auto height = helper.GetInteger(arg, "height", 600);
+
     try {
-      // The first and only argument is an object.
-      auto arg = GetObject(args[0]);
-
-      // Get arguments from object.
-      auto fullscreen = GetBoolean(arg, "fullscreen");
-      auto width = (int)GetNumber(arg, "width", 800);
-      auto height = (int)GetNumber(arg, "height", 600);
-
-      // Create texture and wrap in a script object.
-      auto object = Wrap(new Window(width, height, fullscreen));
-
-      // Set script object as the result.
+      auto scriptObject = new ScriptWindow(args.GetIsolate());
+      auto object = scriptObject->Wrap(new Window(width, height, fullscreen));
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {
@@ -70,52 +69,50 @@ public:
 
   static void Close(const FunctionCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     self->Close();
   }
 
   static void GetTime(const FunctionCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     args.GetReturnValue().Set(self->GetTime());
   }
 
   static void PollEvents(const FunctionCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     self->PollEvents();
   }
 
   static void IsClosing(const FunctionCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     args.GetReturnValue().Set(self->IsClosing());
   }
 
   static void SwapBuffers(const FunctionCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     self->SwapBuffers();
   }
 
   static void Clear(const FunctionCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
     auto self = Unwrap<Window>(args.Holder());
-
-    // The first and only argument is an object.
-    auto arg = GetObject(args[0]);
-
-    // Get arguments from object.
-    auto r = GetNumber(arg, "r");
-    auto g = GetNumber(arg, "g");
-    auto b = GetNumber(arg, "b");
-    auto a = GetNumber(arg, "a");
+    auto arg = helper.GetObject(args[0]);
+    auto r = helper.GetFloat(arg, "r");
+    auto g = helper.GetFloat(arg, "g");
+    auto b = helper.GetFloat(arg, "b");
+    auto a = helper.GetFloat(arg, "a");
 
     self->Clear(r, g, b, a);
   }
@@ -123,7 +120,7 @@ public:
   static void GetWidth(
     Local<String> name, const PropertyCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     args.GetReturnValue().Set(self->GetWidth());
   }
@@ -131,14 +128,14 @@ public:
   static void GetHeight(
     Local<String> name, const PropertyCallbackInfo<Value>& args) 
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     args.GetReturnValue().Set(self->GetHeight());
   }
 
   static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     auto key = args[0]->NumberValue();
     auto value = self->keyboard_->IsKeyDown(key);
@@ -147,12 +144,17 @@ public:
 
   static void IsKeyPress(const FunctionCallbackInfo<Value>& args)
   {
-    HandleScope scope(GetIsolate());
+    HandleScope scope(args.GetIsolate());
     auto self = Unwrap<Window>(args.Holder());
     auto key = args[0]->NumberValue();
     auto value = self->keyboard_->IsKeyPress(key);
     args.GetReturnValue().Set(value);
   }
+
+private:
+
+  // Inherit constructors.
+  using ScriptObject::ScriptObject;
 
 };
 
@@ -235,7 +237,7 @@ void Window::EnsureCurrentContext()
   }
 }
 
-void Window::Initialize(Isolate* isolate, Handle<ObjectTemplate> parent)
+void Window::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptWindow::GetCurrent().Initialize(isolate, "Window", parent);
+  ScriptWindow::Install<ScriptWindow>(isolate, "Window", parent);
 }

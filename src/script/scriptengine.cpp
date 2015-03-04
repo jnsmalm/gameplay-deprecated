@@ -14,15 +14,15 @@ using namespace v8;
 
 namespace {
 
-Handle<String> ReadFile(std::string filename)
+Handle<String> ReadFile(Isolate* isolate, std::string filename)
 {
   std::string contents = File::ReadAllText(filename);
-  return String::NewFromUtf8(Isolate::GetCurrent(), contents.c_str());
+  return String::NewFromUtf8(isolate, contents.c_str());
 }
 
-void PrintStackTrace(TryCatch* tryCatch)
+void PrintStackTrace(Isolate* isolate, TryCatch* tryCatch)
 {
-  HandleScope scope(Isolate::GetCurrent());
+  HandleScope scope(isolate);
   String::Utf8Value stackTrace(tryCatch->StackTrace());
   if (stackTrace.length() > 0) {
     std::cout << *stackTrace << "\n";
@@ -72,6 +72,8 @@ void ScriptEngine::Run(std::string filename)
   // Create a new isolate and make it the current one
   Isolate* isolate = Isolate::New();
   {
+    isolate_ = isolate;
+
     Isolate::Scope isolateScope(isolate);
     HandleScope handleScope(isolate);
 
@@ -98,12 +100,12 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
   // Every script gets it's own context.
   Context::Scope contextScope(
-    Local<Context>::New(Isolate::GetCurrent(), context_));
+    Local<Context>::New(isolate_, context_));
 
-  EscapableHandleScope handleScope(Isolate::GetCurrent());
+  EscapableHandleScope handleScope(isolate_);
 
   // Get the script to execute
-  auto script = ReadFile(filepath);
+  auto script = ReadFile(isolate_, filepath);
 
   // We're just about to compile the script; set up an error handler to
   // catch any exceptions the script might throw.
@@ -111,25 +113,25 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
   // Compile the script and check for errors.
   auto compiled = Script::Compile(
-    script, String::NewFromUtf8(Isolate::GetCurrent(), filename.c_str()));
+    script, String::NewFromUtf8(isolate_, filename.c_str()));
 
   if (compiled.IsEmpty()) {
-    PrintStackTrace(&tryCatch);
+    PrintStackTrace(isolate_, &tryCatch);
     if (appended) {
       RemoveScriptPath();
     }
-    return v8::Null(Isolate::GetCurrent());
+    return v8::Null(isolate_);
   }
 
   // Run the script!
   auto result = compiled->Run();
 
   if (result.IsEmpty()) {
-    PrintStackTrace(&tryCatch);
+    PrintStackTrace(isolate_, &tryCatch);
     if (appended) {
       RemoveScriptPath();
     }
-    return v8::Null(Isolate::GetCurrent());
+    return v8::Null(isolate_);
   }
 
   if (appended) {
@@ -141,9 +143,8 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
 void ScriptEngine::ThrowTypeError(std::string message)
 {
-  auto isolate = Isolate::GetCurrent();
-  isolate->ThrowException(Exception::TypeError(
-    String::NewFromUtf8(isolate, message.c_str())));
+  isolate_->ThrowException(Exception::TypeError(
+    String::NewFromUtf8(isolate_, message.c_str())));
 }
 
 bool ScriptEngine::AppendScriptPath(std::string filename)

@@ -4,6 +4,7 @@
 #include <gl/glew.h>
 #include <glfw/glfw3.h>
 #include "v8.h"
+#include <string>
 
 class Keyboard;
 
@@ -17,7 +18,7 @@ class Window {
 
 public:
 
-  Window(int width, int height, bool fullscreen);
+  Window(std::string title, int width, int height, bool fullscreen);
   ~Window();
 
   // Gets the time since the window was created.
@@ -36,6 +37,8 @@ public:
   int GetWidth() { return width_; }
   // Gets the height of the window.
   int GetHeight() { return height_; }
+  // Sets the title for the window.
+  void SetTitle(std::string title);
 
   // Ensures that a OpenGL context exists, throws exception otherwise.
   static void EnsureCurrentContext();

@@ -8,7 +8,8 @@ using namespace v8;
 
 namespace {
 
-GLFWwindow* CreateWindow(int width, int height, bool fullscreen)
+GLFWwindow* CreateWindow(
+  std::string title, int width, int height, bool fullscreen)
 {
   // Use OpenGL Core v3.2
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -22,7 +23,7 @@ GLFWwindow* CreateWindow(int width, int height, bool fullscreen)
   // Get primary monitor when fullscreen.
   auto monitor = fullscreen ? glfwGetPrimaryMonitor() : NULL;
 
-  return glfwCreateWindow(width, height, "Ko.js", monitor, NULL);
+  return glfwCreateWindow(width, height, title.c_str(), monitor, NULL);
 }
 
 }
@@ -45,6 +46,7 @@ public:
     AddFunction("isKeyPress", IsKeyPress);
     AddAccessor("width", GetWidth);
     AddAccessor("height", GetHeight);
+    AddFunction("setTitle", SetTitle);
   }
 
   static void New(const FunctionCallbackInfo<Value>& args) 
@@ -53,13 +55,15 @@ public:
     ScriptHelper helper(args.GetIsolate());
 
     auto arg = helper.GetObject(args[0]);
+    auto title = helper.GetString(arg, "title", "ko.js");
     auto fullscreen = helper.GetBoolean(arg, "fullscreen");
     auto width = helper.GetInteger(arg, "width", 800);
     auto height = helper.GetInteger(arg, "height", 600);
 
     try {
       auto scriptObject = new ScriptWindow(args.GetIsolate());
-      auto object = scriptObject->Wrap(new Window(width, height, fullscreen));
+      auto object = scriptObject->Wrap(
+        new Window(title, width, height, fullscreen));
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {
@@ -133,6 +137,15 @@ public:
     args.GetReturnValue().Set(self->GetHeight());
   }
 
+  static void SetTitle(const FunctionCallbackInfo<Value>& args) 
+  {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto self = Unwrap<Window>(args.Holder());
+    auto title = helper.GetString(args[0]);
+    self->SetTitle(title);
+  }
+
   static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
   {
     HandleScope scope(args.GetIsolate());
@@ -158,7 +171,7 @@ private:
 
 };
 
-Window::Window(int width, int height, bool fullscreen) 
+Window::Window(std::string title, int width, int height, bool fullscreen) 
 {
   // Setup anonymous function to throw exception if anything goes wrong in glfw.
   glfwSetErrorCallback([](int error, const char* description)
@@ -171,7 +184,7 @@ Window::Window(int width, int height, bool fullscreen)
     return;
   }
 
-  glfwWindow_ = CreateWindow(width, height, fullscreen);
+  glfwWindow_ = CreateWindow(title, width, height, fullscreen);
 
   if (!glfwWindow_) {
     // Something went wrong while creating the window.
@@ -228,6 +241,11 @@ void Window::Clear(float r, float g, float b, float a)
 {
   glClearColor(r, g, b, a);
   glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Window::SetTitle(std::string title)
+{
+  glfwSetWindowTitle(glfwWindow_, title.c_str());
 }
 
 void Window::EnsureCurrentContext()

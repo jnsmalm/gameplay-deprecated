@@ -1,4 +1,4 @@
-var game = ko.include("../lib/game.js");
+var game = ko.import("../lib/game.js");
 
 game.init({
   width: 1024,

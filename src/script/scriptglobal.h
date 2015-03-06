@@ -24,12 +24,12 @@ protected:
   void Initialize()
   {
     ScriptObject::Initialize();
-    AddFunction("include", Include);
+    AddFunction("import", Import);
     AddFunction("log", Log);
     AddFunction("readTextFile", ReadTextFile);
   }
 
-  static void Include(const v8::FunctionCallbackInfo<v8::Value>& args) 
+  static void Import(const v8::FunctionCallbackInfo<v8::Value>& args) 
   {
     v8::HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());

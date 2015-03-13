@@ -1,10 +1,9 @@
 var gulp = require('gulp');
-var sequence = require('gulp-sequence');
 var jshint = require('gulp-jshint');
 var shell = require('gulp-shell');
 
 gulp.task('hint', function() {
-  return gulp.src('./lib/*.js')
+  return gulp.src(['./lib/*.js', './test/*.js'])
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });
@@ -13,9 +12,8 @@ gulp.task('build', shell.task(
   ['make'], { cwd: "build" }
 ));
 
-gulp.task('copy', function() {
-  return gulp.src('./build/ko')
-    .pipe(gulp.dest(''));
-});
+gulp.task('test', shell.task(
+  ['build/ko test/tests.js']
+));
 
-gulp.task('default', sequence(['hint', 'build'], 'copy'));
+gulp.task('default', ['hint', 'build', 'test']);

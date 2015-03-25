@@ -2,6 +2,7 @@
 #include "script/scriptengine.h"
 #include "script/scriptobject.h"
 #include "script/scripthelper.h"
+#include "input/mouse.h"
 #include "input/keyboard.h"
 
 using namespace v8;
@@ -42,8 +43,6 @@ public:
     AddFunction("pollEvents", PollEvents);
     AddFunction("getTime", GetTime);
     AddFunction("isClosing", IsClosing);
-    AddFunction("isKeyDown", IsKeyDown);
-    AddFunction("isKeyPress", IsKeyPress);
     AddAccessor("width", GetWidth);
     AddAccessor("height", GetHeight);
     AddFunction("setTitle", SetTitle);
@@ -62,8 +61,10 @@ public:
 
     try {
       auto scriptObject = new ScriptWindow(args.GetIsolate());
-      auto object = scriptObject->Wrap(
-        new Window(title, width, height, fullscreen));
+      auto window = new Window(title, width, height, fullscreen);
+      auto object = scriptObject->Wrap(window);
+      Keyboard::InstallScript(args.GetIsolate(), object, window->keyboard_);
+      Mouse::InstallScript(args.GetIsolate(), object, window->mouse_);
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {
@@ -146,24 +147,6 @@ public:
     self->SetTitle(title);
   }
 
-  static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    auto key = args[0]->NumberValue();
-    auto value = self->keyboard_->IsKeyDown(key);
-    args.GetReturnValue().Set(value);
-  }
-
-  static void IsKeyPress(const FunctionCallbackInfo<Value>& args)
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    auto key = args[0]->NumberValue();
-    auto value = self->keyboard_->IsKeyPress(key);
-    args.GetReturnValue().Set(value);
-  }
-
 private:
 
   // Inherit constructors.
@@ -194,8 +177,8 @@ Window::Window(std::string title, int width, int height, bool fullscreen)
 
   glfwGetWindowSize(glfwWindow_, &width_, &height_);
 
-  // Create the keyboard associated with this window.
   keyboard_ = new Keyboard(this);
+  mouse_ = new Mouse(this);
 
   glfwMakeContextCurrent(glfwWindow_);
   glfwSwapInterval(1);
@@ -224,6 +207,7 @@ void Window::Close()
 void Window::PollEvents() 
 {
   keyboard_->UpdateState();
+  mouse_->UpdateState();
   glfwPollEvents();
 }
 
@@ -257,5 +241,5 @@ void Window::EnsureCurrentContext()
 
 void Window::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptWindow::Install<ScriptWindow>(isolate, "Window", parent);
+  ScriptWindow::InstallAsConstructor<ScriptWindow>(isolate, "Window", parent);
 }

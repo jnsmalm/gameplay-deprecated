@@ -259,5 +259,6 @@ void SpriteBatch::Flush()
 
 void SpriteBatch::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptSpriteBatch::Install<ScriptSpriteBatch>(isolate, "SpriteBatch", parent);
+  ScriptSpriteBatch::InstallAsConstructor<ScriptSpriteBatch>(
+    isolate, "SpriteBatch", parent);
 }

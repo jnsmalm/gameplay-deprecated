@@ -20,6 +20,7 @@ set (PROJECT_SRC_FILES
   ${PROJECT_SRC_DIR}/script/scriptengine
   ${PROJECT_SRC_DIR}/system/file
   ${PROJECT_SRC_DIR}/input/keyboard
+  ${PROJECT_SRC_DIR}/input/mouse
   ${PROJECT_SRC_DIR}/graphics/texture
   ${PROJECT_SRC_DIR}/graphics/spritebatch
   ${PROJECT_SRC_DIR}/graphics/spriteshaders

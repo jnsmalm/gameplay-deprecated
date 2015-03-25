@@ -138,5 +138,6 @@ void Texture::Bind(int unit)
 
 void Texture::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptTexture::Install<ScriptTexture>(isolate, "Texture", parent);
+  ScriptTexture::InstallAsConstructor<ScriptTexture>(
+    isolate, "Texture", parent);
 }

@@ -10,26 +10,9 @@ class ScriptObject {
 
 public:
 
-  template <typename U>
-  static void Install(v8::Isolate* isolate,
-    std::string name, v8::Handle<v8::ObjectTemplate> object)
-  {
-    object->Set(v8::String::NewFromUtf8(isolate, name.c_str()), 
-      v8::FunctionTemplate::New(isolate, U::New));
-  }
-
-protected:
-
   ScriptObject(v8::Isolate* isolate)
   {
     isolate_ = isolate;
-  }
-
-  virtual void Initialize()
-  {
-    auto objectTemplate = v8::ObjectTemplate::New(isolate_);
-    objectTemplate->SetInternalFieldCount(1);
-    template_.Reset(isolate_, objectTemplate);
   }
 
   v8::Handle<v8::Object> Wrap(T* ptr)
@@ -51,6 +34,32 @@ protected:
     ptr_ = std::unique_ptr<T>(ptr);
 
     return scope.Escape(object);
+  }
+
+  template <typename U>
+  static void InstallAsConstructor(v8::Isolate* isolate,
+    std::string name, v8::Handle<v8::ObjectTemplate> tmpl)
+  {
+    tmpl->Set(v8::String::NewFromUtf8(isolate, name.c_str()), 
+      v8::FunctionTemplate::New(isolate, U::New));
+  }
+
+  template <typename U>
+  static void InstallAsProperty(v8::Isolate* isolate,
+    std::string name, v8::Handle<v8::Object> parent, T* object)
+  {
+    auto scriptObject = new U(isolate);
+    parent->Set(v8::String::NewFromUtf8(isolate, name.c_str()), 
+      scriptObject->Wrap(object));
+  }
+
+protected:
+
+  virtual void Initialize()
+  {
+    auto objectTemplate = v8::ObjectTemplate::New(isolate_);
+    objectTemplate->SetInternalFieldCount(1);
+    template_.Reset(isolate_, objectTemplate);
   }
 
   void AddFunction(std::string name, v8::FunctionCallback function)

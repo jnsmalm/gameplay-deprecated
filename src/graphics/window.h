@@ -7,10 +7,12 @@
 #include <string>
 
 class Keyboard;
+class Mouse;
 
 class Window {
 
   friend class Keyboard;
+  friend class Mouse;
 
   // Class that is only available to window.
   class ScriptWindow;
@@ -49,6 +51,7 @@ public:
 private:
 
   Keyboard* keyboard_;
+  Mouse* mouse_;
   GLFWwindow* glfwWindow_;
   int width_;
   int height_;

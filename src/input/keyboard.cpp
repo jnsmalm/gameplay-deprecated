@@ -1,8 +1,48 @@
 #include "input/keyboard.h"
+#include "script/scriptobject.h"
 #include "graphics/window.h"
 
 #include <gl/glew.h>
 #include <glfw/glfw3.h>
+
+using namespace v8;
+
+// Helps with setting up the script object.
+class Keyboard::ScriptKeyboard : public ScriptObject<Keyboard> {
+
+public:
+
+  void Initialize()
+  {
+    ScriptObject::Initialize();
+    AddFunction("isKeyDown", IsKeyDown);
+    AddFunction("isKeyPress", IsKeyPress);
+  }
+
+  static void IsKeyDown(const FunctionCallbackInfo<Value>& args)
+  {
+    HandleScope scope(args.GetIsolate());
+    auto self = Unwrap<Keyboard>(args.Holder());
+    auto key = args[0]->NumberValue();
+    auto value = self->IsKeyDown(key);
+    args.GetReturnValue().Set(value);
+  }
+
+  static void IsKeyPress(const FunctionCallbackInfo<Value>& args)
+  {
+    HandleScope scope(args.GetIsolate());
+    auto self = Unwrap<Keyboard>(args.Holder());
+    auto key = args[0]->NumberValue();
+    auto value = self->IsKeyPress(key);
+    args.GetReturnValue().Set(value);
+  }
+
+private:
+
+  // Inherit constructors.
+  using ScriptObject::ScriptObject;
+
+};
 
 Keyboard::Keyboard(Window* window)
 {
@@ -29,4 +69,11 @@ bool Keyboard::IsKeyPress(int key)
 void Keyboard::UpdateState()
 {
   oldKeyState_ = newKeyState_;
+}
+
+void Keyboard::InstallScript(
+  Isolate* isolate, Handle<Object> parent, Keyboard* keyboard)
+{
+  ScriptKeyboard::InstallAsProperty<ScriptKeyboard>(
+    isolate, "keyboard", parent, keyboard);
 }

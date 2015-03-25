@@ -192,5 +192,6 @@ void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
 
 void SpriteFont::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
-  ScriptSpriteFont::Install<ScriptSpriteFont>(isolate, "SpriteFont", parent);
+  ScriptSpriteFont::InstallAsConstructor<ScriptSpriteFont>(
+    isolate, "SpriteFont", parent);
 }

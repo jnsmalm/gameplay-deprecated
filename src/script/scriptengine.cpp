@@ -29,6 +29,17 @@ void PrintStackTrace(Isolate* isolate, TryCatch* tryCatch)
   }
 }
 
+void PrintCompileError(Isolate* isolate, TryCatch* tryCatch)
+{
+  HandleScope scope(isolate);
+  auto message = tryCatch->Message();
+  String::Utf8Value exception(tryCatch->Exception());
+  String::Utf8Value filename(message->GetScriptOrigin().ResourceName());
+  std::cout << *exception << std::endl;
+  std::cout << "    " << "at " << *filename << ":" << 
+    message->GetLineNumber() << ":" << message->GetStartColumn() << std::endl;
+}
+
 std::string GetFilePath(std::string filename)
 {
   auto index = filename.find_last_of("\\/");
@@ -116,7 +127,7 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
     script, String::NewFromUtf8(isolate_, filename.c_str()));
 
   if (compiled.IsEmpty()) {
-    PrintStackTrace(isolate_, &tryCatch);
+    PrintCompileError(isolate_, &tryCatch);
     if (appended) {
       RemoveScriptPath();
     }

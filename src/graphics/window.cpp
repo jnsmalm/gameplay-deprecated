@@ -54,7 +54,7 @@ public:
     ScriptHelper helper(args.GetIsolate());
 
     auto arg = helper.GetObject(args[0]);
-    auto title = helper.GetString(arg, "title", "ko.js");
+    auto title = helper.GetString(arg, "title", "Game");
     auto fullscreen = helper.GetBoolean(arg, "fullscreen");
     auto width = helper.GetInteger(arg, "width", 800);
     auto height = helper.GetInteger(arg, "height", 600);
@@ -63,8 +63,10 @@ public:
       auto scriptObject = new ScriptWindow(args.GetIsolate());
       auto window = new Window(title, width, height, fullscreen);
       auto object = scriptObject->Wrap(window);
+
       Keyboard::InstallScript(args.GetIsolate(), object, window->keyboard_);
       Mouse::InstallScript(args.GetIsolate(), object, window->mouse_);
+
       args.GetReturnValue().Set(object);
     }
     catch (std::exception& ex) {

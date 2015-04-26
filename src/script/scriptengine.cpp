@@ -16,7 +16,7 @@ namespace {
 
 Handle<String> ReadFile(Isolate* isolate, std::string filename)
 {
-  std::string contents = File::ReadAllText(filename);
+  std::string contents = File::ReadText(filename);
   return String::NewFromUtf8(isolate, contents.c_str());
 }
 
@@ -25,16 +25,18 @@ void PrintStackTrace(Isolate* isolate, TryCatch* tryCatch)
   HandleScope scope(isolate);
   String::Utf8Value stackTrace(tryCatch->StackTrace());
   if (stackTrace.length() > 0) {
-    std::cout << *stackTrace << "\n";
+    std::cout << *stackTrace << std::endl;
   }
 }
 
 void PrintCompileError(Isolate* isolate, TryCatch* tryCatch)
 {
   HandleScope scope(isolate);
+  
   auto message = tryCatch->Message();
   String::Utf8Value exception(tryCatch->Exception());
   String::Utf8Value filename(message->GetScriptOrigin().ResourceName());
+
   std::cout << *exception << std::endl;
   std::cout << "    " << "at " << *filename << ":" << 
     message->GetLineNumber() << ":" << message->GetStartColumn() << std::endl;
@@ -57,6 +59,7 @@ Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
   SpriteBatch::InstallScript(isolate, global);
   SpriteFont::InstallScript(isolate, global);
   Texture::InstallScript(isolate, global);
+  File::InstallScript(isolate, global);
 
   return global;
 }
@@ -88,9 +91,11 @@ void ScriptEngine::Run(std::string filename)
     Isolate::Scope isolateScope(isolate);
     HandleScope handleScope(isolate);
 
-    auto global = ObjectTemplate::New(isolate);
+    /*auto global = ObjectTemplate::New(isolate);
     global->Set(String::NewFromUtf8(isolate, "ko"), 
-      InstallGlobalScript(isolate));
+      InstallGlobalScript(isolate));*/
+
+    auto global = InstallGlobalScript(isolate);
 
     // Enter the new context so all the following operations take place
     // within it.

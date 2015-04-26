@@ -25,6 +25,7 @@ public:
 
     auto objectTemplate = GetTemplate();
     auto object = objectTemplate->NewInstance();
+
     object->SetInternalField(0, v8::External::New(isolate_, ptr));
 
     object_.Reset(isolate_, object);
@@ -46,12 +47,22 @@ public:
 
   template <typename U>
   static void InstallAsProperty(v8::Isolate* isolate,
+    std::string name, v8::Handle<v8::ObjectTemplate> parent)
+  {
+    U scriptObject(isolate);
+    scriptObject.Initialize();
+    parent->Set(v8::String::NewFromUtf8(isolate, name.c_str()), 
+      scriptObject.GetTemplate());
+  }
+
+  template <typename U>
+  static void InstallAsProperty(v8::Isolate* isolate,
     std::string name, v8::Handle<v8::Object> parent, T* object)
   {
     auto scriptObject = new U(isolate);
     parent->Set(v8::String::NewFromUtf8(isolate, name.c_str()), 
       scriptObject->Wrap(object));
-  }
+   }
 
 protected:
 

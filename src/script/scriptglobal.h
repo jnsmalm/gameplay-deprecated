@@ -24,9 +24,8 @@ protected:
   void Initialize()
   {
     ScriptObject::Initialize();
-    AddFunction("import", Import);
+    AddFunction("load", Import);
     AddFunction("log", Log);
-    AddFunction("readTextFile", ReadTextFile);
   }
 
   static void Import(const v8::FunctionCallbackInfo<v8::Value>& args) 
@@ -69,7 +68,7 @@ protected:
       helper.GetString(args[0]);
 
     try {
-      auto text = File::ReadAllText(filename);
+      auto text = File::ReadText(filename);
       auto result = v8::String::NewFromUtf8(args.GetIsolate(), text.c_str());
       args.GetReturnValue().Set(result);
     }

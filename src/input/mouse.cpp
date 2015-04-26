@@ -103,7 +103,9 @@ void Mouse::UpdateState()
   oldButtonState_ = newButtonState_;
 }
 
-void Mouse::InstallScript(Isolate* isolate, Handle<Object> parent, Mouse* mouse)
+void Mouse::InstallScript(
+  Isolate* isolate, Handle<Object> parent, Mouse* mouse)
 {
-  ScriptMouse::InstallAsProperty<ScriptMouse>(isolate, "mouse", parent, mouse);
+  ScriptMouse::InstallAsProperty<ScriptMouse>(
+    isolate, "mouse", parent, mouse);
 }

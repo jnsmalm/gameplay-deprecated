@@ -1,5 +1,6 @@
 #include "script/scriptengine.h"
 #include "script/scriptglobal.h"
+#include "system/console.h"
 #include "system/file.h"
 #include "input/keyboard.h"
 #include "graphics/spritebatch.h"
@@ -60,8 +61,18 @@ Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
   SpriteFont::InstallScript(isolate, global);
   Texture::InstallScript(isolate, global);
   File::InstallScript(isolate, global);
+  Console::InstallScript(isolate, global);
 
   return global;
+}
+
+Handle<Object> InstallModule(Isolate* isolate, Handle<Object> global)
+{
+  auto module = Object::New(isolate);
+  global->Set(String::NewFromUtf8(isolate, "module"), module);
+  auto exports = Object::New(isolate);
+  module->Set(String::NewFromUtf8(isolate, "exports"), exports);
+  return module;
 }
 
 }
@@ -91,16 +102,18 @@ void ScriptEngine::Run(std::string filename)
     Isolate::Scope isolateScope(isolate);
     HandleScope handleScope(isolate);
 
+    global_.Reset(isolate, InstallGlobalScript(isolate_));
+
     /*auto global = ObjectTemplate::New(isolate);
     global->Set(String::NewFromUtf8(isolate, "ko"), 
       InstallGlobalScript(isolate));*/
 
-    auto global = InstallGlobalScript(isolate);
+    //auto global = InstallGlobalScript(isolate);
 
     // Enter the new context so all the following operations take place
     // within it.
-    auto context = Context::New(isolate, NULL, global);
-    context_.Reset(isolate, context);
+    //auto context = Context::New(isolate, NULL, global);
+    //context_.Reset(isolate, context);
 
     executionPath_ = GetFilePath(filename);
 
@@ -114,11 +127,20 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
   auto filepath = GetCurrentScriptPath() + filename;
   auto appended = AppendScriptPath(filename);
 
+  auto global = Local<ObjectTemplate>::New(isolate_, global_);
+
+  // Enter the new context so all the following operations take place
+  // within it.
+  auto context = Context::New(isolate_, NULL, global);
+  //context_.Reset(isolate, context);
+
   // Every script gets it's own context.
   Context::Scope contextScope(
-    Local<Context>::New(isolate_, context_));
+    Local<Context>::New(isolate_, context));
 
   EscapableHandleScope handleScope(isolate_);
+
+  auto module = InstallModule(isolate_, context->Global());
 
   // Get the script to execute
   auto script = ReadFile(isolate_, filepath);
@@ -142,6 +164,9 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
   // Run the script!
   auto result = compiled->Run();
 
+  /*auto module = result->Get(String::NewFromUtf8(isolate_, "module"));*/
+  auto exports = module->Get(String::NewFromUtf8(isolate_, "exports"));
+
   if (result.IsEmpty()) {
     PrintStackTrace(isolate_, &tryCatch);
     if (appended) {
@@ -154,7 +179,7 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
     RemoveScriptPath();
   }  
 
-  return handleScope.Escape(result);
+  return handleScope.Escape(exports);
 }
 
 void ScriptEngine::ThrowTypeError(std::string message)

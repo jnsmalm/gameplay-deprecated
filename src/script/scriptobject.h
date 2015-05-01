@@ -56,12 +56,13 @@ public:
   }
 
   template <typename U>
-  static void InstallAsProperty(v8::Isolate* isolate,
+  static v8::Handle<v8::Object> InstallAsProperty(v8::Isolate* isolate,
     std::string name, v8::Handle<v8::Object> parent, T* object)
   {
     auto scriptObject = new U(isolate);
-    parent->Set(v8::String::NewFromUtf8(isolate, name.c_str()), 
-      scriptObject->Wrap(object));
+    auto obj = scriptObject->Wrap(object);
+    parent->Set(v8::String::NewFromUtf8(isolate, name.c_str()), obj);
+    return obj;
    }
 
 protected:

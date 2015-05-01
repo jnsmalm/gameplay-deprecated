@@ -60,5 +60,5 @@ std::string File::ReadText(std::string filename)
 void File::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
   ScriptFile::InstallAsProperty<ScriptFile>(
-    isolate, "File", parent);
+    isolate, "file", parent);
 }

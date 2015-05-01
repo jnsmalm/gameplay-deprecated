@@ -55,7 +55,7 @@ public:
     auto arg = args[0]->ToObject();
     auto filename = ScriptEngine::GetCurrent().GetExecutionPath() + 
       helper.GetString(arg, "filename");
-    auto size = helper.GetInteger(arg, "size");
+    auto size = helper.GetInteger(arg, "size", 20);
     auto chars = helper.GetString(arg, "chars");
 
     try {

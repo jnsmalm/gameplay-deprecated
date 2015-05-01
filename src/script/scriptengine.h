@@ -43,6 +43,7 @@ private:
 
   v8::Platform* platform_;
   v8::Isolate* isolate_;
+  v8::Persistent<v8::ObjectTemplate> global_;
   v8::Persistent<v8::Context> context_;
   std::vector<std::string> folders_;
   std::string executionPath_;

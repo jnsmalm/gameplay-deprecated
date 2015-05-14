@@ -1,47 +1,22 @@
-var game = ko.import("../lib/game.js");
+var Game = require("../lib/game.js").Game;
+var Sprite = require("../lib/sprite.js").Sprite;
 
-game.init({
+var game = new Game({
   width: 1024,
   height: 576,
   fullscreen: false, 
 });
 
-var spriteBatch = new ko.SpriteBatch(game.window);
+var spriteBatch = new SpriteBatch(game.window);
 
-var texture = new ko.Texture("assets/cow.png");
-
-var sprite = {
-  texture: texture,
-  position: {
-    x: game.screenCenter.x,
-    y: game.screenCenter.y,
-  },
-  origin: {
-    x: texture.width / 2,
-    y: texture.height / 2,
-  },
-  scaling: {
-    x: 1,
-    y: 1,
-  },
-  color: {
-    r: 1,
-    g: 1,
-    b: 1,
-    a: 1,
-  },
-  source: {
-    x: 0,
-    y: 0,
-    width: texture.width,
-    height: texture.height,
-  },
-  rotation: 0,
-};
+var sprite = new Sprite(spriteBatch, "assets/cow.png");
+sprite.position.x = game.screenCenter.x;
+sprite.position.y = game.screenCenter.y;
+sprite.center();
 
 game.draw = function () {
   spriteBatch.begin();
-  spriteBatch.draw(sprite);
+  sprite.draw();
   spriteBatch.end();
 };
 

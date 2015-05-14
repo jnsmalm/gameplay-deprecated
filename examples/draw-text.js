@@ -1,18 +1,18 @@
-var game = ko.import("../lib/game.js");
+var Game = require("../lib/game.js").Game;
 
-game.init({
+var game = new Game({
   width: 1024,
   height: 576,
   fullscreen: false, 
 });
 
-var chars = "Let's build desktop games with JavaScript!";
+var spriteBatch = new SpriteBatch(game.window);
 
-var spriteBatch = new ko.SpriteBatch(game.window);
+var chars = "kobingo.js";
 
-var font = new ko.SpriteFont({
-  filename:"assets/andyb.ttf",
-  size: 50,
+var font = new SpriteFont({
+  filename: "assets/sunshine.ttf",
+  size: 120,
   chars: chars
 });
 

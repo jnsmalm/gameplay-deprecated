@@ -1,8 +1,12 @@
-var game = ko.import("../lib/game.js");
+var Game = require("../lib/game.js").Game;
 
-game.init();
+var game = new Game({
+  width: 1024,
+  height: 576,
+  fullscreen: false, 
+});
 
-game.update = function () {
+game.update = function (elapsed) {
   var mouse = game.window.mouse;
   game.window.setTitle("x: " + mouse.x + ", y: " + mouse.y);
   if (mouse.isButtonDown(0)) {

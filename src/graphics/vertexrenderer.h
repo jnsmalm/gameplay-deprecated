@@ -40,7 +40,8 @@ public:
 
   void Draw(PrimitiveType type, std::vector<T> vertices)
   {
-    glBindBuffer(GL_ARRAY_BUFFER, vertexArray_);
+    glBindVertexArray(vertexArray_);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer_);
     glBufferData(GL_ARRAY_BUFFER, 
       vertices.size() * sizeof(T), &vertices[0], GL_STATIC_DRAW);
 

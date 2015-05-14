@@ -81,11 +81,12 @@ protected:
       v8::FunctionTemplate::New(isolate_, function));
   }
 
-  void AddAccessor(std::string name, v8::AccessorGetterCallback getter)
+  void AddAccessor(std::string name, v8::AccessorGetterCallback getter,
+    v8::AccessorSetterCallback setter = 0)
   {
     v8::HandleScope scope(isolate_);
     GetTemplate()->SetAccessor(
-      v8::String::NewFromUtf8(isolate_, name.c_str()), getter);
+      v8::String::NewFromUtf8(isolate_, name.c_str()), getter, setter);
   }
 
   v8::Handle<v8::ObjectTemplate> GetTemplate()

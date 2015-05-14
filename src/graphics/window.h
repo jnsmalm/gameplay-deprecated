@@ -41,6 +41,7 @@ public:
   int GetHeight() { return height_; }
   // Sets the title for the window.
   void SetTitle(std::string title);
+  void SetSyncWithVerticalRetrace(bool value);
 
   // Ensures that a OpenGL context exists, throws exception otherwise.
   static void EnsureCurrentContext();

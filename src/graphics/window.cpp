@@ -46,6 +46,7 @@ public:
     AddAccessor("width", GetWidth);
     AddAccessor("height", GetHeight);
     AddFunction("setTitle", SetTitle);
+    AddAccessor("syncWithVerticalRetrace", NULL, SetSyncWithVerticalRetrace);
   }
 
   static void New(const FunctionCallbackInfo<Value>& args) 
@@ -149,6 +150,14 @@ public:
     self->SetTitle(title);
   }
 
+  static void SetSyncWithVerticalRetrace(Local<String> property, 
+    Local<Value> value, const PropertyCallbackInfo<void>& info) 
+  {
+    HandleScope scope(info.GetIsolate());
+    auto self = Unwrap<Window>(info.Holder());
+    self->SetSyncWithVerticalRetrace(value->BooleanValue());
+  }
+
 private:
 
   // Inherit constructors.
@@ -232,6 +241,11 @@ void Window::Clear(float r, float g, float b, float a)
 void Window::SetTitle(std::string title)
 {
   glfwSetWindowTitle(glfwWindow_, title.c_str());
+}
+
+void Window::SetSyncWithVerticalRetrace(bool value)
+{
+  glfwSwapInterval(value);
 }
 
 void Window::EnsureCurrentContext()

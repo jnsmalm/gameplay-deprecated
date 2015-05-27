@@ -9,6 +9,8 @@
 
 class Texture {
 
+  friend class GraphicsDevice;
+
   // Class that is only available to texture.
   class ScriptTexture;
 

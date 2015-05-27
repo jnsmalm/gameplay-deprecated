@@ -4,12 +4,15 @@
 #include "system/file.h"
 #include "input/keyboard.h"
 #include "graphics/spritebatch.h"
+#include "graphics/shaderprogram.h"
+#include "graphics/VertexBuffer.h"
 #include "graphics/window.h"
 #include "graphics/texture.h"
 
 #include <string>
 #include <iostream>
 #include <numeric>
+#include <graphics/VertexArray.h>
 
 using namespace v8;
 
@@ -60,6 +63,9 @@ Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
   SpriteBatch::InstallScript(isolate, global);
   SpriteFont::InstallScript(isolate, global);
   Texture::InstallScript(isolate, global);
+  ShaderProgram::InstallScript(isolate, global);
+  VertexBuffer::InstallScript(isolate, global);
+  VertexArray::InstallScript(isolate, global);
   File::InstallScript(isolate, global);
   Console::InstallScript(isolate, global);
 

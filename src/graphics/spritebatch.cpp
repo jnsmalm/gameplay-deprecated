@@ -177,8 +177,8 @@ SpriteBatch::SpriteBatch(Window* window)
 
   // Set the ortho projection for the shader.
   auto projection = glm::ortho(0.0f, w, h, 0.0f, -1.0f, 1.0f);
-  shaderProgram_.SetUniformValue(
-    "projection", UniformDataType::Matrix4, glm::value_ptr(projection));
+  shaderProgram_.SetUniform(
+          "projection", UniformDataType::Matrix4, glm::value_ptr(projection));
 }
 
 void SpriteBatch::Draw(Texture* texture, Vector2 position, float rotation, 

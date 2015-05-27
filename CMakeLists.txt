@@ -77,6 +77,6 @@ endif()
 
 add_definitions(-std=c++11 -stdlib=libc++)
 include_directories(${GLM_INCLUDE_DIR} ${V8_INCLUDE_DIR} ${PROJECT_SRC_DIR} ${FREETYPE_INCLUDE_DIR})
-add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES})
+add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/VertexArray.cpp src/graphics/VertexArray.h src/graphics/GraphicsDevice.cpp src/graphics/GraphicsDevice.h)
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBRARIES})
-set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release)

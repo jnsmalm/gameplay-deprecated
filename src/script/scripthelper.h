@@ -44,6 +44,17 @@ public:
     return value->ToObject();
   }
 
+  template <typename U>
+  U* GetObject(Handle<Value> value, U* defaultValue = NULL)
+  {
+    auto object = value->ToObject();
+    if (object->InternalFieldCount() == 0) {
+      return defaultValue;
+    }
+    auto external = Handle<External>::Cast(object->GetInternalField(0));
+    return static_cast<U*>(external->Value());
+  }
+
   template <typename U> 
   U* GetObject(Handle<Object> parent, std::string name, U* defaultValue = NULL)
   {
@@ -65,6 +76,14 @@ public:
     return value->NumberValue();
   }
 
+  int GetInteger(Handle<Value> value, int defaultValue = 0)
+  {
+    if (!value->IsInt32()) {
+      return defaultValue;
+    }
+    return value->Int32Value();
+  }
+
   int GetInteger(
     Handle<Object> object, std::string name, int defaultValue = 0)
   {
@@ -73,6 +92,14 @@ public:
       return defaultValue;
     }
     return value->Int32Value();
+  }
+
+  bool GetBoolean(Handle<Value> value, bool defaultValue = false)
+  {
+    if (!value->IsBoolean()) {
+      return defaultValue;
+    }
+    return value->BooleanValue();
   }
 
   bool GetBoolean(

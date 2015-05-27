@@ -1,4 +1,5 @@
 #include "graphics/window.h"
+#include "graphics/GraphicsDevice.h"
 #include "script/scriptengine.h"
 #include "script/scriptobject.h"
 #include "script/scripthelper.h"
@@ -37,8 +38,6 @@ public:
   void Initialize()
   {
     ScriptObject::Initialize();
-    AddFunction("swapBuffers", SwapBuffers);
-    AddFunction("clear", Clear);
     AddFunction("close", Close);
     AddFunction("pollEvents", PollEvents);
     AddFunction("getTime", GetTime);
@@ -46,7 +45,6 @@ public:
     AddAccessor("width", GetWidth);
     AddAccessor("height", GetHeight);
     AddFunction("setTitle", SetTitle);
-    AddAccessor("syncWithVerticalRetrace", NULL, SetSyncWithVerticalRetrace);
   }
 
   static void New(const FunctionCallbackInfo<Value>& args) 
@@ -56,7 +54,7 @@ public:
 
     auto arg = helper.GetObject(args[0]);
     auto title = helper.GetString(arg, "title", "Game");
-    auto fullscreen = helper.GetBoolean(arg, "fullscreen");
+    auto fullscreen = helper.GetBoolean(arg, "fullscreen", false);
     auto width = helper.GetInteger(arg, "width", 800);
     auto height = helper.GetInteger(arg, "height", 600);
 
@@ -67,6 +65,8 @@ public:
 
       Keyboard::InstallScript(args.GetIsolate(), object, window->keyboard_);
       Mouse::InstallScript(args.GetIsolate(), object, window->mouse_);
+
+      window->graphicsDevice_->InstallScript(args.GetIsolate(), object);
 
       args.GetReturnValue().Set(object);
     }
@@ -103,28 +103,6 @@ public:
     args.GetReturnValue().Set(self->IsClosing());
   }
 
-  static void SwapBuffers(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    self->SwapBuffers();
-  }
-
-  static void Clear(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-
-    auto self = Unwrap<Window>(args.Holder());
-    auto arg = helper.GetObject(args[0]);
-    auto r = helper.GetFloat(arg, "r");
-    auto g = helper.GetFloat(arg, "g");
-    auto b = helper.GetFloat(arg, "b");
-    auto a = helper.GetFloat(arg, "a");
-
-    self->Clear(r, g, b, a);
-  }
-
   static void GetWidth(
     Local<String> name, const PropertyCallbackInfo<Value>& args) 
   {
@@ -148,14 +126,6 @@ public:
     auto self = Unwrap<Window>(args.Holder());
     auto title = helper.GetString(args[0]);
     self->SetTitle(title);
-  }
-
-  static void SetSyncWithVerticalRetrace(Local<String> property, 
-    Local<Value> value, const PropertyCallbackInfo<void>& info) 
-  {
-    HandleScope scope(info.GetIsolate());
-    auto self = Unwrap<Window>(info.Holder());
-    self->SetSyncWithVerticalRetrace(value->BooleanValue());
   }
 
 private:
@@ -190,9 +160,14 @@ Window::Window(std::string title, int width, int height, bool fullscreen)
 
   keyboard_ = new Keyboard(this);
   mouse_ = new Mouse(this);
+  graphicsDevice_ = new GraphicsDevice(this);
 
   glfwMakeContextCurrent(glfwWindow_);
   glfwSwapInterval(1);
+
+  // Enable blending
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Initialize glew to handle OpenGL extensions.
   glewExperimental = GL_TRUE;
@@ -201,6 +176,7 @@ Window::Window(std::string title, int width, int height, bool fullscreen)
 
 Window::~Window() 
 {
+  delete graphicsDevice_;
   glfwDestroyWindow(glfwWindow_);
   glfwTerminate();
 }
@@ -227,25 +203,9 @@ double Window::GetTime()
   return glfwGetTime();
 }
 
-void Window::SwapBuffers()
-{
-  glfwSwapBuffers(glfwWindow_);
-}
-
-void Window::Clear(float r, float g, float b, float a)
-{
-  glClearColor(r, g, b, a);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-}
-
 void Window::SetTitle(std::string title)
 {
   glfwSetWindowTitle(glfwWindow_, title.c_str());
-}
-
-void Window::SetSyncWithVerticalRetrace(bool value)
-{
-  glfwSwapInterval(value);
 }
 
 void Window::EnsureCurrentContext()

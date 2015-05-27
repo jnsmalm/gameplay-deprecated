@@ -10,10 +10,19 @@
 enum class UniformDataType {
 
   Matrix4,
+  Vector2,
+  Vector3,
+  Vector4,
+  Float,
 
 };
 
 class ShaderProgram {
+
+  friend class GraphicsDevice;
+
+  // Class that is only available to shader program.
+  class ScriptShaderProgram;
 
 public:
 
@@ -27,11 +36,15 @@ public:
   // Set the shader program as the current one.
   void Use();
   // Set the value of the uniform variable.
-  void SetUniformValue(
-   std::string name, UniformDataType dataType, GLfloat* value);
+  void SetUniform(
+          std::string name, UniformDataType dataType, GLfloat *value);
   // Set the vertex attribute with the specified name.
   void SetVertexAttribute(
     std::string name, GLint size, GLsizei stride, GLvoid* offset);
+
+  // Initializes the script object.
+  static void InstallScript(
+    v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
 
 private:
 

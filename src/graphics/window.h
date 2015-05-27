@@ -8,11 +8,17 @@
 
 class Keyboard;
 class Mouse;
+class GraphicsDevice;
+
+enum class PrimitiveT {
+  TriangleList, LineList, PointList
+};
 
 class Window {
 
   friend class Keyboard;
   friend class Mouse;
+  friend class GraphicsDevice;
 
   // Class that is only available to window.
   class ScriptWindow;
@@ -31,17 +37,12 @@ public:
   void Close();
   // Processes events of the application.
   void PollEvents();
-  // Swaps the front and back buffers.
-  void SwapBuffers();
-  // Clears the back buffer.
-  void Clear(float r, float g, float b, float a);
   // Gets the width of the window.
   int GetWidth() { return width_; }
   // Gets the height of the window.
   int GetHeight() { return height_; }
   // Sets the title for the window.
   void SetTitle(std::string title);
-  void SetSyncWithVerticalRetrace(bool value);
 
   // Ensures that a OpenGL context exists, throws exception otherwise.
   static void EnsureCurrentContext();
@@ -53,6 +54,7 @@ private:
 
   Keyboard* keyboard_;
   Mouse* mouse_;
+  GraphicsDevice* graphicsDevice_;
   GLFWwindow* glfwWindow_;
   int width_;
   int height_;

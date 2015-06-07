@@ -1,7 +1,7 @@
 #ifndef SCRIPTHELPER_H
 #define SCRIPTHELPER_H
 
-#include "graphics/types.h"
+//#include "graphics/types.h"
 
 #include "v8.h"
 #include <string>
@@ -26,6 +26,8 @@ public:
   {
     return object->Get(String::NewFromUtf8(isolate_, name.c_str()));
   }
+
+
 
   Handle<Object> GetObject(Handle<Value> value)
   {
@@ -94,6 +96,16 @@ public:
     return value->Int32Value();
   }
 
+    int GetIntegerFast(
+            Handle<Object> object, std::string name, int defaultValue = 0)
+    {
+        auto value = object->Get(String::NewFromUtf8(isolate_, name.c_str()));
+        /*if (!value->IsInt32()) {
+            return defaultValue;
+        }*/
+        return value->Int32Value();
+    }
+
   bool GetBoolean(Handle<Value> value, bool defaultValue = false)
   {
     if (!value->IsBoolean()) {
@@ -130,7 +142,7 @@ public:
     return std::string(*String::Utf8Value(value));
   }
 
-  Vector2 GetVector2(
+  /*Vector2 GetVector2(
     Handle<Object> object, std::string name, Vector2 defaultValue = { 0, 0 })
   {
     auto vector = GetObject(object, name);
@@ -162,7 +174,7 @@ public:
       GetFloat(color, "b", defaultValue.b),
       GetFloat(color, "a", defaultValue.a),
     };
-  }
+  }*/
 
 private:
 

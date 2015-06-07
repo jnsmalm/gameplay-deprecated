@@ -3,17 +3,17 @@
 
 #include "graphics/texture.h"
 #include "graphics/shader.h"
-#include "graphics/vertexrenderer.h"
+//#include "graphics/vertexrenderer.h"
 #include "graphics/shaderprogram.h"
 #include "graphics/spritefont.h"
-#include "graphics/types.h"
+//#include "graphics/types.h"
 
 #include "v8.h"
 #include <gl/glew.h>
 #include <vector>
 #include <string>
 
-struct SpriteVertex {
+/*struct SpriteVertex {
 
   // Position of the sprite to be drawn.
   Vector2 position;
@@ -68,6 +68,6 @@ private:
   ShaderProgram shaderProgram_;
   Texture* currentTexture_;
 
-};
+};*/
 
 #endif

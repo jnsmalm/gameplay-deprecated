@@ -2,31 +2,20 @@
 #define SHADERPROGRAM_H
 
 #include "shader.h"
-
 #include "v8.h"
 #include <gl/glew.h>
 #include <map>
+#include <script/ObjectScript.h>
 
-enum class UniformDataType {
+class ShaderParameterCollection;
+class GraphicsDevice;
 
-  Matrix4,
-  Vector2,
-  Vector3,
-  Vector4,
-  Float,
-
-};
-
-class ShaderProgram {
+class ShaderProgram : ObjectScript<ShaderProgram> {
 
   friend class GraphicsDevice;
 
-  // Class that is only available to shader program.
-  class ScriptShaderProgram;
-
 public:
-
-  ShaderProgram();
+  ShaderProgram(v8::Isolate* isolate, GraphicsDevice* graphicsDevice);
   ~ShaderProgram();
 
   // Attaches a shader of the specified type and source.
@@ -35,21 +24,35 @@ public:
   void Link();
   // Set the shader program as the current one.
   void Use();
-  // Set the value of the uniform variable.
-  void SetUniform(
-          std::string name, UniformDataType dataType, GLfloat *value);
   // Set the vertex attribute with the specified name.
   void SetVertexAttribute(
     std::string name, GLint size, GLsizei stride, GLvoid* offset);
 
-  // Initializes the script object.
-  static void InstallScript(
-    v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
+    void SetUniformFloat(std::string name, float value);
+    void SetUniformInteger(std::string name, int value);
+    void SetUniformMatrix4(std::string name, GLfloat *value);
+    void SetUniformVector2(std::string name, GLfloat *value);
+    void SetUniformVector3(std::string name, GLfloat *value);
+    void SetUniformVector4(std::string name, GLfloat *value);
+
+  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+
+    GLuint gl_shaderprogram() {
+        return glShaderProgram_;
+    }
 
 private:
 
+    virtual void Initialize() override;
+    int GetUniformLocation(std::string name);
+    static void Apply(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void SetValue(v8::Local<v8::String> name, v8::Local<v8::Value> value,
+                         const v8::PropertyCallbackInfo<v8::Value> &info);
+
   GLuint glShaderProgram_;
-  std::map<std::string,GLuint> uniformLocations_;
+  //ShaderParameterCollection* parameters;
+    GraphicsDevice* graphicsDevice_;
+    std::map<std::string, GLint> uniforms_;
 
 };
 

@@ -5,7 +5,7 @@
 
 #include <gl/glew.h>
 
-using namespace v8;
+/*using namespace v8;
 
 namespace {
 
@@ -194,4 +194,4 @@ void SpriteFont::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
   ScriptSpriteFont::InstallAsConstructor<ScriptSpriteFont>(
     isolate, "SpriteFont", parent);
-}
+}*/

@@ -5,6 +5,7 @@
 #include <glfw/glfw3.h>
 #include "v8.h"
 #include <string>
+#include <script/ObjectScript.h>
 
 class Keyboard;
 class Mouse;
@@ -14,19 +15,15 @@ enum class PrimitiveT {
   TriangleList, LineList, PointList
 };
 
-class Window {
+class Window : public ObjectScript<Window> {
 
   friend class Keyboard;
   friend class Mouse;
   friend class GraphicsDevice;
 
-  // Class that is only available to window.
-  class ScriptWindow;
-  
-
 public:
-
-  Window(std::string title, int width, int height, bool fullscreen);
+  Window(v8::Isolate* isolate, std::string title, int width, int height,
+         bool fullscreen);
   ~Window();
 
   // Gets the time since the window was created.
@@ -46,11 +43,22 @@ public:
 
   // Ensures that a OpenGL context exists, throws exception otherwise.
   static void EnsureCurrentContext();
-  // Initializes the script object.
-  static void InstallScript(
-    v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
+
+  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 private:
+
+    virtual void Initialize();
+
+    static void GetTime(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void IsClosing(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void PollEvents(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void GetWidth(v8::Local<v8::String> name,
+                       const v8::PropertyCallbackInfo<v8::Value>& args);
+  static void GetHeight(v8::Local<v8::String> name,
+                       const v8::PropertyCallbackInfo<v8::Value>& args);
+  static void SetTitle(const v8::FunctionCallbackInfo<v8::Value>& args);
 
   Keyboard* keyboard_;
   Mouse* mouse_;

@@ -101,6 +101,8 @@ protected:
     return static_cast<U*>(field->Value());
   }
 
+  v8::Isolate* isolate_;
+
 private:
 
   static void WeakCallback(
@@ -115,7 +117,7 @@ private:
 
   std::unique_ptr<T> ptr_;
   v8::Persistent<v8::Object> object_;
-  v8::Isolate* isolate_;
+
 
 };
 

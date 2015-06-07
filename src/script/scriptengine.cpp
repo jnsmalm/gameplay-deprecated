@@ -12,7 +12,6 @@
 #include <string>
 #include <iostream>
 #include <numeric>
-#include <graphics/VertexArray.h>
 
 using namespace v8;
 
@@ -59,13 +58,13 @@ Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
 {
   auto global = ScriptGlobal::Create(isolate);
 
-  Window::InstallScript(isolate, global);
-  SpriteBatch::InstallScript(isolate, global);
-  SpriteFont::InstallScript(isolate, global);
-  Texture::InstallScript(isolate, global);
-  ShaderProgram::InstallScript(isolate, global);
-  VertexBuffer::InstallScript(isolate, global);
-  VertexArray::InstallScript(isolate, global);
+  ObjectScript<Window>::InstallAsConstructor(isolate, "Window", global);
+  //SpriteBatch::InstallScript(isolate, global);
+  //SpriteFont::InstallScript(isolate, global);
+  ObjectScript<Texture>::InstallAsConstructor(isolate, "Texture", global);
+  ObjectScript<ShaderProgram>::InstallAsConstructor(
+          isolate, "ShaderProgram", global);
+  ObjectScript<VertexBuffer>::InstallAsConstructor(isolate, "VertexBuffer", global);
   File::InstallScript(isolate, global);
   Console::InstallScript(isolate, global);
 

@@ -2,7 +2,7 @@
 #define SPRITEFONT_H
 
 #include "graphics/texture.h"
-#include "graphics/types.h"
+//#include "graphics/types.h"
 
 #include <map>
 #include <string>
@@ -10,7 +10,7 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 
-struct FontGlyph {
+/*struct FontGlyph {
 
   struct Rectangle source;
   struct Point offset;
@@ -52,6 +52,6 @@ private:
   std::map<char, FontGlyph> glyphs_;
   int maxGlyphHeight_;
 
-};
+};*/
 
 #endif

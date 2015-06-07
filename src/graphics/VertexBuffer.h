@@ -3,28 +3,35 @@
 
 #include "v8.h"
 #include <GL/glew.h>
+#include <script/ObjectScript.h>
 
-class VertexBuffer {
+class GraphicsDevice;
+class VertexDeclaration;
+
+class VertexBuffer : public ObjectScript<VertexBuffer> {
 
     friend class GraphicsDevice;
 
-    // Class that is only available to vertex buffer.
-    class ScriptVertexBuffer;
-
 public:
-
-    VertexBuffer();
+    VertexBuffer(v8::Isolate* isolate, GraphicsDevice* graphicsDevice,
+                 VertexDeclaration* vertexDeclaration);
     ~VertexBuffer();
 
-    void Bind();
     void SetData(float *vertices, int size);
+    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    static void InstallScript(
-        v8::Isolate* isolate, v8::Handle<v8::ObjectTemplate> global);
+    VertexDeclaration *getVertexDeclaration() {
+        return vertexDeclaration;
+    }
 
 private:
+    virtual void Initialize() override;
+    static void SetData(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     GLuint glVertexBufferObject_;
+    GLuint glVertexArray_;
+    GraphicsDevice* graphicsDevice_;
+    VertexDeclaration* vertexDeclaration;
 
 };
 

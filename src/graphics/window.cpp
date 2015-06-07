@@ -23,120 +23,15 @@ GLFWwindow* CreateWindow(
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
   // Get primary monitor when fullscreen.
-  auto monitor = fullscreen ? glfwGetPrimaryMonitor() : NULL;
+  auto monitor = fullscreen ? glfwGetPrimaryMonitor() : 0;
 
   return glfwCreateWindow(width, height, title.c_str(), monitor, NULL);
 }
 
 }
 
-// Helps with setting up the script object.
-class Window::ScriptWindow : public ScriptObject<Window> {
-
-public:
-
-  void Initialize()
-  {
-    ScriptObject::Initialize();
-    AddFunction("close", Close);
-    AddFunction("pollEvents", PollEvents);
-    AddFunction("getTime", GetTime);
-    AddFunction("isClosing", IsClosing);
-    AddAccessor("width", GetWidth);
-    AddAccessor("height", GetHeight);
-    AddFunction("setTitle", SetTitle);
-  }
-
-  static void New(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-
-    auto arg = helper.GetObject(args[0]);
-    auto title = helper.GetString(arg, "title", "Game");
-    auto fullscreen = helper.GetBoolean(arg, "fullscreen", false);
-    auto width = helper.GetInteger(arg, "width", 800);
-    auto height = helper.GetInteger(arg, "height", 600);
-
-    try {
-      auto scriptObject = new ScriptWindow(args.GetIsolate());
-      auto window = new Window(title, width, height, fullscreen);
-      auto object = scriptObject->Wrap(window);
-
-      Keyboard::InstallScript(args.GetIsolate(), object, window->keyboard_);
-      Mouse::InstallScript(args.GetIsolate(), object, window->mouse_);
-
-      window->graphicsDevice_->InstallScript(args.GetIsolate(), object);
-
-      args.GetReturnValue().Set(object);
-    }
-    catch (std::exception& ex) {
-      ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
-    }
-  }
-
-  static void Close(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    self->Close();
-  }
-
-  static void GetTime(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    args.GetReturnValue().Set(self->GetTime());
-  }
-
-  static void PollEvents(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    self->PollEvents();
-  }
-
-  static void IsClosing(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    args.GetReturnValue().Set(self->IsClosing());
-  }
-
-  static void GetWidth(
-    Local<String> name, const PropertyCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    args.GetReturnValue().Set(self->GetWidth());
-  }
-
-  static void GetHeight(
-    Local<String> name, const PropertyCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    args.GetReturnValue().Set(self->GetHeight());
-  }
-
-  static void SetTitle(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-    auto self = Unwrap<Window>(args.Holder());
-    auto title = helper.GetString(args[0]);
-    self->SetTitle(title);
-  }
-
-private:
-
-  // Inherit constructors.
-  using ScriptObject::ScriptObject;
-
-};
-
-Window::Window(std::string title, int width, int height, bool fullscreen) 
-{
+Window::Window(Isolate* isolate, std::string title, int width, int height,
+               bool fullscreen) : ObjectScript(isolate) {
   // Setup anonymous function to throw exception if anything goes wrong in glfw.
   glfwSetErrorCallback([](int error, const char* description)
     {
@@ -158,31 +53,31 @@ Window::Window(std::string title, int width, int height, bool fullscreen)
 
   glfwGetWindowSize(glfwWindow_, &width_, &height_);
 
-  keyboard_ = new Keyboard(this);
-  mouse_ = new Mouse(this);
-  graphicsDevice_ = new GraphicsDevice(this);
+
 
   glfwMakeContextCurrent(glfwWindow_);
   glfwSwapInterval(1);
 
   // Enable blending
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  //glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    keyboard_ = new Keyboard(this);
+    mouse_ = new Mouse(this);
+    graphicsDevice_ = new GraphicsDevice(isolate, this);
 
   // Initialize glew to handle OpenGL extensions.
   glewExperimental = GL_TRUE;
   glewInit();
 }
 
-Window::~Window() 
-{
+Window::~Window() {
   delete graphicsDevice_;
   glfwDestroyWindow(glfwWindow_);
   glfwTerminate();
 }
 
-bool Window::IsClosing() 
-{
+bool Window::IsClosing() {
   return glfwWindowShouldClose(glfwWindow_);
 }
 
@@ -215,7 +110,94 @@ void Window::EnsureCurrentContext()
   }
 }
 
-void Window::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
+void Window::Initialize() {
+  ObjectScript::Initialize();
+  SetFunction("close", Close);
+  SetFunction("pollEvents", PollEvents);
+  SetFunction("getTime", GetTime);
+  SetFunction("isClosing", IsClosing);
+  SetAccessor("width", GetWidth, NULL);
+  SetAccessor("height", GetHeight, NULL);
+  SetFunction("setTitle", SetTitle);
+}
+
+void Window::New(const FunctionCallbackInfo<Value>& args)
 {
-  ScriptWindow::InstallAsConstructor<ScriptWindow>(isolate, "Window", parent);
+  HandleScope scope(args.GetIsolate());
+  ScriptHelper helper(args.GetIsolate());
+
+  auto arg = helper.GetObject(args[0]);
+  auto title = helper.GetString(arg, "title", "Game");
+  auto fullscreen = helper.GetBoolean(arg, "fullscreen", false);
+  auto width = helper.GetInteger(arg, "width", 800);
+  auto height = helper.GetInteger(arg, "height", 600);
+
+  try {
+    auto window = new Window(args.GetIsolate(), title, width, height,
+                             fullscreen);
+    auto object = window->getObject();
+
+    Keyboard::InstallScript(args.GetIsolate(), object, window->keyboard_);
+    Mouse::InstallScript(args.GetIsolate(), object, window->mouse_);
+
+    window->graphicsDevice_->InstallAsObject("graphics", object);
+
+    args.GetReturnValue().Set(object);
+  }
+  catch (std::exception& ex) {
+    ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+  }
+}
+
+void Window::Close(const FunctionCallbackInfo<Value>& args)
+{
+  HandleScope scope(args.GetIsolate());
+  auto self = ObjectScript<Window>::GetSelf(args.Holder());
+  self->Close();
+}
+
+void Window::GetTime(const FunctionCallbackInfo<Value>& args)
+{
+  HandleScope scope(args.GetIsolate());
+  auto self = ObjectScript<Window>::GetSelf(args.Holder());
+  args.GetReturnValue().Set(self->GetTime());
+}
+
+void Window::PollEvents(const FunctionCallbackInfo<Value>& args)
+{
+  HandleScope scope(args.GetIsolate());
+  auto self = ObjectScript<Window>::GetSelf(args.Holder());
+  self->PollEvents();
+}
+
+void Window::IsClosing(const FunctionCallbackInfo<Value>& args)
+{
+  HandleScope scope(args.GetIsolate());
+  auto self = ObjectScript<Window>::GetSelf(args.Holder());
+  args.GetReturnValue().Set(self->IsClosing());
+}
+
+void Window::GetWidth(
+        Local<String> name, const PropertyCallbackInfo<Value>& args)
+{
+  HandleScope scope(args.GetIsolate());
+  auto self = ObjectScript<Window>::GetSelf(args.Holder());
+  args.GetReturnValue().Set(self->GetWidth());
+}
+
+void Window::GetHeight(
+        Local<String> name, const PropertyCallbackInfo<Value>& args)
+{
+  HandleScope scope(args.GetIsolate());
+  auto self = ObjectScript<Window>::GetSelf(args.Holder());
+  args.GetReturnValue().Set(self->GetHeight());
+}
+
+void Window::SetTitle(const FunctionCallbackInfo<Value>& args)
+{
+  HandleScope scope(args.GetIsolate());
+  ScriptHelper helper(args.GetIsolate());
+  auto self = ObjectScript<Window>::GetSelf(args.Holder());
+  auto title = helper.GetString(args[0]);
+  self->SetTitle(title);
 }

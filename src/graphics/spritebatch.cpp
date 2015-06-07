@@ -8,7 +8,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-using namespace v8;
+/*using namespace v8;
 
 namespace {
 
@@ -177,7 +177,7 @@ SpriteBatch::SpriteBatch(Window* window)
 
   // Set the ortho projection for the shader.
   auto projection = glm::ortho(0.0f, w, h, 0.0f, -1.0f, 1.0f);
-  shaderProgram_.SetUniform(
+  shaderProgram_.SetUniformValue(
           "projection", UniformDataType::Matrix4, glm::value_ptr(projection));
 }
 
@@ -252,7 +252,7 @@ void SpriteBatch::Flush()
   if (currentTexture_ == NULL || sprites_.size() == 0) {
     return;
   }
-  currentTexture_->Bind(0);
+  //currentTexture_->Bind(0);
   vertexRenderer_.Draw(PrimitiveType::Point, sprites_);
   sprites_.clear();
 }
@@ -261,4 +261,4 @@ void SpriteBatch::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
 {
   ScriptSpriteBatch::InstallAsConstructor<ScriptSpriteBatch>(
     isolate, "SpriteBatch", parent);
-}
+}*/

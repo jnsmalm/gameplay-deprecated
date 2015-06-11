@@ -2,7 +2,7 @@
 #define VERTEXBUFFER_H
 
 #include "v8.h"
-#include <GL/glew.h>
+#include <gl/glew.h>
 #include <script/ObjectScript.h>
 
 class GraphicsDevice;

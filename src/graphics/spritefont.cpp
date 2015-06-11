@@ -3,7 +3,7 @@
 #include "script/scriptengine.h"
 #include "script/scripthelper.h"
 
-#include <gl/glew.h>
+//#include <gl/glew.h>
 
 /*using namespace v8;
 

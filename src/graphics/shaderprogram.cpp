@@ -112,7 +112,7 @@ void ShaderProgram::SetUniformVector4(std::string name,
 void ShaderProgram::Initialize() {
     ObjectScript::Initialize();
     SetFunction("apply", Apply);
-    SetNamedPropertyHandler(nullptr, SetValue);
+    SetNamedPropertyHandler(NULL, SetValue);
 }
 
 void ShaderProgram::New(const FunctionCallbackInfo<Value>& args)

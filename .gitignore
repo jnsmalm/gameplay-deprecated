@@ -33,5 +33,4 @@ ko
 
 # Directories
 build/
-deps/
 node_modules/

@@ -4,7 +4,7 @@
 #include "script/scripthelper.h"
 #include "graphics/window.h"
 
-#include "freeimage.h"
+#include <lodepng.h>
 #include <vector>
 
 using namespace v8;
@@ -13,26 +13,26 @@ Texture::Texture(Isolate* isolate, std::string filename) :
         ObjectScript(isolate) {
   Window::EnsureCurrentContext();
 
-  auto fileType = FreeImage_GetFileType(filename.c_str());
-  auto img = FreeImage_ConvertTo32Bits(
-    FreeImage_Load(fileType, filename.c_str()));
-  FreeImage_FlipVertical(img);
-  if (!img) {
-    throw std::runtime_error("Failed to load image '" + filename + "'");
-  }
+    std::vector<unsigned char> image; //the raw pixels
+    unsigned width, height;
 
-  width_ = FreeImage_GetWidth(img);
-  height_ = FreeImage_GetHeight(img);
+    //decode
+    unsigned error = lodepng::decode(image, width, height, filename);
 
-  glGenTextures(1, &glTexture_);
-  glActiveTexture(GL_TEXTURE31);
-  glBindTexture(GL_TEXTURE_2D, glTexture_);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_BGRA, 
-    GL_UNSIGNED_BYTE, FreeImage_GetBits(img));
+    if (error) {
+        throw std::runtime_error("Failed to load image '" + filename + "'");
+    }
 
-  FreeImage_Unload(img);
+    width_ = width;
+    height_ = height;
+
+    glGenTextures(1, &glTexture_);
+    glActiveTexture(GL_TEXTURE31);
+    glBindTexture(GL_TEXTURE_2D, glTexture_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, &image[0]);
 }
 
 Texture::Texture(int width, int height, GLenum format) : ObjectScript(nullptr) {

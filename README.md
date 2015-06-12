@@ -1,2 +1,2 @@
-# Ko.js
-Framework for creating desktop games with JavaScript
+# JSPlay
+Platform for building desktop games with JavaScript

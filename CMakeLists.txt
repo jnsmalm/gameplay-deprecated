@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2.2)
 
-set (PROJECT_NAME "ko")
+set (PROJECT_NAME "jsplay")
 project(${PROJECT_NAME})
 
 # Set the source directory root

@@ -26,7 +26,7 @@
 *.exe
 *.out
 *.app
-ko
+jsplay
 
 # Mac OS X
 .DS_Store
@@ -34,3 +34,5 @@ ko
 # Directories
 build/
 node_modules/
+deps/v8
+.idea/

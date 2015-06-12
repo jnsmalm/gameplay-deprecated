@@ -17,6 +17,16 @@ using namespace v8;
 
 namespace {
 
+    class ArrayBufferAllocator : public v8::ArrayBuffer::Allocator {
+    public:
+        virtual void* Allocate(size_t length) {
+            void* data = AllocateUninitialized(length);
+            return data == NULL ? data : memset(data, 0, length);
+        }
+        virtual void* AllocateUninitialized(size_t length) { return malloc(length); }
+        virtual void Free(void* data, size_t) { free(data); }
+    };
+
 Handle<String> ReadFile(Isolate* isolate, std::string filename)
 {
   std::string contents = File::ReadText(filename);
@@ -99,8 +109,12 @@ ScriptEngine::~ScriptEngine()
 
 void ScriptEngine::Run(std::string filename)
 {
+    ArrayBufferAllocator array_buffer_allocator;
+    Isolate::CreateParams create_params;
+    create_params.array_buffer_allocator = &array_buffer_allocator;
+
   // Create a new isolate and make it the current one
-  Isolate* isolate = Isolate::New();
+  Isolate* isolate = Isolate::New(create_params);
   {
     isolate_ = isolate;
 

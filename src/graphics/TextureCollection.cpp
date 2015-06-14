@@ -16,21 +16,24 @@ void TextureCollection::setTexture(int index, Texture* texture) {
 
 void TextureCollection::Initialize() {
     ObjectScript::Initialize();
-    SetIndexedPropertyHandler(GetTexture, SetTexture);
+    SetIndexedPropertyHandler(NULL, SetTexture);
 }
 
 void TextureCollection::GetTexture(uint32_t index,
                                    const PropertyCallbackInfo<Value> &info) {
-    HandleScope scope(info.GetIsolate());
-    auto self = ObjectScript<TextureCollection>::GetSelf(info.Holder());
-    self->getTexture(index);
+    /*HandleScope scope(info.GetIsolate());
+    auto self = GetSelf(info.Holder());
+    self->getTexture(index);*/
 }
 
 void TextureCollection::SetTexture(uint32_t index, Local<v8::Value> value,
                                    const PropertyCallbackInfo<Value> &info) {
     HandleScope scope(info.GetIsolate());
     ScriptHelper helper(info.GetIsolate());
-    auto self = ObjectScript<TextureCollection>::GetSelf(info.Holder());
+
+    auto self = GetSelf(info.Holder());
     auto texture = helper.GetObject<Texture>(value);
     self->setTexture(index, texture);
+
+    info.GetReturnValue().Set(value);
 }

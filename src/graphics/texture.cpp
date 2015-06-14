@@ -27,7 +27,7 @@ Texture::Texture(Isolate* isolate, std::string filename) :
     height_ = height;
 
     glGenTextures(1, &glTexture_);
-    glActiveTexture(GL_TEXTURE31);
+    glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -35,11 +35,12 @@ Texture::Texture(Isolate* isolate, std::string filename) :
                  GL_UNSIGNED_BYTE, &image[0]);
 }
 
-Texture::Texture(int width, int height, GLenum format) : ObjectScript(nullptr) {
+Texture::Texture(Isolate* isolate, int width, int height, GLenum format) :
+        ObjectScript(isolate) {
   Window::EnsureCurrentContext();
 
   glGenTextures(1, &glTexture_);
-  glActiveTexture(GL_TEXTURE0);
+  glActiveTexture(GL_TEXTURE8);
   glBindTexture(GL_TEXTURE_2D, glTexture_);
 
   std::vector<GLubyte> emptyData(width * height * 4, 0);

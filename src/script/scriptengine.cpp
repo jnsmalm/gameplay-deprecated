@@ -3,7 +3,6 @@
 #include "system/console.h"
 #include "system/file.h"
 #include "input/keyboard.h"
-#include "graphics/spritebatch.h"
 #include "graphics/shaderprogram.h"
 #include "graphics/VertexBuffer.h"
 #include "graphics/window.h"
@@ -12,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <numeric>
+#include <graphics/spritefont.h>
 
 using namespace v8;
 
@@ -69,8 +69,7 @@ Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
   auto global = ScriptGlobal::Create(isolate);
 
   ObjectScript<Window>::InstallAsConstructor(isolate, "Window", global);
-  //SpriteBatch::InstallScript(isolate, global);
-  //SpriteFont::InstallScript(isolate, global);
+    ObjectScript<SpriteFont>::InstallAsConstructor(isolate, "SpriteFont", global);
   ObjectScript<Texture>::InstallAsConstructor(isolate, "Texture", global);
   ObjectScript<ShaderProgram>::InstallAsConstructor(
           isolate, "ShaderProgram", global);

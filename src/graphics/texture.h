@@ -14,7 +14,7 @@ class Texture : public ObjectScript<Texture> {
 
 public:
   Texture(v8::Isolate* isolate, std::string filename);
-  Texture(int width, int height, GLenum format);
+  Texture(v8::Isolate* isolate, int width, int height, GLenum format);
   ~Texture();
 
   int GetWidth() { return width_; }

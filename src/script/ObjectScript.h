@@ -25,6 +25,10 @@ public:
         return v8::Local<v8::Object>::New(isolate_, object_);
     }
 
+    v8::Isolate* isolate() {
+        return isolate_;
+    }
+
     static void InstallAsConstructor(
             v8::Isolate *isolate, std::string name,
             v8::Handle<v8::ObjectTemplate> objectTemplate) {

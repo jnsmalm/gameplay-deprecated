@@ -146,13 +146,6 @@ void GraphicsDevice::DrawPrimitives(const FunctionCallbackInfo<Value>& args) {
     auto vertexBuffer = helper.GetObject<VertexBuffer>(arg, "vertexBuffer");
     auto shaderProgram = helper.GetObject<ShaderProgram>(arg, "shaderProgram");
 
-    /*auto vertexBuffer = helper.GetObject<VertexBuffer>(args[0]);
-    auto shaderProgram = helper.GetObject<ShaderProgram>(args[1]);
-    auto primitiveType = helper.GetString(args[2]);
-    auto vertexStart = helper.GetInteger(args[3]);
-    auto primitiveCount = helper.GetInteger(args[4]);*/
-
-
     if (primitiveType == "triangleList") {
         self->DrawPrimitives(vertexBuffer, shaderProgram,
                              PrimitiveT::TriangleList, vertexStart,

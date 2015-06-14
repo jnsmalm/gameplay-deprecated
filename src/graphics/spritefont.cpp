@@ -3,9 +3,7 @@
 #include "script/scriptengine.h"
 #include "script/scripthelper.h"
 
-//#include <gl/glew.h>
-
-/*using namespace v8;
+using namespace v8;
 
 namespace {
 
@@ -19,8 +17,10 @@ FontGlyph LoadGlyph(FT_Face face, char c)
 
   FontGlyph glyph;
 
-  glyph.source.width = (float)face->glyph->bitmap.width;
-  glyph.source.height = (float)face->glyph->bitmap.rows;
+    glyph.c = c;
+
+  glyph.source.w = (float)face->glyph->bitmap.width;
+  glyph.source.h = (float)face->glyph->bitmap.rows;
   glyph.offset.x = (float)face->glyph->bitmap_left;
   glyph.offset.y = (float)face->glyph->bitmap_top;
 
@@ -36,109 +36,73 @@ FontGlyph LoadGlyph(FT_Face face, char c)
 
 }
 
-// Helps with setting up the script object.
-class SpriteFont::ScriptSpriteFont : public ScriptObject<SpriteFont> {
+SpriteFont::SpriteFont(v8::Isolate *isolate, std::string filename, int size,
+                       std::string chars) : ObjectScript(isolate) {
+    glyphs_ = new GlyphCollection(isolate);
+    glyphs_->InstallAsObject("glyphs", this->getObject());
 
-public:
+    FT_Library library;
+    FT_Face face;
 
-  void Initialize()
-  {
-    ScriptObject::Initialize();
-    AddFunction("measureString", MeasureString);
-  }
-
-  static void New(const v8::FunctionCallbackInfo<v8::Value>& args)
-  {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-
-    auto arg = args[0]->ToObject();
-    auto filename = ScriptEngine::GetCurrent().GetExecutionPath() + 
-      helper.GetString(arg, "filename");
-    auto size = helper.GetInteger(arg, "size", 20);
-    auto chars = helper.GetString(arg, "chars");
-
-    try {
-      auto scriptObject = new ScriptSpriteFont(args.GetIsolate());
-      auto object = scriptObject->Wrap(new SpriteFont(filename, size, chars));
-      args.GetReturnValue().Set(object);
+    // Initialize freetype library and check for error.
+    auto error = FT_Init_FreeType(&library);
+    if (error) {
+        throw std::runtime_error("Failed to initialize font library");
     }
-    catch (std::exception& ex) {
-      ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+
+    // Load the specified font and check for error.
+    error = FT_New_Face(library, filename.c_str(), 0, &face);
+    if (error) {
+        throw std::runtime_error("Failed to load font '" + filename + "'");
     }
-  }
 
-  static void MeasureString(const FunctionCallbackInfo<Value>& args) 
-  {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-    auto self = Unwrap<SpriteFont>(args.Holder());
-    auto text = helper.GetString(args[0]);
-    auto width = self->MeasureString(text).width;
-    args.GetReturnValue().Set(width);
-  }
+    // Set the font size height in pixels.
+    FT_Set_Pixel_Sizes(face, 0, size);
 
-private:
+    SetupGlyphs(face, chars);
 
-  // Inherit constructors.
-  using ScriptObject::ScriptObject;
-
-};
-
-SpriteFont::SpriteFont(std::string filename, int size, std::string chars)
-{
-  FT_Library library;
-  FT_Face face;
-
-  // Initialize freetype library and check for error.
-  auto error = FT_Init_FreeType(&library);
-  if (error) {
-    throw std::runtime_error("Failed to initialize font library");
-  }
-
-  // Load the specified font and check for error.
-  error = FT_New_Face(library, filename.c_str(), 0, &face);
-  if (error) {
-    throw std::runtime_error("Failed to load font '" + filename + "'");
-  }
-
-  // Set the font size height in pixels.
-  FT_Set_Pixel_Sizes(face, 0, size);
-
-  SetupGlyphs(face, chars);
-
-  FT_Done_Face(face);
-  FT_Done_FreeType(library);
+    FT_Done_Face(face);
+    FT_Done_FreeType(library);
 }
 
 SpriteFont::~SpriteFont()
 {
-  delete texture_;
+    delete glyphs_;
+    delete texture_;
 }
 
-Size SpriteFont::MeasureString(std::string text)
+void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
-  Size size = { 0, 0 };
-  for (int i = 0; i < text.length(); i++) {
-    auto glyph = glyphs_[text.at(i)];
-    if (glyph.source.height > size.height) {
-      size.height = glyph.source.height;
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto arg = args[0]->ToObject();
+    auto filename = ScriptEngine::GetCurrent().GetExecutionPath() +
+                    helper.GetString(arg, "filename");
+    auto size = helper.GetInteger(arg, "size", 20);
+    auto chars = helper.GetString(arg, "chars");
+
+    try {
+        auto spriteFont = new SpriteFont(args.GetIsolate(), filename, size,
+                                           chars);
+        args.GetReturnValue().Set(spriteFont->getObject());
     }
-    size.width += glyph.advance.x;
-  }
-  return size;
+    catch (std::exception& ex) {
+        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+    }
 }
 
 void SpriteFont::SetupGlyphs(FT_Face face, std::string chars)
 {
   // Create texture used for placing the glyphs.
-  texture_ = new Texture(1024, 1024, GL_RED);
+  texture_ = new Texture(isolate(), 1024, 1024, GL_RED);
+    texture_->InstallAsObject("texture", this->getObject());
 
   // Set texture filtering.
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  Point position = { 0, 0 };
+  int x = 0, y = 0;
   maxGlyphHeight_ = 0;
 
   // It is also very important to disable the default 4-byte alignment 
@@ -152,13 +116,13 @@ void SpriteFont::SetupGlyphs(FT_Face face, std::string chars)
   for (auto c: chars) {
     // Load glyph and place it on texture.
     auto glyph = LoadGlyph(face, c);
-    PlaceGlyph(face, &glyph, position.x, position.y);
+    PlaceGlyph(face, &glyph, x, y);
 
-    position.x = glyph.source.x + glyph.source.width + 1;
-    position.y = glyph.source.y;
+    x = glyph.source.x + glyph.source.w + 1;
+    y = glyph.source.y;
 
     // Store glyph in map for lookup.
-    glyphs_[c] = glyph;
+    glyphs_->Add(glyph);
   }
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -166,17 +130,17 @@ void SpriteFont::SetupGlyphs(FT_Face face, std::string chars)
 
 void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
 {
-  if (glyph->source.height > maxGlyphHeight_) {
-    maxGlyphHeight_ = glyph->source.height;
+  if (glyph->source.h > maxGlyphHeight_) {
+    maxGlyphHeight_ = glyph->source.h;
   }
 
-  if (x + glyph->source.width > texture_->GetWidth()) {
+  if (x + glyph->source.w > texture_->GetWidth()) {
     x = 0;
     y += maxGlyphHeight_;
-    maxGlyphHeight_ = glyph->source.height;
+    maxGlyphHeight_ = glyph->source.h;
   }
 
-  if (y + glyph->source.height > texture_->GetHeight()) {
+  if (y + glyph->source.h > texture_->GetHeight()) {
     throw std::runtime_error("Could not fit all characters on font texture");
   }
 
@@ -190,8 +154,28 @@ void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
     bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 }
 
-void SpriteFont::InstallScript(Isolate* isolate, Handle<ObjectTemplate> parent)
-{
-  ScriptSpriteFont::InstallAsConstructor<ScriptSpriteFont>(
-    isolate, "SpriteFont", parent);
-}*/
+void SpriteFont::Initialize() {
+    ObjectScript::Initialize();
+    SetFunction("measureString", MeasureString);
+}
+
+int SpriteFont::MeasureString(std::string text) {
+    int size = 0;
+    for (int i = 0; i < text.length(); i++) {
+        auto glyph = glyphs_->Get(text.at(i));
+        size += glyph.advance.x;
+    }
+    return size;
+}
+
+void SpriteFont::MeasureString(
+        const v8::FunctionCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto self = GetSelf(args.Holder());
+    auto text = helper.GetString(args[0]);
+    auto size = self->MeasureString(text);
+
+    args.GetReturnValue().Set(size);
+}

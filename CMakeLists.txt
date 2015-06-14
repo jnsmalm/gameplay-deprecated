@@ -18,9 +18,6 @@ include_directories(deps/freetype/include)
 # Set the dependency directories used
 set (V8_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/v8/include)
 set (V8_LIBRARIES_DIR ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
-set (GLM_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/glm)
-#set (FREETYPE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/freetype2/include)
-#set (FREETYPE_LIBRARIES_DIR ${CMAKE_SOURCE_DIR}/deps/freetype2/build)
 
 # Set the sources to compile
 set (PROJECT_SRC_FILES
@@ -31,8 +28,6 @@ set (PROJECT_SRC_FILES
   ${PROJECT_SRC_DIR}/input/keyboard
   ${PROJECT_SRC_DIR}/input/mouse
   ${PROJECT_SRC_DIR}/graphics/texture
-  ${PROJECT_SRC_DIR}/graphics/spritebatch
-  ${PROJECT_SRC_DIR}/graphics/spriteshaders
   ${PROJECT_SRC_DIR}/graphics/spritefont
   ${PROJECT_SRC_DIR}/graphics/shader
   ${PROJECT_SRC_DIR}/graphics/shaderprogram
@@ -48,13 +43,9 @@ set (V8_LIBRARIES
   ${V8_LIBRARIES_DIR}/libicuuc.a
   ${V8_LIBRARIES_DIR}/libicui18n.a)
 
-# Set the freetype libraries
-#set (FREETYPE_LIBRARIES
- # ${FREETYPE_LIBRARIES_DIR}/libfreetype.a)
-
 set (PROJECT_LIBRARIES
   ${V8_LIBRARIES}
-  #${FREETYPE_LIBRARIES}
+  freetype
   libglew_static
   glfw ${GLFW_LIBRARIES})
 
@@ -77,6 +68,6 @@ endif()
 
 add_definitions(-std=c++11 -stdlib=libc++)
 include_directories(${GLM_INCLUDE_DIR} ${V8_INCLUDE_DIR} ${PROJECT_SRC_DIR} deps/v8 deps/lodepng)
-add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/GraphicsDevice.cpp src/graphics/GraphicsDevice.h src/graphics/VertexDeclaration.cpp src/graphics/VertexDeclaration.h src/graphics/TextureCollection.cpp src/graphics/TextureCollection.h src/script/ObjectScript.h deps/lodepng/lodepng)
+add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/GraphicsDevice.cpp src/graphics/GraphicsDevice.h src/graphics/VertexDeclaration.cpp src/graphics/VertexDeclaration.h src/graphics/TextureCollection.cpp src/graphics/TextureCollection.h src/script/ObjectScript.h deps/lodepng/lodepng src/graphics/GlyphCollection.h src/graphics/GlyphCollection.cpp)
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBRARIES})
 #set(CMAKE_BUILD_TYPE Release)

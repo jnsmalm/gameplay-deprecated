@@ -15,6 +15,9 @@ include_directories(deps/glew/include)
 add_subdirectory(deps/freetype)
 include_directories(deps/freetype/include)
 
+add_subdirectory(deps/openal)
+include_directories(deps/openal/include)
+
 # Set the dependency directories used
 set (V8_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/deps/v8/include)
 set (V8_LIBRARIES_DIR ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
@@ -47,6 +50,7 @@ set (PROJECT_LIBRARIES
   ${V8_LIBRARIES}
   freetype
   libglew_static
+  openal
   glfw ${GLFW_LIBRARIES})
 
 # Set the libraries for Apple OS X
@@ -68,6 +72,6 @@ endif()
 
 add_definitions(-std=c++11 -stdlib=libc++)
 include_directories(${GLM_INCLUDE_DIR} ${V8_INCLUDE_DIR} ${PROJECT_SRC_DIR} deps/v8 deps/lodepng)
-add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/GraphicsDevice.cpp src/graphics/GraphicsDevice.h src/graphics/VertexDeclaration.cpp src/graphics/VertexDeclaration.h src/graphics/TextureCollection.cpp src/graphics/TextureCollection.h src/script/ObjectScript.h deps/lodepng/lodepng src/graphics/GlyphCollection.h src/graphics/GlyphCollection.cpp)
+add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/GraphicsDevice.cpp src/graphics/GraphicsDevice.h src/graphics/VertexDeclaration.cpp src/graphics/VertexDeclaration.h src/graphics/TextureCollection.cpp src/graphics/TextureCollection.h src/script/ObjectScript.h deps/lodepng/lodepng src/graphics/GlyphCollection.h src/graphics/GlyphCollection.cpp src/audio/audiomanager.cpp src/audio/audiomanager.h src/audio/soundeffect.cpp src/audio/soundeffect.h src/audio/waveformat.cpp src/audio/waveformat.h)
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBRARIES})
 #set(CMAKE_BUILD_TYPE Release)

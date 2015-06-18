@@ -31,7 +31,8 @@ namespace {
 SoundBuffer::SoundBuffer(v8::Isolate *isolate, std::string filename) :
         ObjectScript(isolate){
     alGenBuffers((ALuint)1, &al_buffer_);
-    auto waveFormat = WaveFormat::Load(filename);
+    WaveFormat waveFormat;
+    waveFormat.Load(filename);
     auto audioFormat = GetAudioFormat(&waveFormat);
     alBufferData(al_buffer_, audioFormat, waveFormat.data,
                  waveFormat.subChunk2Size, waveFormat.sampleRate);

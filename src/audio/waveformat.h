@@ -20,7 +20,7 @@ public:
         delete[] data;
     }
 
-    static WaveFormat Load(std::string filename);
+    void Load(std::string filename);
 
     char chunkID[NUM_CHARS];
     unsigned int chunkSize;

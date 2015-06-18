@@ -4,7 +4,7 @@
 
 #include <script/scripthelper.h>
 #include <script/scriptengine.h>
-#include "soundeffect.h"
+#include "soundbuffer.h"
 #include "waveformat.h"
 
 using namespace v8;
@@ -28,52 +28,29 @@ namespace {
     }
 }
 
-SoundEffect::SoundEffect(v8::Isolate *isolate, std::string filename) :
+SoundBuffer::SoundBuffer(v8::Isolate *isolate, std::string filename) :
         ObjectScript(isolate){
-    alGenSources((ALuint)1, &source_);
-    alSourcef(source_, AL_PITCH, 1);
-    alSourcef(source_, AL_GAIN, 1);
-    alSource3f(source_, AL_POSITION, 0, 0, 0);
-    alSource3f(source_, AL_VELOCITY, 0, 0, 0);
-    alSourcei(source_, AL_LOOPING, AL_FALSE);
-    alGenBuffers((ALuint)1, &buffer_);
+    alGenBuffers((ALuint)1, &al_buffer_);
     auto waveFormat = WaveFormat::Load(filename);
     auto audioFormat = GetAudioFormat(&waveFormat);
-    alBufferData(buffer_, audioFormat, waveFormat.data,
+    alBufferData(al_buffer_, audioFormat, waveFormat.data,
                  waveFormat.subChunk2Size, waveFormat.sampleRate);
-    alSourcei(source_, AL_BUFFER, buffer_);
 }
 
-SoundEffect::~SoundEffect() {
-    alDeleteSources(1, &source_);
-    alDeleteBuffers(1, &buffer_);
+SoundBuffer::~SoundBuffer() {
+    alDeleteBuffers(1, &al_buffer_);
 }
 
-void SoundEffect::Play() {
-    alSourcePlay(source_);
-}
-
-void SoundEffect::Initialize() {
-    ObjectScript::Initialize();
-    SetFunction("play", Play);
-}
-
-void SoundEffect::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
+void SoundBuffer::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
     auto filename = ScriptEngine::GetCurrent().GetExecutionPath() +
             helper.GetString(args[0]);
     try {
-        auto soundEffect = new SoundEffect(args.GetIsolate(), filename);
-        args.GetReturnValue().Set(soundEffect->getObject());
+        auto soundBuffer = new SoundBuffer(args.GetIsolate(), filename);
+        args.GetReturnValue().Set(soundBuffer->getObject());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
     }
-}
-
-void SoundEffect::Play(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    HandleScope scope(args.GetIsolate());
-    auto soundEffect = GetSelf(args.Holder());
-    soundEffect->Play();
 }

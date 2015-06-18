@@ -72,6 +72,6 @@ endif()
 
 add_definitions(-std=c++11 -stdlib=libc++)
 include_directories(${GLM_INCLUDE_DIR} ${V8_INCLUDE_DIR} ${PROJECT_SRC_DIR} deps/v8 deps/lodepng)
-add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/GraphicsDevice.cpp src/graphics/GraphicsDevice.h src/graphics/VertexDeclaration.cpp src/graphics/VertexDeclaration.h src/graphics/TextureCollection.cpp src/graphics/TextureCollection.h src/script/ObjectScript.h deps/lodepng/lodepng src/graphics/GlyphCollection.h src/graphics/GlyphCollection.cpp src/audio/audiomanager.cpp src/audio/audiomanager.h src/audio/soundeffect.cpp src/audio/soundeffect.h src/audio/waveformat.cpp src/audio/waveformat.h)
+add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/GraphicsDevice.cpp src/graphics/GraphicsDevice.h src/graphics/VertexDeclaration.cpp src/graphics/VertexDeclaration.h src/graphics/TextureCollection.cpp src/graphics/TextureCollection.h src/script/ObjectScript.h deps/lodepng/lodepng src/graphics/GlyphCollection.h src/graphics/GlyphCollection.cpp src/audio/audiomanager.cpp src/audio/audiomanager.h src/audio/soundbuffer.cpp src/audio/soundbuffer.h src/audio/waveformat.cpp src/audio/waveformat.h src/audio/soundsource.cpp src/audio/soundsource.h)
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBRARIES})
 #set(CMAKE_BUILD_TYPE Release)

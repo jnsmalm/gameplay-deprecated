@@ -13,7 +13,8 @@
 #include <numeric>
 #include <graphics/spritefont.h>
 #include <audio/audiomanager.h>
-#include <audio/soundeffect.h>
+#include <audio/soundbuffer.h>
+#include <audio/soundsource.h>
 
 using namespace v8;
 
@@ -77,7 +78,8 @@ Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
           isolate, "ShaderProgram", global);
   ObjectScript<VertexBuffer>::InstallAsConstructor(isolate, "VertexBuffer", global);
   ObjectScript<AudioManager>::InstallAsConstructor(isolate, "AudioManager", global);
-    ObjectScript<SoundEffect>::InstallAsConstructor(isolate, "SoundEffect", global);
+    ObjectScript<SoundBuffer>::InstallAsConstructor(isolate, "SoundBuffer", global);
+    ObjectScript<SoundSource>::InstallAsConstructor(isolate, "SoundSource", global);
   File::InstallScript(isolate, global);
   Console::InstallScript(isolate, global);
 

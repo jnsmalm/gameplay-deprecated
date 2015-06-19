@@ -22,6 +22,22 @@ public:
     isolate_ = isolate;
   }
 
+  Handle<Object> NewObject() {
+    return Object::New(isolate_);
+  }
+
+  void Set(Handle<Object> object, std::string name, Handle<Value> value) {
+    object->Set(String::NewFromUtf8(isolate_, name.c_str()), value);
+  }
+
+  void SetInt32(Handle<Object> object, std::string name, int value) {
+    Set(object, name, NewInt32(value));
+  }
+
+  Handle<v8::Integer> NewInt32(int value) {
+    return v8::Integer::New(isolate_, value);
+  }
+
   Handle<Value> GetValue(Handle<Object> object, std::string name)
   {
     return object->Get(String::NewFromUtf8(isolate_, name.c_str()));

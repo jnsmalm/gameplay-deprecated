@@ -7,17 +7,14 @@ using namespace v8;
 
 namespace {
 
-FontGlyph LoadGlyph(FT_Face face, char c)
-{
+    SpriteFontGlyph LoadGlyph(FT_Face face, char c) {
   // Load glyph char and check for error.
   auto error = FT_Load_Char(face, c, FT_LOAD_RENDER);
   if (error) {
     throw std::runtime_error("Failed to load font character");
   }
 
-  FontGlyph glyph;
-
-    glyph.c = c;
+        SpriteFontGlyph glyph;
 
   glyph.source.w = (float)face->glyph->bitmap.width;
   glyph.source.h = (float)face->glyph->bitmap.rows;
@@ -37,9 +34,9 @@ FontGlyph LoadGlyph(FT_Face face, char c)
 }
 
 SpriteFont::SpriteFont(v8::Isolate *isolate, std::string filename, int size,
-                       std::string chars) : ObjectScript(isolate) {
-    glyphs_ = new GlyphCollection(isolate);
-    glyphs_->InstallAsObject("glyphs", this->getObject());
+                       std::string chars) : ObjectScript(isolate), glyphs_(isolate) {
+    //glyphs_ = new GlyphCollection(isolate);
+    glyphs_.InstallAsObject("glyphs", this->getObject());
 
     FT_Library library;
     FT_Face face;
@@ -67,7 +64,7 @@ SpriteFont::SpriteFont(v8::Isolate *isolate, std::string filename, int size,
 
 SpriteFont::~SpriteFont()
 {
-    delete glyphs_;
+    //delete glyphs_;
     delete texture_;
 }
 
@@ -122,13 +119,13 @@ void SpriteFont::SetupGlyphs(FT_Face face, std::string chars)
     y = glyph.source.y;
 
     // Store glyph in map for lookup.
-    glyphs_->Add(glyph);
+    glyphs_[c] = glyph;
   }
 
   glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 }
 
-void SpriteFont::PlaceGlyph(FT_Face face, FontGlyph* glyph, float x, float y)
+void SpriteFont::PlaceGlyph(FT_Face face, SpriteFontGlyph* glyph, float x, float y)
 {
   if (glyph->source.h > maxGlyphHeight_) {
     maxGlyphHeight_ = glyph->source.h;
@@ -162,7 +159,8 @@ void SpriteFont::Initialize() {
 int SpriteFont::MeasureString(std::string text) {
     int size = 0;
     for (int i = 0; i < text.length(); i++) {
-        auto glyph = glyphs_->Get(text.at(i));
+        //auto glyph = glyphs_->Get(text.at(i));
+        auto glyph = glyphs_[text.at(i)];
         size += glyph.advance.x;
     }
     return size;

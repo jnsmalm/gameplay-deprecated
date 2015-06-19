@@ -12,9 +12,9 @@
 #include <iostream>
 #include <numeric>
 #include <graphics/spritefont.h>
-#include <audio/audiomanager.h>
-#include <audio/soundbuffer.h>
-#include <audio/soundsource.h>
+#include "audio/audio-manager.h"
+#include "audio/sound-buffer.h"
+#include "audio/sound-source.h"
 
 using namespace v8;
 

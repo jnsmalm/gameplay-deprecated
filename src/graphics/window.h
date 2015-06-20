@@ -11,10 +11,6 @@ class Keyboard;
 class Mouse;
 class GraphicsDevice;
 
-enum class PrimitiveT {
-  TriangleList, LineList, PointList
-};
-
 class Window : public ObjectScript<Window> {
 
   friend class Keyboard;

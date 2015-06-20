@@ -3,7 +3,7 @@
 #include "graphics/window.h"
 #include "script/scripthelper.h"
 #include "script/scriptengine.h"
-#include "GraphicsDevice.h"
+#include "graphics-device.h"
 
 using namespace v8;
 
@@ -64,14 +64,14 @@ int ShaderProgram::GetUniformLocation(std::string name) {
 }
 
 void ShaderProgram::SetUniformFloat(std::string name, float value) {
-    auto oldShaderProgram = graphicsDevice_->GetShaderProgram();
+    auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform1f(GetUniformLocation(name), value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
 }
 
 void ShaderProgram::SetUniformInteger(std::string name, int value) {
-    auto oldShaderProgram = graphicsDevice_->GetShaderProgram();
+    auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform1i(GetUniformLocation(name), value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
@@ -79,7 +79,7 @@ void ShaderProgram::SetUniformInteger(std::string name, int value) {
 
 void ShaderProgram::SetUniformMatrix4(std::string name,
                                                   float *value) {
-    auto oldShaderProgram = graphicsDevice_->GetShaderProgram();
+    auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
@@ -87,7 +87,7 @@ void ShaderProgram::SetUniformMatrix4(std::string name,
 
 void ShaderProgram::SetUniformVector2(std::string name,
                                                   float *value) {
-    auto oldShaderProgram = graphicsDevice_->GetShaderProgram();
+    auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform2fv(GetUniformLocation(name), 1, value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
@@ -95,7 +95,7 @@ void ShaderProgram::SetUniformVector2(std::string name,
 
 void ShaderProgram::SetUniformVector3(std::string name,
                                                   float *value) {
-    auto oldShaderProgram = graphicsDevice_->GetShaderProgram();
+    auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform3fv(GetUniformLocation(name), 1, value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
@@ -103,7 +103,7 @@ void ShaderProgram::SetUniformVector3(std::string name,
 
 void ShaderProgram::SetUniformVector4(std::string name,
                                                   float *value) {
-    auto oldShaderProgram = graphicsDevice_->GetShaderProgram();
+    auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform4fv(GetUniformLocation(name), 1, value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);

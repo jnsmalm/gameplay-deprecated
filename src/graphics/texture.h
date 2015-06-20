@@ -20,6 +20,10 @@ public:
   int GetWidth() { return width_; }
   int GetHeight() { return height_; }
 
+  GLuint glTexture() {
+    return glTexture_;
+  }
+
   static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
 private:

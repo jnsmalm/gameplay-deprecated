@@ -4,7 +4,7 @@
 #include "VertexBuffer.h"
 #include "window.h"
 #include "VertexDeclaration.h"
-#include "GraphicsDevice.h"
+#include "graphics-device.h"
 
 using namespace v8;
 
@@ -23,7 +23,7 @@ VertexBuffer::~VertexBuffer() {
 }
 
 void VertexBuffer::SetData(float *vertices, int size) {
-    auto vertexBuffer = graphicsDevice_->GetVertexBuffer();
+    auto vertexBuffer = graphicsDevice_->vertexBuffer();
     graphicsDevice_->SetVertexBuffer(this);
     glBindVertexArray(glVertexArray_);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STREAM_DRAW);

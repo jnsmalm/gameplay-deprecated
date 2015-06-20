@@ -34,6 +34,40 @@ public:
         v8_object_ = v8::Object::New(isolate);
     }
 
+    ScriptObjectHelper(v8::Isolate *isolate, v8::Handle<v8::Object> object) :
+            v8_object_(object) {
+        v8_isolate_ = isolate;
+    }
+
+    v8::Handle<v8::Value> GetValue(std::string name) {
+        return v8_object_->Get(
+                v8::String::NewFromUtf8(v8_isolate_, name.c_str()));
+    }
+
+    float GetFloat(std::string name, float defaultValue = 0) {
+        auto value = GetValue(name);
+        if (!value->IsNumber()) {
+            return defaultValue;
+        }
+        return value->NumberValue();
+    }
+
+    std::string GetString(std::string name, std::string defaultValue = "") {
+        auto value = GetValue(name);
+        if (!value->IsString()) {
+            return defaultValue;
+        }
+        return std::string(*v8::String::Utf8Value(value));
+    }
+
+    int GetInteger(std::string name, int defaultValue = 0) {
+        auto value = GetValue(name);
+        if (!value->IsInt32()) {
+            return defaultValue;
+        }
+        return value->Int32Value();
+    }
+
     void SetInteger(std::string name, int value) {
         v8_object_->Set(v8::String::NewFromUtf8(v8_isolate_, name.c_str()),
                         v8::Integer::New(v8_isolate_, value));

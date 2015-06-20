@@ -43,6 +43,11 @@ public:
         return static_cast<T*>(field->Value());
     }
 
+    static T* GetInternalObject(v8::Handle<v8::Object> object) {
+        auto field = v8::Handle<v8::External>::Cast(object->GetInternalField(0));
+        return static_cast<T*>(field->Value());
+    }
+
 protected:
     virtual void Initialize() {
         auto objectTemplate = v8::ObjectTemplate::New(isolate_);

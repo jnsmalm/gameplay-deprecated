@@ -1,7 +1,7 @@
 #include <script/scripthelper.h>
 #include "TextureCollection.h"
 #include "texture.h"
-#include "GraphicsDevice.h"
+#include "graphics-device.h"
 
 using namespace v8;
 
@@ -11,7 +11,24 @@ Texture* TextureCollection::getTexture(int index) {
 
 void TextureCollection::setTexture(int index, Texture* texture) {
     textures_[index] = texture;
-    graphicsDevice_->SetTexture(texture, index);
+    //graphicsDevice_->SetTexture(texture, index);
+    switch (index) {
+        case 0:
+            glActiveTexture(GL_TEXTURE0);
+            break;
+        case 1:
+            glActiveTexture(GL_TEXTURE1);
+            break;
+        case 2:
+            glActiveTexture(GL_TEXTURE2);
+            break;
+        case 3:
+            glActiveTexture(GL_TEXTURE3);
+            break;
+        default:
+            throw std::runtime_error("Unknown texture unit");
+    }
+    glBindTexture(GL_TEXTURE_2D, texture->glTexture());
 }
 
 void TextureCollection::Initialize() {

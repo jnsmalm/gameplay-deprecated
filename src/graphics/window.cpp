@@ -1,5 +1,5 @@
 #include "graphics/window.h"
-#include "graphics/GraphicsDevice.h"
+#include "graphics-device.h"
 #include "script/scriptengine.h"
 #include "script/scriptobject.h"
 #include "script/scripthelper.h"

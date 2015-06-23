@@ -43,7 +43,6 @@ void VertexBuffer::New(const FunctionCallbackInfo<Value>& args) {
                 helper.GetObject<GraphicsDevice>(args[0]);
         Handle<Array> array = Handle<Array>::Cast(args[1]);
         VertexDeclaration* vertexDeclaration = new VertexDeclaration();
-        float data[array->Length()];
         for (int i = 0; i < array->Length(); i++) {
             auto obj = array->Get(i)->ToObject();
             auto name = helper.GetString(obj, "attributeName");
@@ -69,10 +68,11 @@ void VertexBuffer::New(const FunctionCallbackInfo<Value>& args) {
 void VertexBuffer::SetData(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     Handle<Array> array = Handle<Array>::Cast(args[0]);
-    float vertices[array->Length()];
+    float *vertices = new float[array->Length()];
     for (int i = 0; i < array->Length(); i++) {
         vertices[i] = (float) array->Get(i)->NumberValue();
     }
     auto self = ObjectScript<VertexBuffer>::GetSelf(args.Holder());
-    self->SetData(vertices, sizeof(vertices));
+    self->SetData(vertices, sizeof(float) * array->Length());
+    delete vertices;
 }

@@ -1,8 +1,6 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include "script/scriptobject.h"
-
 #include <gl/glew.h>
 #include "v8.h"
 #include <string>

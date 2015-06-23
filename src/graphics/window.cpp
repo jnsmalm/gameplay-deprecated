@@ -1,7 +1,6 @@
 #include "graphics/window.h"
 #include "graphics-device.h"
 #include "script/scriptengine.h"
-#include "script/scriptobject.h"
 #include "script/scripthelper.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
@@ -52,9 +51,6 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
   }
 
   glfwGetWindowSize(glfwWindow_, &width_, &height_);
-
-
-
   glfwMakeContextCurrent(glfwWindow_);
   glfwSwapInterval(1);
 
@@ -62,9 +58,14 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
   //glEnable(GL_BLEND);
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    keyboard_ = new Keyboard(this);
-    mouse_ = new Mouse(this);
+    keyboard_ = new Keyboard(isolate, this);
+    keyboard_->InstallAsObject("keyboard", this->getObject());
+
+    mouse_ = new Mouse(isolate, this);
+    mouse_->InstallAsObject("mouse", this->getObject());
+
     graphicsDevice_ = new GraphicsDevice(isolate, this);
+    graphicsDevice_->InstallAsObject("graphics", this->getObject());
 
   // Initialize glew to handle OpenGL extensions.
   glewExperimental = GL_TRUE;
@@ -133,16 +134,9 @@ void Window::New(const FunctionCallbackInfo<Value>& args)
   auto height = helper.GetInteger(arg, "height", 600);
 
   try {
-    auto window = new Window(args.GetIsolate(), title, width, height,
-                             fullscreen);
-    auto object = window->getObject();
-
-    Keyboard::InstallScript(args.GetIsolate(), object, window->keyboard_);
-    Mouse::InstallScript(args.GetIsolate(), object, window->mouse_);
-
-    window->graphicsDevice_->InstallAsObject("graphics", object);
-
-    args.GetReturnValue().Set(object);
+    auto window = new Window(
+            args.GetIsolate(), title, width, height, fullscreen);
+    args.GetReturnValue().Set(window->getObject());
   }
   catch (std::exception& ex) {
     ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

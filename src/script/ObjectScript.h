@@ -11,11 +11,15 @@ public:
     ObjectScript(v8::Isolate* isolate) : isolate_(isolate) { }
     virtual ~ObjectScript() { };
 
-    v8::Handle<v8::Object> InstallAsObject(std::string name,
-                                           v8::Handle<v8::Object> parent) {
+    void InstallAsObject(std::string name, v8::Handle<v8::Object> parent) {
         parent->Set(v8::String::NewFromUtf8(isolate_, name.c_str()),
                     this->getObject());
-        return this->getObject();
+    }
+
+    void InstallAsTemplate(std::string name,
+                           v8::Handle<v8::ObjectTemplate> parent) {
+        parent->Set(v8::String::NewFromUtf8(isolate_, name.c_str()),
+                    this->getTemplate());
     }
 
     v8::Handle<v8::Object> getObject() {
@@ -27,6 +31,13 @@ public:
 
     v8::Isolate* isolate() {
         return isolate_;
+    }
+
+    v8::Handle<v8::ObjectTemplate> getTemplate() {
+        if (template_.IsEmpty()) {
+            Initialize();
+        }
+        return v8::Local<v8::ObjectTemplate>::New(isolate_, template_);
     }
 
     static void InstallAsConstructor(
@@ -50,6 +61,7 @@ public:
 
 protected:
     virtual void Initialize() {
+        v8::HandleScope scope(isolate_);
         auto objectTemplate = v8::ObjectTemplate::New(isolate_);
         objectTemplate->SetInternalFieldCount(1);
         template_.Reset(isolate_, objectTemplate);
@@ -70,11 +82,13 @@ protected:
 
     void SetIndexedPropertyHandler(v8::IndexedPropertyGetterCallback getter,
                                    v8::IndexedPropertySetterCallback setter) {
+        v8::HandleScope scope(isolate_);
         getTemplate()->SetIndexedPropertyHandler(getter, setter);
     }
 
     void SetNamedPropertyHandler(v8::NamedPropertyGetterCallback getter,
                                  v8::NamedPropertySetterCallback setter) {
+        v8::HandleScope scope(isolate_);
         getTemplate()->SetNamedPropertyHandler(getter, setter);
     }
 
@@ -85,13 +99,6 @@ private:
         object_.Reset(isolate_, instance);
         object_.SetWeak(this, WeakCallback);
         object_.MarkIndependent();
-    }
-
-    v8::Handle<v8::ObjectTemplate> getTemplate() {
-        if (template_.IsEmpty()) {
-            Initialize();
-        }
-        return v8::Local<v8::ObjectTemplate>::New(isolate_, template_);
     }
 
     static void WeakCallback(

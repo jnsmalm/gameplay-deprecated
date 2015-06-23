@@ -1,51 +1,74 @@
 #ifndef SCRIPTGLOBAL_H
 #define SCRIPTGLOBAL_H
 
-#include "script/scriptobject.h"
+#include <system/console.h>
 #include "script/scripthelper.h"
+#include "script/scriptengine.h"
 #include "system/file.h"
+#include "ObjectScript.h"
+
+#include <graphics/spritefont.h>
+#include "audio/audio-manager.h"
+#include "audio/sound-buffer.h"
+#include "audio/sound-source.h"
+
+#include "input/keyboard.h"
+#include "graphics/shaderprogram.h"
+#include "graphics/VertexBuffer.h"
+#include "graphics/window.h"
+#include "graphics/texture.h"
 
 #include "v8.h"
 
-class ScriptGlobal : public ScriptObject<ScriptGlobal> {
+class ScriptGlobal : public ObjectScript<ScriptGlobal> {
 
 public:
+    ScriptGlobal(v8::Isolate *isolate) :
+            ObjectScript(isolate), console_(isolate), file_(isolate) {
 
-  static v8::Handle<v8::ObjectTemplate> Create(v8::Isolate* isolate)
-  {
-    ScriptGlobal global(isolate);
-    global.Initialize();
-    return global.GetTemplate();
-  }
+        console_.InstallAsTemplate("console", getTemplate());
+        file_.InstallAsTemplate("file", getTemplate());
+
+        ObjectScript<Window>::InstallAsConstructor(
+                isolate, "Window", getTemplate());
+        ObjectScript<SpriteFont>::InstallAsConstructor(
+                isolate, "SpriteFont", getTemplate());
+        ObjectScript<Texture>::InstallAsConstructor(
+                isolate, "Texture", getTemplate());
+        ObjectScript<ShaderProgram>::InstallAsConstructor(
+                isolate, "ShaderProgram", getTemplate());
+        ObjectScript<VertexBuffer>::InstallAsConstructor(
+                isolate, "VertexBuffer", getTemplate());
+        ObjectScript<AudioManager>::InstallAsConstructor(
+                isolate, "AudioManager", getTemplate());
+        ObjectScript<SoundBuffer>::InstallAsConstructor(
+                isolate, "SoundBuffer", getTemplate());
+        ObjectScript<SoundSource>::InstallAsConstructor(
+                isolate, "SoundSource", getTemplate());
+    }
 
 protected:
-
-  void Initialize()
-  {
-    ScriptObject::Initialize();
-    AddFunction("require", Require);
-  }
-
-  static void Require(const v8::FunctionCallbackInfo<v8::Value>& args) 
-  {
-    v8::HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-
-    try {
-      auto filename = helper.GetString(args[0]);
-      auto result = ScriptEngine::GetCurrent().Execute(filename);
-      args.GetReturnValue().Set(result);
+    void Initialize() override {
+        ObjectScript::Initialize();
+        SetFunction("require", Require);
     }
-    catch (std::exception& ex) {
-      ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+
+    static void Require(const v8::FunctionCallbackInfo<v8::Value>& args) {
+        v8::HandleScope scope(args.GetIsolate());
+        ScriptHelper helper(args.GetIsolate());
+        try {
+            auto filename = helper.GetString(args[0]);
+            auto result = ScriptEngine::GetCurrent().Execute(filename);
+            args.GetReturnValue().Set(result);
+        }
+        catch (std::exception& ex) {
+            ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        }
     }
-  }
 
 private:
-
-  // Inherit constructors.
-  using ScriptObject::ScriptObject;
-
+    Console console_;
+    File file_;
 };
 
 #endif

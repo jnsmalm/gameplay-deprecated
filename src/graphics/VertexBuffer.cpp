@@ -1,4 +1,3 @@
-#include <script/scriptobject.h>
 #include <script/scriptengine.h>
 #include <script/scripthelper.h>
 #include "VertexBuffer.h"

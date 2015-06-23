@@ -1,6 +1,5 @@
 #include "graphics/texture.h"
 #include "script/scriptengine.h"
-#include "script/scriptobject.h"
 #include "script/scripthelper.h"
 #include "graphics/window.h"
 

@@ -1,20 +1,9 @@
 #include "script/scriptengine.h"
 #include "script/scriptglobal.h"
-#include "system/console.h"
-#include "system/file.h"
-#include "input/keyboard.h"
-#include "graphics/shaderprogram.h"
-#include "graphics/VertexBuffer.h"
-#include "graphics/window.h"
-#include "graphics/texture.h"
-
 #include <string>
 #include <iostream>
 #include <numeric>
-#include <graphics/spritefont.h>
-#include "audio/audio-manager.h"
-#include "audio/sound-buffer.h"
-#include "audio/sound-source.h"
+
 
 using namespace v8;
 
@@ -67,25 +56,6 @@ std::string GetFilePath(std::string filename)
   return filename.substr(0, index + 1);
 }
 
-Handle<ObjectTemplate> InstallGlobalScript(Isolate* isolate)
-{
-  auto global = ScriptGlobal::Create(isolate);
-
-  ObjectScript<Window>::InstallAsConstructor(isolate, "Window", global);
-    ObjectScript<SpriteFont>::InstallAsConstructor(isolate, "SpriteFont", global);
-  ObjectScript<Texture>::InstallAsConstructor(isolate, "Texture", global);
-  ObjectScript<ShaderProgram>::InstallAsConstructor(
-          isolate, "ShaderProgram", global);
-  ObjectScript<VertexBuffer>::InstallAsConstructor(isolate, "VertexBuffer", global);
-  ObjectScript<AudioManager>::InstallAsConstructor(isolate, "AudioManager", global);
-    ObjectScript<SoundBuffer>::InstallAsConstructor(isolate, "SoundBuffer", global);
-    ObjectScript<SoundSource>::InstallAsConstructor(isolate, "SoundSource", global);
-  File::InstallScript(isolate, global);
-  Console::InstallScript(isolate, global);
-
-  return global;
-}
-
 Handle<Object> InstallModule(Isolate* isolate, Handle<Object> global)
 {
   auto module = Object::New(isolate);
@@ -97,8 +67,7 @@ Handle<Object> InstallModule(Isolate* isolate, Handle<Object> global)
 
 }
 
-ScriptEngine::ScriptEngine()
-{
+ScriptEngine::ScriptEngine() {
   V8::InitializeICU();
   platform_ = v8::platform::CreateDefaultPlatform();
   V8::InitializePlatform(platform_);
@@ -107,6 +76,9 @@ ScriptEngine::ScriptEngine()
 
 ScriptEngine::~ScriptEngine()
 {
+    if (scriptGlobal_ != nullptr) {
+        delete scriptGlobal_;
+    }
   V8::Dispose();
   V8::ShutdownPlatform();
   delete platform_;
@@ -126,18 +98,8 @@ void ScriptEngine::Run(std::string filename)
     Isolate::Scope isolateScope(isolate);
     HandleScope handleScope(isolate);
 
-    global_.Reset(isolate, InstallGlobalScript(isolate_));
+    scriptGlobal_ = new ScriptGlobal(isolate);
 
-    /*auto global = ObjectTemplate::New(isolate);
-    global->Set(String::NewFromUtf8(isolate, "ko"), 
-      InstallGlobalScript(isolate));*/
-
-    //auto global = InstallGlobalScript(isolate);
-
-    // Enter the new context so all the following operations take place
-    // within it.
-    //auto context = Context::New(isolate, NULL, global);
-    //context_.Reset(isolate, context);
 
     executionPath_ = GetFilePath(filename);
 
@@ -151,12 +113,14 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
   auto filepath = GetCurrentScriptPath() + filename;
   auto appended = AppendScriptPath(filename);
 
-  auto global = Local<ObjectTemplate>::New(isolate_, global_);
+  //auto global = Local<ObjectTemplate>::New(isolate_, global_);
 
   // Enter the new context so all the following operations take place
   // within it.
-  auto context = Context::New(isolate_, NULL, global);
+  auto context = Context::New(isolate_, NULL, scriptGlobal_->getTemplate());
   //context_.Reset(isolate, context);
+
+
 
   // Every script gets it's own context.
   Context::Scope contextScope(

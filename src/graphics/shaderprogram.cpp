@@ -170,7 +170,7 @@ void ShaderProgram::SetValue(Local<String> name, Local<Value> value,
     auto self = ShaderProgram::GetSelf(info.Holder());
     if (value->IsFloat32Array()) {
         Handle<Float32Array> array = Handle<Float32Array>::Cast(value);
-        GLfloat data[array->Length()];
+        GLfloat *data = new GLfloat[array->Length()];
         for (int i = 0; i < array->Length(); i++) {
             data[i] = (GLfloat) array->Get(i)->NumberValue();
         }
@@ -192,6 +192,7 @@ void ShaderProgram::SetValue(Local<String> name, Local<Value> value,
                 break;
             }
         }
+        delete[] data;
     }
     else if (value->IsInt32()) {
         self->SetUniformInteger(str, value->Int32Value());

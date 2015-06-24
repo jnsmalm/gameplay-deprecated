@@ -74,5 +74,5 @@ void VertexBuffer::SetData(const FunctionCallbackInfo<Value>& args) {
     }
     auto self = ObjectScript<VertexBuffer>::GetSelf(args.Holder());
     self->SetData(vertices, sizeof(float) * array->Length());
-    delete vertices;
+    delete[] vertices;
 }

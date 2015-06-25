@@ -1,4 +1,4 @@
-## JSPlay
+# JSPlay
 
 Platform for building desktop games with JavaScript.
 
@@ -12,7 +12,7 @@ git clone https://github.com/jnsmalm/jsplay.git
 V8 is the JavaScript engine from Google used by JSPlay. The source for V8 needs
 to be downloaded and compiled before building JSPlay.
 
-#### Mac OS X
+##### Mac OS X
 
 - Go to [Google's V8 website](https://developers.google.com/v8/build) and follow
 the instructions to download the source code for V8.
@@ -29,7 +29,7 @@ git checkout tags/4.5.9
 - Build V8 using 'make native'.
 - Copy or move the V8 folder to jsplay/deps.
 
-#### Windows with Visual Studio
+##### Windows with Visual Studio
 
 - Go to [Google's V8 website](https://developers.google.com/v8/build) and follow
 the instructions to download the source code for V8.
@@ -52,7 +52,7 @@ JSPlay uses the [CMake](http://www.cmake.org) build system. Supported is Make
 for Mac OS X and Visual Studio for Windows. You can probably build it using
 other tools but those have not been tested.
 
-#### Mac OS X
+##### Mac OS X
 ```
 cd jsplay
 mkdir build
@@ -61,7 +61,7 @@ cmake ..
 make
 ```
 
-#### Windows
+##### Windows
 
 Generate Visual Studio solution with:
 ```
@@ -70,6 +70,6 @@ md build
 cd build
 cmake .. -G "Visual Studio 12 2013"
 ```
-If an error occur saying something like "Can't find source code: 
+If an error occur saying something like "Cannot find source file: 
 CheckFileOffsetBits.c", try running the cmake command again. Open the created
 Visual Studio solution and build as usual.

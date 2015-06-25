@@ -166,7 +166,7 @@ void ShaderProgram::SetValue(Local<String> name, Local<Value> value,
                                          const PropertyCallbackInfo<v8::Value> &info) {
     HandleScope scope(info.GetIsolate());
     ScriptHelper helper(info.GetIsolate());
-    auto str = *v8::String::Utf8Value(name);
+    auto str = std::string(*v8::String::Utf8Value(name));
     auto self = ShaderProgram::GetSelf(info.Holder());
     if (value->IsFloat32Array()) {
         Handle<Float32Array> array = Handle<Float32Array>::Cast(value);

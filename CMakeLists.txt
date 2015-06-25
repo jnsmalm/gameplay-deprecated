@@ -71,6 +71,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 
 add_definitions(-std=c++11 -stdlib=libc++)
+add_definitions(-DGLEW_STATIC -DAL_LIBTYPE_STATIC)
 include_directories(${GLM_INCLUDE_DIR} ${V8_INCLUDE_DIR} ${PROJECT_SRC_DIR} deps/v8 deps/lodepng)
 add_executable(${PROJECT_NAME} ${PROJECT_SRC_FILES} src/graphics/VertexBuffer.cpp src/graphics/VertexBuffer.h src/graphics/graphics-device.cpp src/graphics/graphics-device.h src/graphics/VertexDeclaration.cpp src/graphics/VertexDeclaration.h src/graphics/TextureCollection.cpp src/graphics/TextureCollection.h src/script/ObjectScript.h deps/lodepng/lodepng src/graphics/glyph-collection.h src/graphics/glyph-collection.cpp src/audio/audio-manager.cpp src/audio/audio-manager.h src/audio/sound-buffer.cpp src/audio/sound-buffer.h src/audio/wave-format.cpp src/audio/wave-format.h src/audio/sound-source.cpp src/audio/sound-source.h src/script/scriptobjecthelper.h)
 target_link_libraries(${PROJECT_NAME} ${PROJECT_LIBRARIES})

@@ -39,7 +39,7 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
 
   if (!glfwInit()) {
     // Something went wrong while initializing glfw.
-    return;
+      throw std::runtime_error("Failed to initialize glfw");
   }
 
   glfwWindow_ = CreateWindow(title, width, height, fullscreen);
@@ -47,7 +47,7 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
   if (!glfwWindow_) {
     // Something went wrong while creating the window.
     glfwTerminate();
-    return;
+      throw std::runtime_error("Failed to create window");
   }
 
   glfwGetWindowSize(glfwWindow_, &width_, &height_);
@@ -69,7 +69,18 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
 
   // Initialize glew to handle OpenGL extensions.
   glewExperimental = GL_TRUE;
-  glewInit();
+
+    if (glewInit() == GLEW_OK) {
+        // GLEW has a problem with core contexts. It calls
+        // glGetString(GL_EXTENSIONS)​, which causes GL_INVALID_ENUM on GL 3.2+
+        // core context as soon as glewInit()​ is called.
+        if (glGetError() != GL_INVALID_ENUM) {
+            throw std::runtime_error("Failed to initialize glew");
+        }
+    }
+    else {
+        throw std::runtime_error("Failed to initialize glew");
+    }
 }
 
 Window::~Window() {

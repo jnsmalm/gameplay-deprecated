@@ -8,11 +8,6 @@ set (V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
 set(CMAKE_BUILD_TYPE Release)
 
-add_subdirectory(deps/glfw)
-add_subdirectory(deps/glew)
-add_subdirectory(deps/freetype)
-add_subdirectory(deps/openal)
-
 if (WIN32)
   set (V8_LIBS
     ${WIN32_V8_LIBS_DIR}/v8_base_0.lib
@@ -36,16 +31,6 @@ else()
     ${V8_LIBS_DIR}/libicui18n.a)
   set (OPENAL_LIBS openal)
 endif()
-
-include_directories(
-  deps/glfw/include
-  deps/glew/include
-  deps/freetype/include
-  deps/openal/include
-  deps/lodepng
-  deps/v8/include
-  src
-  deps/v8)
 
 set (JSPLAY_SRCS
   src/main
@@ -101,6 +86,39 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     ${IOKIT_LIBRARY}
     ${COREVIDEO_LIBRARY})
 endif()
+
+if (MSVC)
+  # Set Visual Studio runtime library to /MT instead of /MD for static linking
+  set(flags
+    CMAKE_C_FLAGS_DEBUG
+    CMAKE_C_FLAGS_MINSIZEREL
+    CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS_DEBUG
+    CMAKE_CXX_FLAGS_MINSIZEREL
+    CMAKE_CXX_FLAGS_RELEASE
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+  foreach(flag_var ${flags})
+    if(${flag_var} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif()
+  endforeach()
+endif()
+
+add_subdirectory(deps/glfw)
+add_subdirectory(deps/glew)
+add_subdirectory(deps/freetype)
+add_subdirectory(deps/openal)
+
+include_directories(
+  deps/glfw/include
+  deps/glew/include
+  deps/freetype/include
+  deps/openal/include
+  deps/lodepng
+  deps/v8/include
+  src
+  deps/v8)
 
 add_definitions(-DGLEW_STATIC -DAL_LIBTYPE_STATIC)
 

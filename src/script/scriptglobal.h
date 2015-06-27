@@ -16,7 +16,7 @@
 #include "graphics/shader-program.h"
 #include "graphics/VertexBuffer.h"
 #include "graphics/window.h"
-#include "graphics/texture.h"
+#include "graphics/texture2d.h"
 
 #include "v8.h"
 
@@ -33,8 +33,8 @@ public:
                 isolate, "Window", getTemplate());
         ObjectScript<SpriteFont>::InstallAsConstructor(
                 isolate, "SpriteFont", getTemplate());
-        ObjectScript<Texture>::InstallAsConstructor(
-                isolate, "Texture", getTemplate());
+        ObjectScript<Texture2D>::InstallAsConstructor(
+                isolate, "Texture2D", getTemplate());
         ObjectScript<ShaderProgram>::InstallAsConstructor(
                 isolate, "ShaderProgram", getTemplate());
         ObjectScript<VertexBuffer>::InstallAsConstructor(

@@ -25,7 +25,7 @@ SOFTWARE.*/
 
 #include "window.h"
 #include "VertexBuffer.h"
-#include "texture.h"
+#include "texture2d.h"
 #include "shader-program.h"
 #include "TextureCollection.h"
 

@@ -5,7 +5,7 @@
 #include <array>
 
 class GraphicsDevice;
-class Texture;
+class Texture2D;
 
 class TextureCollection : public ObjectScript<TextureCollection> {
 
@@ -13,8 +13,8 @@ public:
     TextureCollection(v8::Isolate *isolate, GraphicsDevice *graphicsDevice_)
             : ObjectScript(isolate), graphicsDevice_(graphicsDevice_) { }
 
-    Texture* getTexture(int index);
-    void setTexture(int index, Texture* texture);
+    Texture2D * getTexture(int index);
+    void setTexture(int index, Texture2D * texture);
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args) {}
 
@@ -27,7 +27,7 @@ private:
                            const v8::PropertyCallbackInfo<v8::Value> &info);
 
     GraphicsDevice* graphicsDevice_;
-    std::array<Texture*, 4> textures_;
+    std::array<Texture2D *, 4> textures_;
 };
 
 #endif

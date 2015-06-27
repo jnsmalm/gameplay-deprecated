@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 #include "sprite-font.h"
-#include "graphics/texture.h"
+#include "texture2d.h"
 #include "script/scriptengine.h"
 #include "script/scripthelper.h"
 
@@ -31,7 +31,7 @@ SpriteFont::SpriteFont(v8::Isolate *isolate, std::string filename, int size,
                        std::string chars) : ObjectScript(isolate),
                                             glyphs_(isolate) {
 
-    texture_ = new Texture(isolate, 1024, 1024, GL_RED);
+    texture_ = new Texture2D(isolate, 1024, 1024, GL_RED);
     texture_->InstallAsObject("texture", this->getObject());
     glyphs_.InstallAsObject("glyphs", this->getObject());
 
@@ -123,12 +123,12 @@ void SpriteFont::PlaceGlyph(SpriteFontGlyph* glyph, int x, int y) {
     if (glyph->source.h > maxGlyphHeight_) {
         maxGlyphHeight_ = glyph->source.h;
     }
-    if (x + glyph->source.w > texture_->GetWidth()) {
+    if (x + glyph->source.w > texture_->width()) {
         x = 0;
         y += maxGlyphHeight_;
         maxGlyphHeight_ = glyph->source.h;
     }
-    if (y + glyph->source.h > texture_->GetHeight()) {
+    if (y + glyph->source.h > texture_->height()) {
         throw std::runtime_error(
                 "Could not fit all characters on font texture");
     }

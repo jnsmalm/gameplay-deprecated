@@ -1,15 +1,15 @@
 #include <script/scripthelper.h>
 #include "TextureCollection.h"
-#include "texture.h"
+#include "texture2d.h"
 #include "graphics-device.h"
 
 using namespace v8;
 
-Texture* TextureCollection::getTexture(int index) {
+Texture2D * TextureCollection::getTexture(int index) {
     return textures_[index];
 }
 
-void TextureCollection::setTexture(int index, Texture* texture) {
+void TextureCollection::setTexture(int index, Texture2D * texture) {
     textures_[index] = texture;
     //graphicsDevice_->SetTexture(texture, index);
     switch (index) {
@@ -49,7 +49,7 @@ void TextureCollection::SetTexture(uint32_t index, Local<v8::Value> value,
     ScriptHelper helper(info.GetIsolate());
 
     auto self = GetSelf(info.Holder());
-    auto texture = helper.GetObject<Texture>(value);
+    auto texture = helper.GetObject<Texture2D>(value);
     self->setTexture(index, texture);
 
     info.GetReturnValue().Set(value);

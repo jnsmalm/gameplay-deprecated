@@ -20,57 +20,39 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_SPRITEFONT_H
-#define JSPLAY_SPRITEFONT_H
+#ifndef JSPLAY_TEXTURE2D_H
+#define JSPLAY_TEXTURE2D_H
 
-#include "texture2d.h"
-#include <map>
-#include <string>
+#include <gl/glew.h>
 #include "v8.h"
-#include "ft2build.h"
-#include FT_FREETYPE_H
-#include "glyph-collection.h"
+#include <string>
+#include <script/ObjectScript.h>
 
-struct SpriteFontGlyph {
-    struct Rectangle {
-        int x;
-        int y;
-        int w;
-        int h;
-    } source;
-    struct Point {
-        int x;
-        int y;
-    } offset;
-    Point advance;
-};
-
-class SpriteFont : public ObjectScript<SpriteFont> {
+class Texture2D : public ObjectScript<Texture2D> {
 
 public:
-    SpriteFont(v8::Isolate* isolate,
-               std::string filename, int size, std::string chars);
-    ~SpriteFont();
+    Texture2D(v8::Isolate* isolate, std::string filename);
+    Texture2D(v8::Isolate* isolate, int width, int height, GLenum format);
+    ~Texture2D();
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-    int MeasureString(std::string text);
 
-    GlyphCollection* glyphs() { return &glyphs_; }
-    Texture2D * texture() { return texture_; }
+    int width() { return width_; }
+    int height() { return height_; }
+    GLuint glTexture() { return glTexture_; }
 
 protected:
     virtual void Initialize() override;
 
 private:
-    SpriteFontGlyph LoadGlyph(char c);
-    void SetupGlyphs(std::string chars);
-    void PlaceGlyph(SpriteFontGlyph* glyph, int x, int y);
-    static void MeasureString(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void GetWidth(v8::Local<v8::String> name,
+                         const v8::PropertyCallbackInfo<v8::Value>& args);
+    static void GetHeight(v8::Local<v8::String> name,
+                          const v8::PropertyCallbackInfo<v8::Value>& args);
 
-    GlyphCollection glyphs_;
-    Texture2D * texture_ = nullptr;
-    FT_Face face_;
-    int maxGlyphHeight_ = 0;
+    GLuint glTexture_;
+    int width_;
+    int height_;
 };
 
-#endif // JSPLAY_SPRITEFONT_H
+#endif // JSPLAY_TEXTURE2D_H

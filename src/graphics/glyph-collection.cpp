@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 #include <script/scripthelper.h>
 #include <script/scriptobjecthelper.h>
-#include "spritefont.h"
+#include "sprite-font.h"
 #include "glyph-collection.h"
 
 using namespace v8;

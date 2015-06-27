@@ -7,7 +7,7 @@
 #include "system/file.h"
 #include "ObjectScript.h"
 
-#include <graphics/spritefont.h>
+#include <graphics/sprite-font.h>
 #include "audio/audio-manager.h"
 #include "audio/sound-buffer.h"
 #include "audio/sound-source.h"

@@ -42,7 +42,8 @@ set (JSPLAY_SRCS
   src/input/keyboard
   src/input/mouse
   src/graphics/texture
-  src/graphics/spritefont
+  src/graphics/sprite-font.h
+  src/graphics/sprite-font.cpp
   src/graphics/shader
   src/graphics/shader-program.h
   src/graphics/shader-program.cpp

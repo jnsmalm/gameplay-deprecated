@@ -33,7 +33,7 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::AttachShader(ShaderType shaderType, std::string source)
 {
   Shader shader(shaderType, source);
-  glAttachShader(glShaderProgram_, shader.glShader_);
+  glAttachShader(glShaderProgram_, shader.glShader());
 }
 
 void ShaderProgram::Link()

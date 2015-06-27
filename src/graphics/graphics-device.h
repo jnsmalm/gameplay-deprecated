@@ -26,7 +26,7 @@ SOFTWARE.*/
 #include "window.h"
 #include "VertexBuffer.h"
 #include "texture.h"
-#include "shaderprogram.h"
+#include "shader-program.h"
 #include "TextureCollection.h"
 
 enum class PrimitiveType {

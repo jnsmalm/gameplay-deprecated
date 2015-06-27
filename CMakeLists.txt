@@ -44,7 +44,8 @@ set (JSPLAY_SRCS
   src/graphics/texture
   src/graphics/spritefont
   src/graphics/shader
-  src/graphics/shaderprogram
+  src/graphics/shader-program.h
+  src/graphics/shader-program.cpp
   src/graphics/window
   src/graphics/VertexBuffer.cpp
   src/graphics/VertexBuffer.h

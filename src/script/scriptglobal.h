@@ -13,7 +13,7 @@
 #include "audio/sound-source.h"
 
 #include "input/keyboard.h"
-#include "graphics/shaderprogram.h"
+#include "graphics/shader-program.h"
 #include "graphics/VertexBuffer.h"
 #include "graphics/window.h"
 #include "graphics/texture.h"

@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "shaderprogram.h"
+#include "shader-program.h"
 
 class VertexDeclaration {
 

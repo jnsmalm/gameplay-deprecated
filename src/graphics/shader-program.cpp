@@ -1,5 +1,27 @@
+/*The MIT License (MIT)
+
+JSPlay Copyright (c) 2015 Jens Malmborg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.*/
+
 #include <system/file.h>
-#include "graphics/shaderprogram.h"
+#include "shader-program.h"
 #include "graphics/window.h"
 #include "script/scripthelper.h"
 #include "script/scriptengine.h"
@@ -7,58 +29,36 @@
 
 using namespace v8;
 
-namespace {
-
-    struct VertexAttribute {
-      std::string name;
-      int size;
-      int offset;
-    };
-
-}
-
 ShaderProgram::ShaderProgram(Isolate* isolate, GraphicsDevice* graphicsDevice) :
         ObjectScript(isolate), graphicsDevice_(graphicsDevice) {
     Window::EnsureCurrentContext();
-    glShaderProgram_ = glCreateProgram();
-    //parameters = new ShaderParameterCollection(isolate, this);
+    glProgram_ = glCreateProgram();
 }
 
-ShaderProgram::~ShaderProgram()
-{
-    //delete parameters;
-  glDeleteProgram(glShaderProgram_);
+ShaderProgram::~ShaderProgram() {
+    glDeleteProgram(glProgram_);
 }
 
-void ShaderProgram::AttachShader(ShaderType shaderType, std::string source)
-{
-  Shader shader(shaderType, source);
-  glAttachShader(glShaderProgram_, shader.glShader());
+void ShaderProgram::AttachShader(ShaderType shaderType, std::string source) {
+    Shader shader(shaderType, source);
+    glAttachShader(glProgram_, shader.glShader());
 }
 
-void ShaderProgram::Link()
-{
-  glLinkProgram(glShaderProgram_);
-}
-
-void ShaderProgram::Use()
-{
-  glUseProgram(glShaderProgram_);
+void ShaderProgram::Link() {
+    glLinkProgram(glProgram_);
 }
 
 void ShaderProgram::SetVertexAttribute(
-  std::string name, GLint size, GLsizei stride, GLvoid* offset)
-{
-  auto attribute = glGetAttribLocation(glShaderProgram_, name.c_str());
-  glEnableVertexAttribArray(attribute);
-  glVertexAttribPointer(attribute, size, GL_FLOAT, GL_FALSE, stride, offset);
+  std::string name, GLint size, GLsizei stride, GLvoid* offset) {
+    auto attribute = glGetAttribLocation(glProgram_, name.c_str());
+    glEnableVertexAttribArray(attribute);
+    glVertexAttribPointer(attribute, size, GL_FLOAT, GL_FALSE, stride, offset);
 }
 
 int ShaderProgram::GetUniformLocation(std::string name) {
     auto iterator = uniforms_.find(name);
     if (iterator == uniforms_.end()) {
-        uniforms_[name] = glGetUniformLocation(
-                gl_shaderprogram(), name.c_str());
+        uniforms_[name] = glGetUniformLocation(glProgram_, name.c_str());
     }
     return static_cast<int>(uniforms_[name]);
 }
@@ -77,32 +77,28 @@ void ShaderProgram::SetUniformInteger(std::string name, int value) {
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
 }
 
-void ShaderProgram::SetUniformMatrix4(std::string name,
-                                                  float *value) {
+void ShaderProgram::SetUniformMatrix4(std::string name, float *value) {
     auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
 }
 
-void ShaderProgram::SetUniformVector2(std::string name,
-                                                  float *value) {
+void ShaderProgram::SetUniformVector2(std::string name, float *value) {
     auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform2fv(GetUniformLocation(name), 1, value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
 }
 
-void ShaderProgram::SetUniformVector3(std::string name,
-                                                  float *value) {
+void ShaderProgram::SetUniformVector3(std::string name, float *value) {
     auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform3fv(GetUniformLocation(name), 1, value);
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
 }
 
-void ShaderProgram::SetUniformVector4(std::string name,
-                                                  float *value) {
+void ShaderProgram::SetUniformVector4(std::string name, float *value) {
     auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform4fv(GetUniformLocation(name), 1, value);
@@ -111,17 +107,14 @@ void ShaderProgram::SetUniformVector4(std::string name,
 
 void ShaderProgram::Initialize() {
     ObjectScript::Initialize();
-    SetFunction("apply", Apply);
-    SetNamedPropertyHandler(NULL, SetValue);
+    SetNamedPropertyHandler(NULL, SetUniformValue);
 }
 
-void ShaderProgram::New(const FunctionCallbackInfo<Value>& args)
-{
+void ShaderProgram::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
     auto graphicsDevice = helper.GetObject<GraphicsDevice>(args[0]);
-
     auto arg = args[1]->ToObject();
     auto vertex = helper.GetString(arg, "vertexShaderFilename");
     auto geometry = helper.GetString(arg, "geometryShaderFilename");
@@ -130,44 +123,34 @@ void ShaderProgram::New(const FunctionCallbackInfo<Value>& args)
     try {
         auto shaderProgram = new ShaderProgram(args.GetIsolate(),
                                                graphicsDevice);
-
         auto executionPath = ScriptEngine::GetCurrent().GetExecutionPath();
-
         shaderProgram->AttachShader(
                 ShaderType::Vertex, File::ReadText(executionPath + vertex));
         shaderProgram->AttachShader(
                 ShaderType::Fragment, File::ReadText(executionPath + fragment));
-
-        if (geometry != "")
+        if (geometry != "") {
             shaderProgram->AttachShader(
-                    ShaderType::Geometry, File::ReadText(executionPath + geometry));
-
+                    ShaderType::Geometry,
+                    File::ReadText(executionPath + geometry));
+        }
         shaderProgram->Link();
-
-        auto object = shaderProgram->getObject();
-
-        //shaderProgram->parameters->InstallAsObject("parameters", object);
-
-        args.GetReturnValue().Set(object);
+        args.GetReturnValue().Set(shaderProgram->getObject());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
     }
 }
 
-void ShaderProgram::Apply(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-    auto self = ShaderProgram::GetSelf(args.Holder());
-    self->Use();
-}
+void ShaderProgram::SetUniformValue(
+        Local<String> name, Local<Value> value,
+        const PropertyCallbackInfo<v8::Value> &info) {
 
-void ShaderProgram::SetValue(Local<String> name, Local<Value> value,
-                                         const PropertyCallbackInfo<v8::Value> &info) {
     HandleScope scope(info.GetIsolate());
     ScriptHelper helper(info.GetIsolate());
+
     auto str = std::string(*v8::String::Utf8Value(name));
-    auto self = ShaderProgram::GetSelf(info.Holder());
+    auto self = GetInternalObject(info.Holder());
+
     if (value->IsFloat32Array()) {
         Handle<Float32Array> array = Handle<Float32Array>::Cast(value);
         GLfloat *data = new GLfloat[array->Length()];

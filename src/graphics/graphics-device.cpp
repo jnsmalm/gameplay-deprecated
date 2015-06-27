@@ -51,7 +51,7 @@ void GraphicsDevice::Present() {
 
 void GraphicsDevice::SetShaderProgram(ShaderProgram *shaderProgram) {
     if (shaderProgram != nullptr && shaderProgram != shaderProgram_) {
-        glUseProgram(shaderProgram->glShaderProgram_);
+        glUseProgram(shaderProgram->glProgram());
     }
     shaderProgram_ = shaderProgram;
 }

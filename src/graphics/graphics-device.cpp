@@ -2,7 +2,7 @@
 #include <script/scriptengine.h>
 #include <script/scriptobjecthelper.h>
 #include "graphics-device.h"
-#include "TextureCollection.h"
+#include "texture-collection.h"
 #include "VertexDeclaration.h"
 
 using namespace v8;
@@ -58,6 +58,30 @@ void GraphicsDevice::SetShaderProgram(ShaderProgram *shaderProgram) {
 
 void GraphicsDevice::SetSynchronizeWithVerticalRetrace(bool value) {
     glfwSwapInterval(value);
+}
+
+void GraphicsDevice::SetTexture(int index, Texture2D* texture) {
+    if (textures_[index] == texture) {
+        return;
+    }
+    textures_[index] = texture;
+    switch (index) {
+        case 0:
+            glActiveTexture(GL_TEXTURE0);
+            break;
+        case 1:
+            glActiveTexture(GL_TEXTURE1);
+            break;
+        case 2:
+            glActiveTexture(GL_TEXTURE2);
+            break;
+        case 3:
+            glActiveTexture(GL_TEXTURE3);
+            break;
+        default:
+            throw std::runtime_error("Unknown texture unit");
+    }
+    glBindTexture(GL_TEXTURE_2D, texture->glTexture());
 }
 
 void GraphicsDevice::SetVertexBuffer(VertexBuffer *vertexBuffer) {

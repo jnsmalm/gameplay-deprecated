@@ -27,7 +27,7 @@ SOFTWARE.*/
 #include "VertexBuffer.h"
 #include "texture2d.h"
 #include "shader-program.h"
-#include "TextureCollection.h"
+#include "texture-collection.h"
 
 enum class PrimitiveType {
     TriangleList,
@@ -46,6 +46,7 @@ public:
     void Present();
     void SetShaderProgram(ShaderProgram *shaderProgram);
     void SetSynchronizeWithVerticalRetrace(bool value);
+    void SetTexture(int index, Texture2D* texture);
     void SetVertexBuffer(VertexBuffer *vertexBuffer);
 
     ShaderProgram* shaderProgram() {

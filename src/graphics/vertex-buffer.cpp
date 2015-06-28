@@ -24,7 +24,7 @@ SOFTWARE.*/
 #include <script/scripthelper.h>
 #include "vertex-buffer.h"
 #include "window.h"
-#include "VertexDeclaration.h"
+#include "vertex-declaration.h"
 #include "graphics-device.h"
 
 using namespace v8;

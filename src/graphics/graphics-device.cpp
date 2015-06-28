@@ -25,7 +25,7 @@ SOFTWARE.*/
 #include <script/scriptobjecthelper.h>
 #include "graphics-device.h"
 #include "texture-collection.h"
-#include "VertexDeclaration.h"
+#include "vertex-declaration.h"
 
 using namespace v8;
 

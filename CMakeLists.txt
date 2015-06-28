@@ -53,8 +53,8 @@ set (JSPLAY_SRCS
   src/graphics/vertex-buffer.h
   src/graphics/graphics-device.cpp
   src/graphics/graphics-device.h
-  src/graphics/VertexDeclaration.cpp
-  src/graphics/VertexDeclaration.h
+  src/graphics/vertex-declaration.cpp
+  src/graphics/vertex-declaration.h
   src/graphics/texture-collection.cpp
   src/graphics/texture-collection.h
   src/graphics/glyph-collection.h

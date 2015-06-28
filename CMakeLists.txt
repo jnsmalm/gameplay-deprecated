@@ -49,8 +49,8 @@ set (JSPLAY_SRCS
   src/graphics/shader-program.h
   src/graphics/shader-program.cpp
   src/graphics/window
-  src/graphics/VertexBuffer.cpp
-  src/graphics/VertexBuffer.h
+  src/graphics/vertex-buffer.cpp
+  src/graphics/vertex-buffer.h
   src/graphics/graphics-device.cpp
   src/graphics/graphics-device.h
   src/graphics/VertexDeclaration.cpp

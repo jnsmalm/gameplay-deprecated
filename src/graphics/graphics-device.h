@@ -24,7 +24,7 @@ SOFTWARE.*/
 #define JSPLAY_GRAPHICSDEVICE_H
 
 #include "window.h"
-#include "VertexBuffer.h"
+#include "vertex-buffer.h"
 #include "texture2d.h"
 #include "shader-program.h"
 #include "texture-collection.h"

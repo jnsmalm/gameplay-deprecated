@@ -14,7 +14,7 @@
 
 #include "input/keyboard.h"
 #include "graphics/shader-program.h"
-#include "graphics/VertexBuffer.h"
+#include "graphics/vertex-buffer.h"
 #include "graphics/window.h"
 #include "graphics/texture2d.h"
 

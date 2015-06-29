@@ -33,18 +33,18 @@ Keyboard::Keyboard(v8::Isolate *isolate, Window* window) :
     // has been polled, if a key release event had been processed in the
     // meantime, the state will reset to GLFW_RELEASE, otherwise it will remain
     // GLFW_PRESS.
-    glfwSetInputMode(window_->glfwWindow_, GLFW_STICKY_KEYS, 1);
+    glfwSetInputMode(window_->glfwWindow(), GLFW_STICKY_KEYS, 1);
 }
 
 bool Keyboard::IsKeyDown(int key)
 {
-    newKeyState_[key] = glfwGetKey(window_->glfwWindow_, key);
+    newKeyState_[key] = glfwGetKey(window_->glfwWindow(), key);
     return newKeyState_[key] == GLFW_PRESS;
 }
 
 bool Keyboard::IsKeyPress(int key)
 {
-    newKeyState_[key] = glfwGetKey(window_->glfwWindow_, key);
+    newKeyState_[key] = glfwGetKey(window_->glfwWindow(), key);
     return oldKeyState_[key] == GLFW_RELEASE && newKeyState_[key] == GLFW_PRESS;
 }
 

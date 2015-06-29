@@ -34,29 +34,29 @@ Mouse::Mouse(Isolate *isolate, Window* window) : ObjectScript(isolate),
     // its state, you will have missed the button press. The recommended
     // solution for this is to use a mouse button callback, but there is also
     // the GLFW_STICKY_MOUSE_BUTTONS input mode.
-    glfwSetInputMode(window_->glfwWindow_, GLFW_STICKY_MOUSE_BUTTONS, 1);
+    glfwSetInputMode(window_->glfwWindow(), GLFW_STICKY_MOUSE_BUTTONS, 1);
 }
 
 bool Mouse::IsButtonDown(int button) {
-    newButtonState_[button] = glfwGetMouseButton(window_->glfwWindow_, button);
+    newButtonState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
     return newButtonState_[button] == GLFW_PRESS;
 }
 
 bool Mouse::IsButtonPress(int button) {
-    newButtonState_[button] = glfwGetMouseButton(window_->glfwWindow_, button);
+    newButtonState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
     return oldButtonState_[button] == GLFW_RELEASE &&
             newButtonState_[button] == GLFW_PRESS;
 }
 
 double Mouse::GetX() {
     double x, y;
-    glfwGetCursorPos(window_->glfwWindow_, &x, &y);
+    glfwGetCursorPos(window_->glfwWindow(), &x, &y);
     return x;
 }
 
 double Mouse::GetY() {
     double x, y;
-    glfwGetCursorPos(window_->glfwWindow_, &x, &y);
+    glfwGetCursorPos(window_->glfwWindow(), &x, &y);
     return y;
 }
 

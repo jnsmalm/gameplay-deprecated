@@ -26,6 +26,7 @@ SOFTWARE.*/
 #include "graphics-device.h"
 #include "texture-collection.h"
 #include "vertex-declaration.h"
+#include "window.h"
 
 using namespace v8;
 
@@ -68,7 +69,7 @@ void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
 }
 
 void GraphicsDevice::Present() {
-    glfwSwapBuffers(window_->glfwWindow_);
+    glfwSwapBuffers(window_->glfwWindow());
 }
 
 void GraphicsDevice::SetShaderProgram(ShaderProgram *shaderProgram) {

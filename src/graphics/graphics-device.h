@@ -23,7 +23,6 @@ SOFTWARE.*/
 #ifndef JSPLAY_GRAPHICSDEVICE_H
 #define JSPLAY_GRAPHICSDEVICE_H
 
-#include "window.h"
 #include "vertex-buffer.h"
 #include "texture2d.h"
 #include "shader-program.h"
@@ -34,6 +33,8 @@ enum class PrimitiveType {
     LineList,
     PointList
 };
+
+class Window;
 
 class GraphicsDevice : public ObjectScript<GraphicsDevice> {
 

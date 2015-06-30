@@ -38,11 +38,13 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize glfw");
     }
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
     glfwWindow_ = glfwCreateWindow(
             width, height, title.c_str(),
             fullscreen ? glfwGetPrimaryMonitor() : 0, NULL);
@@ -50,15 +52,10 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
         glfwTerminate();
         throw std::runtime_error("Failed to create window");
     }
+
     glfwGetWindowSize(glfwWindow_, &width_, &height_);
     glfwMakeContextCurrent(glfwWindow_);
     glfwSwapInterval(1);
-
-    keyboard_ = new Keyboard(isolate, this);
-    keyboard_->InstallAsObject("keyboard", this->getObject());
-
-    mouse_ = new Mouse(isolate, this);
-    mouse_->InstallAsObject("mouse", this->getObject());
 
     glewExperimental = GL_TRUE;
     if (glewInit() == GLEW_OK) {
@@ -72,6 +69,7 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
     else {
         throw std::runtime_error("Failed to initialize glew");
     }
+
     graphicsDevice_ = new GraphicsDevice(isolate, this);
     graphicsDevice_->InstallAsObject("graphics", this->getObject());
 }
@@ -90,8 +88,6 @@ void Window::Close() {
 }
 
 void Window::PollEvents() {
-    keyboard_->UpdateState();
-    mouse_->UpdateState();
     glfwPollEvents();
 }
 

@@ -31,6 +31,8 @@ public:
 
         ObjectScript<Window>::InstallAsConstructor(
                 isolate, "Window", getTemplate());
+        ObjectScript<Keyboard>::InstallAsConstructor(
+                isolate, "Keyboard", getTemplate());
         ObjectScript<SpriteFont>::InstallAsConstructor(
                 isolate, "SpriteFont", getTemplate());
         ObjectScript<Texture2D>::InstallAsConstructor(

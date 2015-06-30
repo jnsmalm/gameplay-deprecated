@@ -74,8 +74,6 @@ private:
                          const v8::PropertyCallbackInfo<v8::Value>& args);
     static void SetTitle(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    Keyboard* keyboard_;
-    Mouse* mouse_;
     GraphicsDevice* graphicsDevice_;
     GLFWwindow* glfwWindow_;
     int width_;

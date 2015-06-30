@@ -23,6 +23,8 @@ SOFTWARE.*/
 #include "input/keyboard.h"
 #include "graphics/window.h"
 #include <glfw/glfw3.h>
+#include <script/scripthelper.h>
+#include <script/scriptengine.h>
 
 using namespace v8;
 
@@ -36,20 +38,17 @@ Keyboard::Keyboard(v8::Isolate *isolate, Window* window) :
     glfwSetInputMode(window_->glfwWindow(), GLFW_STICKY_KEYS, 1);
 }
 
-bool Keyboard::IsKeyDown(int key)
-{
+bool Keyboard::IsKeyDown(int key) {
     newKeyState_[key] = glfwGetKey(window_->glfwWindow(), key);
     return newKeyState_[key] == GLFW_PRESS;
 }
 
-bool Keyboard::IsKeyPress(int key)
-{
+bool Keyboard::IsKeyPress(int key) {
     newKeyState_[key] = glfwGetKey(window_->glfwWindow(), key);
     return oldKeyState_[key] == GLFW_RELEASE && newKeyState_[key] == GLFW_PRESS;
 }
 
-void Keyboard::UpdateState()
-{
+void Keyboard::Update() {
     oldKeyState_ = newKeyState_;
 }
 
@@ -57,10 +56,23 @@ void Keyboard::Initialize() {
     ObjectScript::Initialize();
     SetFunction("isKeyDown", IsKeyDown);
     SetFunction("isKeyPress", IsKeyPress);
+    SetFunction("update", Update);
 }
 
-void Keyboard::IsKeyDown(const FunctionCallbackInfo<Value>& args)
-{
+void Keyboard::New(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto window = helper.GetObject<Window>(args[0]);
+    try {
+        auto keyboard = new Keyboard(args.GetIsolate(), window);
+        args.GetReturnValue().Set(keyboard->getObject());
+    }
+    catch (std::exception& ex) {
+        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+    }
+}
+
+void Keyboard::IsKeyDown(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     auto self = GetInternalObject(args.Holder());
     auto key = args[0]->NumberValue();
@@ -68,11 +80,16 @@ void Keyboard::IsKeyDown(const FunctionCallbackInfo<Value>& args)
     args.GetReturnValue().Set(value);
 }
 
-void Keyboard::IsKeyPress(const FunctionCallbackInfo<Value>& args)
-{
+void Keyboard::IsKeyPress(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     auto self = GetInternalObject(args.Holder());
     auto key = args[0]->NumberValue();
     auto value = self->IsKeyPress(key);
     args.GetReturnValue().Set(value);
+}
+
+void Keyboard::Update(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    self->Update();
 }

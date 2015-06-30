@@ -36,17 +36,20 @@ public:
 
     bool IsKeyDown(int key);
     bool IsKeyPress(int key);
-    void UpdateState();
+    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+    void Update();
+
+protected:
+    virtual void Initialize() override;
 
 private:
-    virtual void Initialize() override;
     static void IsKeyDown(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void IsKeyPress(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void Update(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     std::map<int,int> oldKeyState_;
     std::map<int,int> newKeyState_;
     Window* window_;
-
 };
 
 #endif // JSPLAY_KEYBOARD_H

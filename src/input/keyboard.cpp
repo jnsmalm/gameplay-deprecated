@@ -39,24 +39,24 @@ Keyboard::Keyboard(v8::Isolate *isolate, Window* window) :
 }
 
 bool Keyboard::IsKeyDown(int key) {
-    newKeyState_[key] = glfwGetKey(window_->glfwWindow(), key);
-    return newKeyState_[key] == GLFW_PRESS;
+    newState_[key] = glfwGetKey(window_->glfwWindow(), key);
+    return newState_[key] == GLFW_PRESS;
 }
 
 bool Keyboard::IsKeyPress(int key) {
-    newKeyState_[key] = glfwGetKey(window_->glfwWindow(), key);
-    return oldKeyState_[key] == GLFW_RELEASE && newKeyState_[key] == GLFW_PRESS;
+    newState_[key] = glfwGetKey(window_->glfwWindow(), key);
+    return oldState_[key] == GLFW_RELEASE && newState_[key] == GLFW_PRESS;
 }
 
-void Keyboard::Update() {
-    oldKeyState_ = newKeyState_;
+void Keyboard::UpdateState() {
+    oldState_ = newState_;
 }
 
 void Keyboard::Initialize() {
     ObjectScript::Initialize();
     SetFunction("isKeyDown", IsKeyDown);
     SetFunction("isKeyPress", IsKeyPress);
-    SetFunction("update", Update);
+    SetFunction("updateState", UpdateState);
 }
 
 void Keyboard::New(const FunctionCallbackInfo<Value>& args) {
@@ -88,8 +88,8 @@ void Keyboard::IsKeyPress(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().Set(value);
 }
 
-void Keyboard::Update(const FunctionCallbackInfo<Value>& args) {
+void Keyboard::UpdateState(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     auto self = GetInternalObject(args.Holder());
-    self->Update();
+    self->UpdateState();
 }

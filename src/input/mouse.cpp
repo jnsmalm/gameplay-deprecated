@@ -24,6 +24,8 @@ SOFTWARE.*/
 #include "graphics/window.h"
 #include <gl/glew.h>
 #include <glfw/glfw3.h>
+#include <script/scripthelper.h>
+#include <script/scriptengine.h>
 
 using namespace v8;
 
@@ -38,30 +40,18 @@ Mouse::Mouse(Isolate *isolate, Window* window) : ObjectScript(isolate),
 }
 
 bool Mouse::IsButtonDown(int button) {
-    newButtonState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
-    return newButtonState_[button] == GLFW_PRESS;
+    newState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
+    return newState_[button] == GLFW_PRESS;
 }
 
 bool Mouse::IsButtonPress(int button) {
-    newButtonState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
-    return oldButtonState_[button] == GLFW_RELEASE &&
-            newButtonState_[button] == GLFW_PRESS;
-}
-
-double Mouse::GetX() {
-    double x, y;
-    glfwGetCursorPos(window_->glfwWindow(), &x, &y);
-    return x;
-}
-
-double Mouse::GetY() {
-    double x, y;
-    glfwGetCursorPos(window_->glfwWindow(), &x, &y);
-    return y;
+    newState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
+    return oldState_[button] == GLFW_RELEASE && newState_[button] == GLFW_PRESS;
 }
 
 void Mouse::UpdateState() {
-    oldButtonState_ = newButtonState_;
+    glfwGetCursorPos(window_->glfwWindow(), &x_, &y_);
+    oldState_ = newState_;
 }
 
 void Mouse::Initialize() {
@@ -70,18 +60,32 @@ void Mouse::Initialize() {
     SetAccessor("y", GetY, nullptr);
     SetFunction("isButtonDown", IsButtonDown);
     SetFunction("isButtonPress", IsButtonPress);
+    SetFunction("updateState", UpdateState);
 }
 
-void Mouse::GetX(Local<String> name, const PropertyCallbackInfo<Value>& args) {
+void Mouse::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    auto self = GetInternalObject(args.Holder());
-    args.GetReturnValue().Set(self->GetX());
+    ScriptHelper helper(args.GetIsolate());
+    auto window = helper.GetObject<Window>(args[0]);
+    try {
+        auto mouse = new Mouse(args.GetIsolate(), window);
+        args.GetReturnValue().Set(mouse->getObject());
+    }
+    catch (std::exception& ex) {
+        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+    }
 }
 
-void Mouse::GetY(Local<String> name, const PropertyCallbackInfo<Value>& args) {
+void Mouse::GetX(Local<String> name, const PropertyCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     auto self = GetInternalObject(args.Holder());
-    args.GetReturnValue().Set(self->GetY());
+    args.GetReturnValue().Set(self->x());
+}
+
+void Mouse::GetY(Local<String> name, const PropertyCallbackInfo<Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    args.GetReturnValue().Set(self->y());
 }
 
 void Mouse::IsButtonDown(const FunctionCallbackInfo<Value>& args) {
@@ -98,4 +102,10 @@ void Mouse::IsButtonPress(const FunctionCallbackInfo<Value>& args) {
     auto button = args[0]->NumberValue();
     auto value = self->IsButtonPress(button);
     args.GetReturnValue().Set(value);
+}
+
+void Mouse::UpdateState(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    self->UpdateState();
 }

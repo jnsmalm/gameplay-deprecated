@@ -36,24 +36,34 @@ public:
 
     bool IsButtonDown(int button);
     bool IsButtonPress(int button);
-    double GetX();
-    double GetY();
+    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
     void UpdateState();
+
+    double x() const {
+        return x_;
+    }
+
+    double y() const {
+        return y_;
+    }
 
 protected:
     virtual void Initialize() override;
 
 private:
     static void GetX(v8::Local<v8::String> name,
-                     const v8::PropertyCallbackInfo<v8::Value>& args);
+                     const v8::PropertyCallbackInfo<v8::Value> &args);
     static void GetY(v8::Local<v8::String> name,
-                     const v8::PropertyCallbackInfo<v8::Value>& args);
+                     const v8::PropertyCallbackInfo<v8::Value> &args);
     static void IsButtonDown(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void IsButtonPress(const v8::FunctionCallbackInfo<v8::Value>& args);
-    std::map<int, int> oldButtonState_;
-    std::map<int, int> newButtonState_;
-    Window* window_;
+    static void UpdateState(const v8::FunctionCallbackInfo<v8::Value>& args);
 
+    double x_;
+    double y_;
+    std::map<int, int> oldState_;
+    std::map<int, int> newState_;
+    Window* window_;
 };
 
 #endif // JSPLAY_MOUSE_H

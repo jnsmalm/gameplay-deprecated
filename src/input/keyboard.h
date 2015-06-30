@@ -37,7 +37,7 @@ public:
     bool IsKeyDown(int key);
     bool IsKeyPress(int key);
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-    void Update();
+    void UpdateState();
 
 protected:
     virtual void Initialize() override;
@@ -45,10 +45,10 @@ protected:
 private:
     static void IsKeyDown(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void IsKeyPress(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void Update(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void UpdateState(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    std::map<int,int> oldKeyState_;
-    std::map<int,int> newKeyState_;
+    std::map<int,int> oldState_;
+    std::map<int,int> newState_;
     Window* window_;
 };
 

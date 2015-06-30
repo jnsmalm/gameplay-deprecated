@@ -13,6 +13,7 @@
 #include "audio/sound-source.h"
 
 #include "input/keyboard.h"
+#include "input/mouse.h"
 #include "graphics/shader-program.h"
 #include "graphics/vertex-buffer.h"
 #include "graphics/window.h"
@@ -33,6 +34,8 @@ public:
                 isolate, "Window", getTemplate());
         ObjectScript<Keyboard>::InstallAsConstructor(
                 isolate, "Keyboard", getTemplate());
+        ObjectScript<Mouse>::InstallAsConstructor(
+                isolate, "Mouse", getTemplate());
         ObjectScript<SpriteFont>::InstallAsConstructor(
                 isolate, "SpriteFont", getTemplate());
         ObjectScript<Texture2D>::InstallAsConstructor(

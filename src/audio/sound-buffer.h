@@ -25,10 +25,10 @@ SOFTWARE.*/
 
 #include <al/al.h>
 #include <al/alc.h>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 #include <v8.h>
 
-class SoundBuffer : public ObjectScript<SoundBuffer> {
+class SoundBuffer : public ScriptObjectWrap<SoundBuffer> {
 
 public:
     SoundBuffer(v8::Isolate *isolate, std::string filename);

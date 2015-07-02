@@ -37,7 +37,7 @@ set (JSPLAY_SRCS
   src/system/console
   src/system/file
   src/script/scriptengine
-  src/script/ObjectScript.h
+  src/script/script-object-wrap.h
   src/script/scriptobjecthelper.h
   src/input/keyboard
   src/input/mouse

@@ -27,12 +27,12 @@ SOFTWARE.*/
 #include "v8.h"
 #include <gl/glew.h>
 #include <map>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 
 class ShaderParameterCollection;
 class GraphicsDevice;
 
-class ShaderProgram : ObjectScript<ShaderProgram> {
+class ShaderProgram : ScriptObjectWrap<ShaderProgram> {
 
 public:
     ShaderProgram(v8::Isolate* isolate, GraphicsDevice* graphicsDevice);

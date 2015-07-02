@@ -25,12 +25,12 @@ SOFTWARE.*/
 
 #include "v8.h"
 #include <gl/glew.h>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 
 class GraphicsDevice;
 class VertexDeclaration;
 
-class VertexBuffer : public ObjectScript<VertexBuffer> {
+class VertexBuffer : public ScriptObjectWrap<VertexBuffer> {
 
 public:
     VertexBuffer(v8::Isolate* isolate, GraphicsDevice* graphicsDevice,

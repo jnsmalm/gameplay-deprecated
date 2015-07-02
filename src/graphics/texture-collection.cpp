@@ -5,7 +5,7 @@
 using namespace v8;
 
 void TextureCollection::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetIndexedPropertyHandler(NULL, SetTexture);
 }
 

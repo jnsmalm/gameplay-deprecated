@@ -25,11 +25,11 @@ SOFTWARE.*/
 
 #include "v8.h"
 #include <map>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 
 class Window;
 
-class Keyboard : public ObjectScript<Keyboard> {
+class Keyboard : public ScriptObjectWrap<Keyboard> {
 
 public:
     Keyboard(v8::Isolate *isolate, Window* window);

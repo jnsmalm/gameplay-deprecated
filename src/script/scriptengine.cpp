@@ -117,7 +117,7 @@ Handle<Value> ScriptEngine::Execute(std::string filename)
 
   // Enter the new context so all the following operations take place
   // within it.
-  auto context = Context::New(isolate_, NULL, scriptGlobal_->getTemplate());
+  auto context = Context::New(isolate_, NULL, scriptGlobal_->v8Template());
   //context_.Reset(isolate, context);
 
 

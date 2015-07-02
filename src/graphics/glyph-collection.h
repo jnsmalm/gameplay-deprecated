@@ -23,15 +23,15 @@ SOFTWARE.*/
 #ifndef JSPLAY_GLYPHCOLLECTION_H
 #define JSPLAY_GLYPHCOLLECTION_H
 
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 #include <map>
 
 struct SpriteFontGlyph;
 
-class GlyphCollection : public ObjectScript<GlyphCollection> {
+class GlyphCollection : public ScriptObjectWrap<GlyphCollection> {
 
 public:
-    GlyphCollection(v8::Isolate *isolate) : ObjectScript(isolate) { }
+    GlyphCollection(v8::Isolate *isolate) : ScriptObjectWrap(isolate) { }
 
     SpriteFontGlyph& operator[](const char glyphChar) {
         return glyphs_[glyphChar];

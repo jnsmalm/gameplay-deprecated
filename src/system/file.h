@@ -25,12 +25,12 @@ SOFTWARE.*/
 
 #include "v8.h"
 #include <string>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 
-class File : public ObjectScript<File> {
+class File : public ScriptObjectWrap<File> {
 
 public:
-    File(v8::Isolate *isolate) : ObjectScript(isolate) {}
+    File(v8::Isolate *isolate) : ScriptObjectWrap(isolate) {}
 
     static std::string ReadText(std::string filename);
 

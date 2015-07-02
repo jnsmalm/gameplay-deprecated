@@ -31,8 +31,8 @@ SOFTWARE.*/
 using namespace v8;
 
 GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
-        ObjectScript(isolate), textures_(isolate, this), window_(window) {
-    textures_.InstallAsObject("textures", this->getObject());
+        ScriptObjectWrap(isolate), textures_(isolate, this), window_(window) {
+    textures_.InstallAsObject("textures", this->v8Object());
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -118,7 +118,7 @@ void GraphicsDevice::SetVertexBuffer(VertexBuffer *vertexBuffer) {
 }
 
 void GraphicsDevice::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("clear", Clear);
     SetFunction("drawPrimitives", DrawPrimitives);
     SetFunction("present", Present);

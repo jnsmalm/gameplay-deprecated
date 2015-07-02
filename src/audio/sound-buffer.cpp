@@ -47,7 +47,7 @@ namespace {
 }
 
 SoundBuffer::SoundBuffer(v8::Isolate *isolate, std::string filename) :
-        ObjectScript(isolate){
+        ScriptObjectWrap(isolate){
     alGenBuffers((ALuint)1, &al_buffer_);
     WaveFormat waveFormat;
     waveFormat.Load(filename);
@@ -67,7 +67,7 @@ void SoundBuffer::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
             helper.GetString(args[0]);
     try {
         auto soundBuffer = new SoundBuffer(args.GetIsolate(), filename);
-        args.GetReturnValue().Set(soundBuffer->getObject());
+        args.GetReturnValue().Set(soundBuffer->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

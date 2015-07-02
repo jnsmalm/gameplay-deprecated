@@ -5,7 +5,6 @@
 #include "script/scripthelper.h"
 #include "script/scriptengine.h"
 #include "system/file.h"
-#include "ObjectScript.h"
 
 #include <graphics/sprite-font.h>
 #include "audio/audio-manager.h"
@@ -21,40 +20,40 @@
 
 #include "v8.h"
 
-class ScriptGlobal : public ObjectScript<ScriptGlobal> {
+class ScriptGlobal : public ScriptObjectWrap<ScriptGlobal> {
 
 public:
     ScriptGlobal(v8::Isolate *isolate) :
-            ObjectScript(isolate), console_(isolate), file_(isolate) {
+            ScriptObjectWrap(isolate), console_(isolate), file_(isolate) {
 
-        console_.InstallAsTemplate("console", getTemplate());
-        file_.InstallAsTemplate("file", getTemplate());
+        console_.InstallAsTemplate("console", v8Template());
+        file_.InstallAsTemplate("file", v8Template());
 
-        ObjectScript<Window>::InstallAsConstructor(
-                isolate, "Window", getTemplate());
-        ObjectScript<Keyboard>::InstallAsConstructor(
-                isolate, "Keyboard", getTemplate());
-        ObjectScript<Mouse>::InstallAsConstructor(
-                isolate, "Mouse", getTemplate());
-        ObjectScript<SpriteFont>::InstallAsConstructor(
-                isolate, "SpriteFont", getTemplate());
-        ObjectScript<Texture2D>::InstallAsConstructor(
-                isolate, "Texture2D", getTemplate());
-        ObjectScript<ShaderProgram>::InstallAsConstructor(
-                isolate, "ShaderProgram", getTemplate());
-        ObjectScript<VertexBuffer>::InstallAsConstructor(
-                isolate, "VertexBuffer", getTemplate());
-        ObjectScript<AudioManager>::InstallAsConstructor(
-                isolate, "AudioManager", getTemplate());
-        ObjectScript<SoundBuffer>::InstallAsConstructor(
-                isolate, "SoundBuffer", getTemplate());
-        ObjectScript<SoundSource>::InstallAsConstructor(
-                isolate, "SoundSource", getTemplate());
+        ScriptObjectWrap<Window>::InstallAsConstructor(
+                isolate, "Window", v8Template());
+        ScriptObjectWrap<Keyboard>::InstallAsConstructor(
+                isolate, "Keyboard", v8Template());
+        ScriptObjectWrap<Mouse>::InstallAsConstructor(
+                isolate, "Mouse", v8Template());
+        ScriptObjectWrap<SpriteFont>::InstallAsConstructor(
+                isolate, "SpriteFont", v8Template());
+        ScriptObjectWrap<Texture2D>::InstallAsConstructor(
+                isolate, "Texture2D", v8Template());
+        ScriptObjectWrap<ShaderProgram>::InstallAsConstructor(
+                isolate, "ShaderProgram", v8Template());
+        ScriptObjectWrap<VertexBuffer>::InstallAsConstructor(
+                isolate, "VertexBuffer", v8Template());
+        ScriptObjectWrap<AudioManager>::InstallAsConstructor(
+                isolate, "AudioManager", v8Template());
+        ScriptObjectWrap<SoundBuffer>::InstallAsConstructor(
+                isolate, "SoundBuffer", v8Template());
+        ScriptObjectWrap<SoundSource>::InstallAsConstructor(
+                isolate, "SoundSource", v8Template());
     }
 
 protected:
     void Initialize() override {
-        ObjectScript::Initialize();
+        ScriptObjectWrap::Initialize();
         SetFunction("require", Require);
     }
 

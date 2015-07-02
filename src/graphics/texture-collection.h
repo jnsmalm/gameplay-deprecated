@@ -23,17 +23,17 @@ SOFTWARE.*/
 #ifndef JSPLAY_TEXTURECOLLECTION_H
 #define JSPLAY_TEXTURECOLLECTION_H
 
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 #include <array>
 
 class GraphicsDevice;
 class Texture2D;
 
-class TextureCollection : public ObjectScript<TextureCollection> {
+class TextureCollection : public ScriptObjectWrap<TextureCollection> {
 
 public:
     TextureCollection(v8::Isolate *isolate, GraphicsDevice *graphicsDevice_)
-            : ObjectScript(isolate), graphicsDevice_(graphicsDevice_) { }
+            : ScriptObjectWrap(isolate), graphicsDevice_(graphicsDevice_) { }
 
     Texture2D*& operator[](const int index) {
         return textures_[index];

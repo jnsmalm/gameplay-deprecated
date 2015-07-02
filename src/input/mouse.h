@@ -25,11 +25,11 @@ SOFTWARE.*/
 
 #include "v8.h"
 #include <map>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 
 class Window;
 
-class Mouse : public ObjectScript<Mouse> {
+class Mouse : public ScriptObjectWrap<Mouse> {
 
 public:
     Mouse(v8::Isolate *isolate, Window* window);

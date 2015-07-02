@@ -29,7 +29,7 @@ SOFTWARE.*/
 
 using namespace v8;
 
-Mouse::Mouse(Isolate *isolate, Window* window) : ObjectScript(isolate),
+Mouse::Mouse(Isolate *isolate, Window* window) : ScriptObjectWrap(isolate),
                                                  window_(window) {
     // Whenever you poll state, you risk missing the state change you are
     // looking for. If a pressed mouse button is released again before you poll
@@ -55,7 +55,7 @@ void Mouse::UpdateState() {
 }
 
 void Mouse::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetAccessor("x", GetX, nullptr);
     SetAccessor("y", GetY, nullptr);
     SetFunction("isButtonDown", IsButtonDown);
@@ -69,7 +69,7 @@ void Mouse::New(const FunctionCallbackInfo<Value>& args) {
     auto window = helper.GetObject<Window>(args[0]);
     try {
         auto mouse = new Mouse(args.GetIsolate(), window);
-        args.GetReturnValue().Set(mouse->getObject());
+        args.GetReturnValue().Set(mouse->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

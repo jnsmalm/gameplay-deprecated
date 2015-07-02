@@ -31,7 +31,7 @@ using namespace v8;
 
 VertexBuffer::VertexBuffer(v8::Isolate* isolate, GraphicsDevice* graphicsDevice,
                            VertexDeclaration* vertexDeclaration)
-        : ObjectScript(isolate), graphicsDevice_(graphicsDevice),
+        : ScriptObjectWrap(isolate), graphicsDevice_(graphicsDevice),
           vertexDeclaration_(vertexDeclaration) {
     Window::EnsureCurrentContext();
     glGenBuffers(1, &glVertexBuffer_);
@@ -54,7 +54,7 @@ void VertexBuffer::SetData(float *vertices, size_t size) {
 }
 
 void VertexBuffer::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("setData", SetData);
 }
 
@@ -84,7 +84,7 @@ void VertexBuffer::New(const FunctionCallbackInfo<Value>& args) {
         }
         auto vertexBuffer = new VertexBuffer(
                 args.GetIsolate(), graphicsDevice, vertexDeclaration);
-        args.GetReturnValue().Set(vertexBuffer->getObject());
+        args.GetReturnValue().Set(vertexBuffer->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
@@ -98,7 +98,7 @@ void VertexBuffer::SetData(const FunctionCallbackInfo<Value>& args) {
     for (int i = 0; i < array->Length(); i++) {
         vertices[i] = (float) array->Get(i)->NumberValue();
     }
-    auto self = ObjectScript<VertexBuffer>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     self->SetData(vertices, sizeof(float) * array->Length());
     delete[] vertices;
 }

@@ -26,7 +26,7 @@ SOFTWARE.*/
 using namespace v8;
 
 void Console::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("log", Log);
 }
 

@@ -26,9 +26,9 @@ SOFTWARE.*/
 #include <gl/glew.h>
 #include "v8.h"
 #include <string>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 
-class Texture2D : public ObjectScript<Texture2D> {
+class Texture2D : public ScriptObjectWrap<Texture2D> {
 
 public:
     Texture2D(v8::Isolate* isolate, std::string filename);

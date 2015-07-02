@@ -29,7 +29,7 @@ SOFTWARE.*/
 using namespace v8;
 
 Keyboard::Keyboard(v8::Isolate *isolate, Window* window) :
-        ObjectScript(isolate), window_(window) {
+        ScriptObjectWrap(isolate), window_(window) {
     // When sticky keys mode is enabled, the pollable state of a key will remain
     // GLFW_PRESS until the state of that key is polled with glfwGetKey. Once it
     // has been polled, if a key release event had been processed in the
@@ -53,7 +53,7 @@ void Keyboard::UpdateState() {
 }
 
 void Keyboard::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("isKeyDown", IsKeyDown);
     SetFunction("isKeyPress", IsKeyPress);
     SetFunction("updateState", UpdateState);
@@ -65,7 +65,7 @@ void Keyboard::New(const FunctionCallbackInfo<Value>& args) {
     auto window = helper.GetObject<Window>(args[0]);
     try {
         auto keyboard = new Keyboard(args.GetIsolate(), window);
-        args.GetReturnValue().Set(keyboard->getObject());
+        args.GetReturnValue().Set(keyboard->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

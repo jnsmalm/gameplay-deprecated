@@ -30,7 +30,7 @@ SOFTWARE.*/
 using namespace v8;
 
 ShaderProgram::ShaderProgram(Isolate* isolate, GraphicsDevice* graphicsDevice) :
-        ObjectScript(isolate), graphicsDevice_(graphicsDevice) {
+        ScriptObjectWrap(isolate), graphicsDevice_(graphicsDevice) {
     Window::EnsureCurrentContext();
     glProgram_ = glCreateProgram();
 }
@@ -106,7 +106,7 @@ void ShaderProgram::SetUniformVector4(std::string name, float *value) {
 }
 
 void ShaderProgram::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetNamedPropertyHandler(NULL, SetUniformValue);
 }
 
@@ -134,7 +134,7 @@ void ShaderProgram::New(const FunctionCallbackInfo<Value>& args) {
                     File::ReadText(executionPath + geometry));
         }
         shaderProgram->Link();
-        args.GetReturnValue().Set(shaderProgram->getObject());
+        args.GetReturnValue().Set(shaderProgram->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

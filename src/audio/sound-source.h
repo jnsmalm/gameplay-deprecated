@@ -24,12 +24,12 @@ SOFTWARE.*/
 #define JSPLAY_SOUNDSOURCE_H
 
 #include <al/al.h>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 #include <v8.h>
 
 class SoundBuffer;
 
-class SoundSource : public ObjectScript<SoundSource> {
+class SoundSource : public ScriptObjectWrap<SoundSource> {
 
 public:
     SoundSource(v8::Isolate *isolate, SoundBuffer *soundBuffer);

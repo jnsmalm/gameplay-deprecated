@@ -28,7 +28,7 @@ SOFTWARE.*/
 using namespace v8;
 
 SoundSource::SoundSource(Isolate *isolate, SoundBuffer *soundBuffer) :
-        ObjectScript(isolate) {
+        ScriptObjectWrap(isolate) {
     alGenSources((ALuint)1, &al_source_);
     alSourcef(al_source_, AL_PITCH, 1);
     alSourcef(al_source_, AL_GAIN, 1);
@@ -53,7 +53,7 @@ void SoundSource::Play() {
 }
 
 void SoundSource::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("play", Play);
 }
 
@@ -63,7 +63,7 @@ void SoundSource::New(const FunctionCallbackInfo<Value> &args) {
     try {
         auto soundBuffer = helper.GetObject<SoundBuffer>(args[0]);
         auto soundSource = new SoundSource(args.GetIsolate(), soundBuffer);
-        args.GetReturnValue().Set(soundSource->getObject());
+        args.GetReturnValue().Set(soundSource->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
@@ -72,6 +72,6 @@ void SoundSource::New(const FunctionCallbackInfo<Value> &args) {
 
 void SoundSource::Play(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
-    auto soundSource = GetSelf(args.Holder());
+    auto soundSource = GetInternalObject(args.Holder());
     soundSource->Play();
 }

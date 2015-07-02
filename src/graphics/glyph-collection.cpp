@@ -28,7 +28,7 @@ SOFTWARE.*/
 using namespace v8;
 
 void GlyphCollection::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetNamedPropertyHandler(GetGlyph, NULL);
 }
 
@@ -37,7 +37,7 @@ void GlyphCollection::GetGlyph(Local<String> name,
     HandleScope scope(info.GetIsolate());
     ScriptHelper helper(info.GetIsolate());
 
-    auto self = GetSelf(info.Holder());
+    auto self = GetInternalObject(info.Holder());
     auto str = helper.GetString(name);
     auto glyph = (*self)[str[0]];
 

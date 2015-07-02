@@ -45,7 +45,7 @@ struct SpriteFontGlyph {
     Point advance;
 };
 
-class SpriteFont : public ObjectScript<SpriteFont> {
+class SpriteFont : public ScriptObjectWrap<SpriteFont> {
 
 public:
     SpriteFont(v8::Isolate* isolate,

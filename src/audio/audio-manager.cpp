@@ -26,7 +26,7 @@ SOFTWARE.*/
 
 using namespace v8;
 
-AudioManager::AudioManager(v8::Isolate *isolate) : ObjectScript(isolate) {
+AudioManager::AudioManager(v8::Isolate *isolate) : ScriptObjectWrap(isolate) {
     auto device = alcOpenDevice(NULL);
     if (!device) {
         throw std::runtime_error("Failed to initialize audio device");
@@ -48,7 +48,7 @@ void AudioManager::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
     HandleScope scope(args.GetIsolate());
     try {
         auto audioManager = new AudioManager(args.GetIsolate());
-        args.GetReturnValue().Set(audioManager->getObject());
+        args.GetReturnValue().Set(audioManager->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

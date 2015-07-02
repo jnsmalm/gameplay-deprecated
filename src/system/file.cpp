@@ -38,7 +38,7 @@ std::string File::ReadText(std::string filename) {
 }
 
 void File::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("readText", ReadText);
 }
 

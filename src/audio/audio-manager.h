@@ -25,10 +25,10 @@ SOFTWARE.*/
 
 #include <al/al.h>
 #include <al/alc.h>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 #include <v8.h>
 
-class AudioManager : ObjectScript<AudioManager>
+class AudioManager : ScriptObjectWrap<AudioManager>
 {
 public:
     AudioManager(v8::Isolate *isolate);

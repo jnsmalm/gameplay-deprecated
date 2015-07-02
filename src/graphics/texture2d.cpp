@@ -31,7 +31,7 @@ SOFTWARE.*/
 using namespace v8;
 
 Texture2D::Texture2D(Isolate* isolate, std::string filename) :
-        ObjectScript(isolate) {
+        ScriptObjectWrap(isolate) {
 
     Window::EnsureCurrentContext();
 
@@ -54,7 +54,7 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
 }
 
 Texture2D::Texture2D(Isolate* isolate, int width, int height, GLenum format) :
-        ObjectScript(isolate) {
+        ScriptObjectWrap(isolate) {
 
     Window::EnsureCurrentContext();
 
@@ -74,7 +74,7 @@ Texture2D::~Texture2D() {
 }
 
 void Texture2D::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetAccessor("width", GetWidth, NULL);
     SetAccessor("height", GetHeight, NULL);
 }
@@ -86,7 +86,7 @@ void Texture2D::New(const FunctionCallbackInfo<Value>& args) {
                     helper.GetString(args[0]);
     try {
         auto texture = new Texture2D(args.GetIsolate(), filename);
-        args.GetReturnValue().Set(texture->getObject());
+        args.GetReturnValue().Set(texture->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());

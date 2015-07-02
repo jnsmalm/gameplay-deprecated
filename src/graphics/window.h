@@ -28,12 +28,12 @@ SOFTWARE.*/
 #include "v8.h"
 #include "graphics-device.h"
 #include <string>
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 
 class Keyboard;
 class Mouse;
 
-class Window : public ObjectScript<Window> {
+class Window : public ScriptObjectWrap<Window> {
 
 public:
     Window(v8::Isolate* isolate,

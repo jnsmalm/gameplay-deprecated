@@ -30,7 +30,7 @@ SOFTWARE.*/
 using namespace v8;
 
 Window::Window(Isolate* isolate, std::string title, int width, int height,
-               bool fullscreen) : ObjectScript(isolate) {
+               bool fullscreen) : ScriptObjectWrap(isolate) {
 
     glfwSetErrorCallback([](int error, const char* description) {
         throw std::runtime_error(description);
@@ -71,7 +71,7 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
     }
 
     graphicsDevice_ = new GraphicsDevice(isolate, this);
-    graphicsDevice_->InstallAsObject("graphics", this->getObject());
+    graphicsDevice_->InstallAsObject("graphics", this->v8Object());
 }
 
 Window::~Window() {
@@ -106,7 +106,7 @@ void Window::EnsureCurrentContext() {
 }
 
 void Window::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("close", Close);
     SetFunction("pollEvents", PollEvents);
     SetFunction("getTime", GetTime);
@@ -127,7 +127,7 @@ void Window::New(const FunctionCallbackInfo<Value>& args) {
     try {
         auto window = new Window(
                 args.GetIsolate(), title, width, height, fullscreen);
-        args.GetReturnValue().Set(window->getObject());
+        args.GetReturnValue().Set(window->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
@@ -136,46 +136,46 @@ void Window::New(const FunctionCallbackInfo<Value>& args) {
 
 void Window::Close(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    auto self = ObjectScript<Window>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     self->Close();
 }
 
 void Window::GetTime(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    auto self = ObjectScript<Window>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     args.GetReturnValue().Set(self->GetTime());
 }
 
 void Window::PollEvents(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    auto self = ObjectScript<Window>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     self->PollEvents();
 }
 
 void Window::IsClosing(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    auto self = ObjectScript<Window>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     args.GetReturnValue().Set(self->IsClosing());
 }
 
 void Window::GetWidth(
         Local<String> name, const PropertyCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    auto self = ObjectScript<Window>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     args.GetReturnValue().Set(self->width());
 }
 
 void Window::GetHeight(
         Local<String> name, const PropertyCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    auto self = ObjectScript<Window>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     args.GetReturnValue().Set(self->height());
 }
 
 void Window::SetTitle(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto self = ObjectScript<Window>::GetSelf(args.Holder());
+    auto self = GetInternalObject(args.Holder());
     auto title = helper.GetString(args[0]);
     self->SetTitle(title);
 }

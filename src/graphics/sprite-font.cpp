@@ -28,12 +28,12 @@ SOFTWARE.*/
 using namespace v8;
 
 SpriteFont::SpriteFont(v8::Isolate *isolate, std::string filename, int size,
-                       std::string chars) : ObjectScript(isolate),
+                       std::string chars) : ScriptObjectWrap(isolate),
                                             glyphs_(isolate) {
 
     texture_ = new Texture2D(isolate, 1024, 1024, GL_RED);
-    texture_->InstallAsObject("texture", this->getObject());
-    glyphs_.InstallAsObject("glyphs", this->getObject());
+    texture_->InstallAsObject("texture", this->v8Object());
+    glyphs_.InstallAsObject("glyphs", this->v8Object());
 
     FT_Library library;
     auto error = FT_Init_FreeType(&library);
@@ -69,7 +69,7 @@ void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
     try {
         auto spriteFont = new SpriteFont(
                 args.GetIsolate(), filename, size, chars);
-        args.GetReturnValue().Set(spriteFont->getObject());
+        args.GetReturnValue().Set(spriteFont->v8Object());
     }
     catch (std::exception& ex) {
         ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
@@ -140,7 +140,7 @@ void SpriteFont::PlaceGlyph(SpriteFontGlyph* glyph, int x, int y) {
 }
 
 void SpriteFont::Initialize() {
-    ObjectScript::Initialize();
+    ScriptObjectWrap::Initialize();
     SetFunction("measureString", MeasureString);
 }
 

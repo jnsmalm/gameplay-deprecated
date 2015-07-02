@@ -23,13 +23,13 @@ SOFTWARE.*/
 #ifndef JSPLAY_CONSOLE_H
 #define JSPLAY_CONSOLE_H
 
-#include <script/ObjectScript.h>
+#include <script/script-object-wrap.h>
 #include "v8.h"
 
-class Console : public ObjectScript<Console> {
+class Console : public ScriptObjectWrap<Console> {
 
 public:
-    Console(v8::Isolate *isolate) : ObjectScript(isolate) { }
+    Console(v8::Isolate *isolate) : ScriptObjectWrap(isolate) { }
 
 protected:
     virtual void Initialize() override;

@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 #include <script/scripthelper.h>
-#include <script/scriptengine.h>
+#include <script/script-engine.h>
 #include <script/scriptobjecthelper.h>
 #include "graphics-device.h"
 #include "texture-collection.h"

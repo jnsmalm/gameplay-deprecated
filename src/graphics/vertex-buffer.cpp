@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#include <script/scriptengine.h>
+#include <script/script-engine.h>
 #include <script/scripthelper.h>
 #include "vertex-buffer.h"
 #include "window.h"
@@ -87,7 +87,7 @@ void VertexBuffer::New(const FunctionCallbackInfo<Value>& args) {
         args.GetReturnValue().Set(vertexBuffer->v8Object());
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
 

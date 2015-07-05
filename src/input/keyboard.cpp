@@ -24,7 +24,7 @@ SOFTWARE.*/
 #include "graphics/window.h"
 #include <glfw/glfw3.h>
 #include <script/scripthelper.h>
-#include <script/scriptengine.h>
+#include <script/script-engine.h>
 
 using namespace v8;
 
@@ -68,7 +68,7 @@ void Keyboard::New(const FunctionCallbackInfo<Value>& args) {
         args.GetReturnValue().Set(keyboard->v8Object());
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
 

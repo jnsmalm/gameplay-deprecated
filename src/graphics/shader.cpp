@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 #include "graphics/shader.h"
 #include "graphics/window.h"
-#include "script/scriptengine.h"
+#include <script/script-engine.h>
 
 Shader::Shader(ShaderType type, std::string source) {
     Window::EnsureCurrentContext();

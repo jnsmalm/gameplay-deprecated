@@ -1,7 +1,6 @@
-#include "script/scriptengine.h"
+#include <script/script-engine.h>
 
-int main(int argc, char *argv[])
-{
-  ScriptEngine::GetCurrent().Run(argv[1]);
-  return 0;
+int main(int argc, char *argv[]) {
+    ScriptEngine::current().Run(argv[1], argc, argv);
+    return 0;
 }

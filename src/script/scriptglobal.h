@@ -3,7 +3,7 @@
 
 #include <system/console.h>
 #include "script/scripthelper.h"
-#include "script/scriptengine.h"
+#include <script/script-engine.h>
 #include "system/file.h"
 
 #include <graphics/sprite-font.h>
@@ -62,11 +62,11 @@ protected:
         ScriptHelper helper(args.GetIsolate());
         try {
             auto filename = helper.GetString(args[0]);
-            auto result = ScriptEngine::GetCurrent().Execute(filename);
+            auto result = ScriptEngine::current().Execute(filename);
             args.GetReturnValue().Set(result);
         }
         catch (std::exception& ex) {
-            ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+            ScriptEngine::current().ThrowTypeError(ex.what());
         }
     }
 

@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 #include "sound-source.h"
 #include "sound-buffer.h"
-#include <script/scriptengine.h>
+#include <script/script-engine.h>
 #include <script/scripthelper.h>
 
 using namespace v8;
@@ -66,7 +66,7 @@ void SoundSource::New(const FunctionCallbackInfo<Value> &args) {
         args.GetReturnValue().Set(soundSource->v8Object());
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
 

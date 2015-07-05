@@ -22,8 +22,8 @@ SOFTWARE.*/
 
 #include "system/file.h"
 #include "script/scripthelper.h"
-#include "script/scriptengine.h"
 #include <fstream>
+#include <script/script-engine.h>
 
 using namespace v8;
 
@@ -45,7 +45,7 @@ void File::Initialize() {
 void File::ReadText(const v8::FunctionCallbackInfo<v8::Value>& args) {
     v8::HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto filename = ScriptEngine::GetCurrent().GetExecutionPath() +
+    auto filename = ScriptEngine::current().executionPath() +
                     helper.GetString(args[0]);
     try {
         auto text = File::ReadText(filename);
@@ -53,6 +53,6 @@ void File::ReadText(const v8::FunctionCallbackInfo<v8::Value>& args) {
         args.GetReturnValue().Set(result);
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }

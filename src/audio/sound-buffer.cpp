@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 #include <script/scripthelper.h>
-#include <script/scriptengine.h>
+#include <script/script-engine.h>
 #include "sound-buffer.h"
 #include "wave-format.h"
 
@@ -63,13 +63,13 @@ SoundBuffer::~SoundBuffer() {
 void SoundBuffer::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto filename = ScriptEngine::GetCurrent().GetExecutionPath() +
+    auto filename = ScriptEngine::current().executionPath() +
             helper.GetString(args[0]);
     try {
         auto soundBuffer = new SoundBuffer(args.GetIsolate(), filename);
         args.GetReturnValue().Set(soundBuffer->v8Object());
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }

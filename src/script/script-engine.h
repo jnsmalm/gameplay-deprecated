@@ -20,37 +20,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#include <script/scripthelper.h>
-#include <script/script-engine.h>
-#include "audio-manager.h"
+#ifndef JSPLAY_SCRIPTENGINE_H
+#define JSPLAY_SCRIPTENGINE_H
 
-using namespace v8;
+#include "v8.h"
+#include "libplatform/libplatform.h"
+#include <string>
+#include <vector>
+#include <numeric>
 
-AudioManager::AudioManager(v8::Isolate *isolate) : ScriptObjectWrap(isolate) {
-    auto device = alcOpenDevice(NULL);
-    if (!device) {
-        throw std::runtime_error("Failed to initialize audio device");
-    }
-    context_ = alcCreateContext(device, NULL);
-    if (!alcMakeContextCurrent(context_)) {
-        throw std::runtime_error("Failed to initialize audio context");
-    }
-}
+class ScriptGlobal;
 
-AudioManager::~AudioManager() {
-    auto device = alcGetContextsDevice(context_);
-    alcMakeContextCurrent(NULL);
-    alcDestroyContext(context_);
-    alcCloseDevice(device);
-}
+class ScriptEngine {
 
-void AudioManager::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
-    HandleScope scope(args.GetIsolate());
-    try {
-        auto audioManager = new AudioManager(args.GetIsolate());
-        args.GetReturnValue().Set(audioManager->v8Object());
+public:
+    v8::Handle<v8::Value> Execute(std::string filename);
+    void Run(std::string filename, int argc, char* argv[]);
+    void ThrowTypeError(std::string message);
+
+    static ScriptEngine& current() {
+        static ScriptEngine instance;
+        return instance;
     }
-    catch (std::exception& ex) {
-        ScriptEngine::current().ThrowTypeError(ex.what());
+
+    std::string executionPath() {
+        return executionPath_;
     }
-}
+
+    std::string scriptPath() {
+        if (scriptPath_.empty()) {
+            return "";
+        }
+        return std::accumulate(scriptPath_.begin(), scriptPath_.end(),
+                               std::string(""));
+    }
+
+private:
+    ScriptEngine();
+    ~ScriptEngine();
+
+    ScriptEngine(ScriptEngine const& copy);
+    ScriptEngine& operator=(ScriptEngine const& copy);
+
+    v8::Platform* platform_;
+    v8::Isolate* isolate_;
+    std::unique_ptr<ScriptGlobal> global_;
+    std::vector<std::string> scriptPath_;
+    std::string executionPath_;
+};
+
+#endif

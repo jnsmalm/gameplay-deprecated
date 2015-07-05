@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 #include "graphics/window.h"
 #include "graphics-device.h"
-#include "script/scriptengine.h"
+#include <script/script-engine.h>
 #include "script/scripthelper.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
@@ -130,7 +130,7 @@ void Window::New(const FunctionCallbackInfo<Value>& args) {
         args.GetReturnValue().Set(window->v8Object());
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
 

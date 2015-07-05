@@ -24,7 +24,7 @@ SOFTWARE.*/
 #include "shader-program.h"
 #include "graphics/window.h"
 #include "script/scripthelper.h"
-#include "script/scriptengine.h"
+#include <script/script-engine.h>
 #include "graphics-device.h"
 
 using namespace v8;
@@ -123,7 +123,7 @@ void ShaderProgram::New(const FunctionCallbackInfo<Value>& args) {
     try {
         auto shaderProgram = new ShaderProgram(args.GetIsolate(),
                                                graphicsDevice);
-        auto executionPath = ScriptEngine::GetCurrent().GetExecutionPath();
+        auto executionPath = ScriptEngine::current().executionPath();
         shaderProgram->AttachShader(
                 ShaderType::Vertex, File::ReadText(executionPath + vertex));
         shaderProgram->AttachShader(
@@ -137,7 +137,7 @@ void ShaderProgram::New(const FunctionCallbackInfo<Value>& args) {
         args.GetReturnValue().Set(shaderProgram->v8Object());
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
 

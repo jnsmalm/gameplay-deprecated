@@ -22,7 +22,7 @@ SOFTWARE.*/
 
 #include "sprite-font.h"
 #include "texture2d.h"
-#include "script/scriptengine.h"
+#include <script/script-engine.h>
 #include "script/scripthelper.h"
 
 using namespace v8;
@@ -59,7 +59,7 @@ void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
     ScriptHelper helper(args.GetIsolate());
 
     auto arg = args[0]->ToObject();
-    auto filename = ScriptEngine::GetCurrent().GetExecutionPath() +
+    auto filename = ScriptEngine::current().executionPath() +
                     helper.GetString(arg, "filename");
     auto size = helper.GetInteger(arg, "size", 20);
     auto chars = helper.GetString(arg, "chars",
@@ -72,7 +72,7 @@ void SpriteFont::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
         args.GetReturnValue().Set(spriteFont->v8Object());
     }
     catch (std::exception& ex) {
-        ScriptEngine::GetCurrent().ThrowTypeError(ex.what());
+        ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
 

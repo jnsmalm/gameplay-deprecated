@@ -95,7 +95,9 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
     if (index == std::string::npos) {
         executionPath_ = "";
     }
-    executionPath_ = filename.substr(0, index + 1);
+    else {
+        executionPath_ = filename.substr(0, index + 1);
+    }
 
     ArrayBufferAllocator array_buffer_allocator;
     Isolate::CreateParams create_params;

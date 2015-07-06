@@ -20,7 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#include <system/file.h>
+#include <utils/file-reader.h>
 #include "shader-program.h"
 #include "graphics/window.h"
 #include "script/scripthelper.h"
@@ -125,13 +125,15 @@ void ShaderProgram::New(const FunctionCallbackInfo<Value>& args) {
                                                graphicsDevice);
         auto executionPath = ScriptEngine::current().executionPath();
         shaderProgram->AttachShader(
-                ShaderType::Vertex, File::ReadText(executionPath + vertex));
+                ShaderType::Vertex,
+                FileReader::ReadAsText(executionPath + vertex));
         shaderProgram->AttachShader(
-                ShaderType::Fragment, File::ReadText(executionPath + fragment));
+                ShaderType::Fragment,
+                FileReader::ReadAsText(executionPath + fragment));
         if (geometry != "") {
             shaderProgram->AttachShader(
                     ShaderType::Geometry,
-                    File::ReadText(executionPath + geometry));
+                    FileReader::ReadAsText(executionPath + geometry));
         }
         shaderProgram->Link();
         args.GetReturnValue().Set(shaderProgram->v8Object());

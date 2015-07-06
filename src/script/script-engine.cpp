@@ -123,7 +123,7 @@ Handle<Value> ScriptEngine::Execute(std::string filename) {
     module.InstallAsObject("module", context->Global());
 
     auto script = String::NewFromUtf8(
-            isolate_, File::ReadText(scriptPath() + filename).c_str());
+            isolate_, FileReader::ReadAsText(scriptPath() + filename).c_str());
 
     TryCatch tryCatch;
 

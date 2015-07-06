@@ -20,14 +20,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#include "system/file.h"
+#include "file-reader.h"
 #include "script/scripthelper.h"
 #include <fstream>
 #include <script/script-engine.h>
 
 using namespace v8;
 
-std::string File::ReadText(std::string filename) {
+std::string FileReader::ReadAsText(std::string filename) {
     std::ifstream in { filename };
     if (!in) {
       throw std::runtime_error("Failed to read file '" + filename + "'");
@@ -37,20 +37,20 @@ std::string File::ReadText(std::string filename) {
     return contents;
 }
 
-void File::Initialize() {
+void FileReader::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("readText", ReadText);
 }
 
-void File::ReadText(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void FileReader::ReadText(const v8::FunctionCallbackInfo<v8::Value>& args) {
     v8::HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
     auto filename = ScriptEngine::current().executionPath() +
                     helper.GetString(args[0]);
     try {
-        auto text = File::ReadText(filename);
-        auto result = v8::String::NewFromUtf8(args.GetIsolate(), text.c_str());
-        args.GetReturnValue().Set(result);
+        auto text = FileReader::ReadAsText(filename);
+        args.GetReturnValue().Set(v8::String::NewFromUtf8(
+                args.GetIsolate(), text.c_str()));
     }
     catch (std::exception& ex) {
         ScriptEngine::current().ThrowTypeError(ex.what());

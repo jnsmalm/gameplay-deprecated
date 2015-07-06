@@ -35,7 +35,7 @@ endif()
 set (JSPLAY_SRCS
   src/main
   src/utils/console
-  src/system/file
+  src/utils/file-reader
   src/script/script-global.h
   src/script/script-global.cpp
   src/script/script-engine.h

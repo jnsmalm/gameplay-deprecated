@@ -20,25 +20,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_FILE_H
-#define JSPLAY_FILE_H
+#ifndef JSPLAY_FILEREADER_H
+#define JSPLAY_FILEREADER_H
 
 #include "v8.h"
 #include <string>
 #include <script/script-object-wrap.h>
 
-class File : public ScriptObjectWrap<File> {
+class FileReader : public ScriptObjectWrap<FileReader> {
 
 public:
-    File(v8::Isolate *isolate) : ScriptObjectWrap(isolate) {}
+    FileReader(v8::Isolate *isolate) : ScriptObjectWrap(isolate) {}
 
-    static std::string ReadText(std::string filename);
+    static std::string ReadAsText(std::string filename);
 
 protected:
-    virtual void Initialize() override;
+    void Initialize() override;
 
 private:
     static void ReadText(const v8::FunctionCallbackInfo<v8::Value>& args);
 };
 
-#endif // JSPLAY_FILE_H
+#endif // JSPLAY_FILEREADER_H

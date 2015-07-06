@@ -24,7 +24,7 @@ SOFTWARE.*/
 #define JSPLAY_SCRIPTGLOBAL_H
 
 #include <utils/console.h>
-#include <system/file.h>
+#include <utils/file-reader.h>
 #include "script-object-wrap.h"
 
 class ScriptGlobal : public ScriptObjectWrap<ScriptGlobal> {
@@ -45,7 +45,7 @@ private:
     static void Require(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     Console console_;
-    File file_;
+    FileReader fileReader_;
 };
 
 #endif

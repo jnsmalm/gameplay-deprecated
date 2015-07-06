@@ -33,7 +33,7 @@ SOFTWARE.*/
 #include "script-engine.h"
 
 ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
-        ScriptObjectWrap(isolate), console_(isolate), file_(isolate) {
+        ScriptObjectWrap(isolate), console_(isolate), fileReader_(isolate) {
 
     InstallConstructor<Window>("Window");
     InstallConstructor<SpriteFont>("SpriteFont");
@@ -47,7 +47,7 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
     InstallConstructor<SoundSource>("SoundSource");
 
     console_.InstallAsTemplate("console", v8Template());
-    file_.InstallAsTemplate("file", v8Template());
+    fileReader_.InstallAsTemplate("file", v8Template());
 }
 
 void ScriptGlobal::Initialize() {

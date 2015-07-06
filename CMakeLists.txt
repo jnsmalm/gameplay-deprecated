@@ -34,9 +34,10 @@ endif()
 
 set (JSPLAY_SRCS
   src/main
-  src/system/console
+  src/utils/console
   src/system/file
   src/script/script-global.h
+  src/script/script-global.cpp
   src/script/script-engine.h
   src/script/script-engine.cpp
   src/script/script-object-wrap.h

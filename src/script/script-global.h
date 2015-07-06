@@ -1,71 +1,48 @@
-#ifndef SCRIPTGLOBAL_H
-#define SCRIPTGLOBAL_H
+/*The MIT License (MIT)
 
-#include <system/console.h>
-#include "script/scripthelper.h"
-#include <script/script-engine.h>
-#include "system/file.h"
+JSPlay Copyright (c) 2015 Jens Malmborg
 
-#include <graphics/sprite-font.h>
-#include "audio/audio-manager.h"
-#include "audio/sound-buffer.h"
-#include "audio/sound-source.h"
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-#include "input/keyboard.h"
-#include "input/mouse.h"
-#include "graphics/shader-program.h"
-#include "graphics/vertex-buffer.h"
-#include "graphics/window.h"
-#include "graphics/texture2d.h"
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-#include "v8.h"
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.*/
+
+#ifndef JSPLAY_SCRIPTGLOBAL_H
+#define JSPLAY_SCRIPTGLOBAL_H
+
+#include <utils/console.h>
+#include <system/file.h>
+#include "script-object-wrap.h"
 
 class ScriptGlobal : public ScriptObjectWrap<ScriptGlobal> {
 
 public:
-    ScriptGlobal(v8::Isolate *isolate) :
-            ScriptObjectWrap(isolate), console_(isolate), file_(isolate) {
-
-        console_.InstallAsTemplate("console", v8Template());
-        file_.InstallAsTemplate("file", v8Template());
-
-        InstallConstructor<Window>("Window");
-        InstallConstructor<SpriteFont>("SpriteFont");
-        InstallConstructor<Texture2D>("Texture2D");
-        InstallConstructor<ShaderProgram>("ShaderProgram");
-        InstallConstructor<VertexBuffer>("VertexBuffer");
-        InstallConstructor<Keyboard>("Keyboard");
-        InstallConstructor<Mouse>("Mouse");
-        InstallConstructor<AudioManager>("AudioManager");
-        InstallConstructor<SoundBuffer>("SoundBuffer");
-        InstallConstructor<SoundSource>("SoundSource");
-    }
+    ScriptGlobal(v8::Isolate *isolate);
 
 protected:
-    void Initialize() override {
-        ScriptObjectWrap::Initialize();
-        SetFunction("require", Require);
-    }
+    void Initialize() override;
 
+private:
     template <typename T>
     void InstallConstructor(std::string name) {
         ScriptObjectWrap<T>::InstallAsConstructor(
                 v8Isolate(), name, v8Template());
     }
 
-private:
-    static void Require(const v8::FunctionCallbackInfo<v8::Value>& args) {
-        v8::HandleScope scope(args.GetIsolate());
-        ScriptHelper helper(args.GetIsolate());
-        try {
-            auto filename = helper.GetString(args[0]);
-            auto result = ScriptEngine::current().Execute(filename);
-            args.GetReturnValue().Set(result);
-        }
-        catch (std::exception& ex) {
-            ScriptEngine::current().ThrowTypeError(ex.what());
-        }
-    }
+    static void Require(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     Console console_;
     File file_;

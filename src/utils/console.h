@@ -20,28 +20,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#include "system/console.h"
-#include <iostream>
+#ifndef JSPLAY_CONSOLE_H
+#define JSPLAY_CONSOLE_H
 
-using namespace v8;
+#include <script/script-object-wrap.h>
+#include "v8.h"
 
-void Console::Initialize() {
-    ScriptObjectWrap::Initialize();
-    SetFunction("log", Log);
-}
+class Console : public ScriptObjectWrap<Console> {
 
-void Console::Log(const v8::FunctionCallbackInfo<v8::Value>& args)
-{
-    bool first = true;
-    for (int i = 0; i < args.Length(); i++) {
-        v8::HandleScope scope(args.GetIsolate());
-        if (first) {
-            first = false;
-        }
-        else {
-            std::cout << " ";
-        }
-        std::cout << *v8::String::Utf8Value(args[i]);
-    }
-    std::cout << std::endl;
-}
+public:
+    Console(v8::Isolate *isolate) : ScriptObjectWrap(isolate) { }
+
+protected:
+    void Initialize() override;
+
+private:
+    static void Log(const v8::FunctionCallbackInfo<v8::Value>& args);
+};
+
+#endif // JSPLAY_CONSOLE_H

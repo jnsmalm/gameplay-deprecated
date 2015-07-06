@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 #include "script-engine.h"
-#include "script/scriptglobal.h"
+#include "script-global.h"
 #include <script/script-object-wrap.h>
 #include <iostream>
 

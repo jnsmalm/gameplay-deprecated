@@ -29,26 +29,16 @@ public:
         console_.InstallAsTemplate("console", v8Template());
         file_.InstallAsTemplate("file", v8Template());
 
-        ScriptObjectWrap<Window>::InstallAsConstructor(
-                isolate, "Window", v8Template());
-        ScriptObjectWrap<Keyboard>::InstallAsConstructor(
-                isolate, "Keyboard", v8Template());
-        ScriptObjectWrap<Mouse>::InstallAsConstructor(
-                isolate, "Mouse", v8Template());
-        ScriptObjectWrap<SpriteFont>::InstallAsConstructor(
-                isolate, "SpriteFont", v8Template());
-        ScriptObjectWrap<Texture2D>::InstallAsConstructor(
-                isolate, "Texture2D", v8Template());
-        ScriptObjectWrap<ShaderProgram>::InstallAsConstructor(
-                isolate, "ShaderProgram", v8Template());
-        ScriptObjectWrap<VertexBuffer>::InstallAsConstructor(
-                isolate, "VertexBuffer", v8Template());
-        ScriptObjectWrap<AudioManager>::InstallAsConstructor(
-                isolate, "AudioManager", v8Template());
-        ScriptObjectWrap<SoundBuffer>::InstallAsConstructor(
-                isolate, "SoundBuffer", v8Template());
-        ScriptObjectWrap<SoundSource>::InstallAsConstructor(
-                isolate, "SoundSource", v8Template());
+        InstallConstructor<Window>("Window");
+        InstallConstructor<SpriteFont>("SpriteFont");
+        InstallConstructor<Texture2D>("Texture2D");
+        InstallConstructor<ShaderProgram>("ShaderProgram");
+        InstallConstructor<VertexBuffer>("VertexBuffer");
+        InstallConstructor<Keyboard>("Keyboard");
+        InstallConstructor<Mouse>("Mouse");
+        InstallConstructor<AudioManager>("AudioManager");
+        InstallConstructor<SoundBuffer>("SoundBuffer");
+        InstallConstructor<SoundSource>("SoundSource");
     }
 
 protected:
@@ -57,6 +47,13 @@ protected:
         SetFunction("require", Require);
     }
 
+    template <typename T>
+    void InstallConstructor(std::string name) {
+        ScriptObjectWrap<T>::InstallAsConstructor(
+                v8Isolate(), name, v8Template());
+    }
+
+private:
     static void Require(const v8::FunctionCallbackInfo<v8::Value>& args) {
         v8::HandleScope scope(args.GetIsolate());
         ScriptHelper helper(args.GetIsolate());
@@ -70,7 +67,6 @@ protected:
         }
     }
 
-private:
     Console console_;
     File file_;
 };

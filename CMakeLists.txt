@@ -36,6 +36,7 @@ set (JSPLAY_SRCS
   src/main
   src/system/console
   src/system/file
+  src/script/script-global.h
   src/script/script-engine.h
   src/script/script-engine.cpp
   src/script/script-object-wrap.h

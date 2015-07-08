@@ -32,7 +32,7 @@ SOFTWARE.*/
 class ShaderParameterCollection;
 class GraphicsDevice;
 
-class ShaderProgram : ScriptObjectWrap<ShaderProgram> {
+class ShaderProgram : public ScriptObjectWrap<ShaderProgram> {
 
 public:
     ShaderProgram(v8::Isolate* isolate, GraphicsDevice* graphicsDevice);

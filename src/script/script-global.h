@@ -38,8 +38,7 @@ protected:
 private:
     template <typename T>
     void InstallConstructor(std::string name) {
-        ScriptObjectWrap<T>::InstallAsConstructor(
-                v8Isolate(), name, v8Template());
+        T::InstallAsConstructor(v8Isolate(), name, v8Template());
     }
 
     static void Require(const v8::FunctionCallbackInfo<v8::Value>& args);

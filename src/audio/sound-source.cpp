@@ -42,19 +42,43 @@ SoundSource::~SoundSource() {
     alDeleteSources(1, &al_source_);
 }
 
-bool SoundSource::IsPlaying() {
-    ALenum state;
-    alGetSourcei(al_source_, AL_SOURCE_STATE, &state);
-    return (state == AL_PLAYING);
+void SoundSource::Pause() {
+    alSourcePause(al_source_);
 }
 
 void SoundSource::Play() {
     alSourcePlay(al_source_);
 }
 
+void SoundSource::Stop() {
+    alSourceStop(al_source_);
+}
+
+SoundState SoundSource::GetState() {
+    ALenum state;
+    alGetSourcei(al_source_, AL_SOURCE_STATE, &state);
+    switch (state) {
+        case AL_INITIAL:
+            return SoundState::Initial;
+        case AL_PLAYING:
+            return SoundState::Playing;
+        case AL_PAUSED:
+            return SoundState::Paused;
+        case AL_STOPPED:
+            return SoundState::Stopped;
+        default:
+            return SoundState::Unknown;
+    }
+}
+
 void SoundSource::Initialize() {
     ScriptObjectWrap::Initialize();
+    SetFunction("pause", Pause);
     SetFunction("play", Play);
+    SetFunction("stop", Stop);
+    SetAccessor("state", GetState, nullptr);
+    SetAccessor("volume", GetVolume, SetVolume);
+    SetAccessor("loop", GetLoop, SetLoop);
 }
 
 void SoundSource::New(const FunctionCallbackInfo<Value> &args) {
@@ -70,8 +94,85 @@ void SoundSource::New(const FunctionCallbackInfo<Value> &args) {
     }
 }
 
+void SoundSource::Pause(const FunctionCallbackInfo<Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto soundSource = GetInternalObject(args.Holder());
+    soundSource->Pause();
+}
+
 void SoundSource::Play(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     auto soundSource = GetInternalObject(args.Holder());
     soundSource->Play();
 }
+
+void SoundSource::Stop(const FunctionCallbackInfo<Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto soundSource = GetInternalObject(args.Holder());
+    soundSource->Stop();
+}
+
+void SoundSource::GetState(v8::Local<v8::String> name,
+                           const v8::PropertyCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    switch (self->GetState()) {
+        case SoundState::Unknown: {
+            args.GetReturnValue().Set(
+                    v8::String::NewFromUtf8(args.GetIsolate(), "unknown"));
+            break;
+        }
+        case SoundState::Initial: {
+            args.GetReturnValue().Set(
+                    v8::String::NewFromUtf8(args.GetIsolate(), "initial"));
+            break;
+        }
+        case SoundState::Playing: {
+            args.GetReturnValue().Set(
+                    v8::String::NewFromUtf8(args.GetIsolate(), "playing"));
+            break;
+        }
+        case SoundState::Paused: {
+            args.GetReturnValue().Set(
+                    v8::String::NewFromUtf8(args.GetIsolate(), "paused"));
+            break;
+        }
+        case SoundState::Stopped: {
+            args.GetReturnValue().Set(
+                    v8::String::NewFromUtf8(args.GetIsolate(), "stopped"));
+            break;
+        }
+    }
+}
+
+void SoundSource::GetVolume(v8::Local<v8::String> name,
+                            const v8::PropertyCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    args.GetReturnValue().Set(self->volume());
+}
+
+void SoundSource::SetVolume(Local<String> name, Local<Value> value,
+                            const PropertyCallbackInfo<void> &info) {
+    HandleScope scope(info.GetIsolate());
+    auto self = GetInternalObject(info.Holder());
+    self->volume(static_cast<float>(value->NumberValue()));
+    info.GetReturnValue().Set(value);
+}
+
+void SoundSource::GetLoop(v8::Local<v8::String> name,
+                          const v8::PropertyCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    args.GetReturnValue().Set(self->loop());
+}
+
+void SoundSource::SetLoop(Local<String> name, Local<Value> value,
+                          const PropertyCallbackInfo<void> &info) {
+    HandleScope scope(info.GetIsolate());
+    auto self = GetInternalObject(info.Holder());
+    self->loop(value->BooleanValue());
+    info.GetReturnValue().Set(value);
+}
+
+

@@ -22,7 +22,6 @@ SOFTWARE.*/
 
 #include <graphics/window.h>
 #include <graphics/sprite-font.h>
-#include <audio/audio-manager.h>
 #include <audio/sound-buffer.h>
 #include <audio/sound-source.h>
 #include <input/keyboard.h>
@@ -42,7 +41,6 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
     InstallConstructor<VertexBuffer>("VertexBuffer");
     InstallConstructor<Keyboard>("Keyboard");
     InstallConstructor<Mouse>("Mouse");
-    InstallConstructor<AudioManager>("AudioManager");
     InstallConstructor<SoundBuffer>("SoundBuffer");
     InstallConstructor<SoundSource>("SoundSource");
 

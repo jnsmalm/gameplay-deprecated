@@ -86,10 +86,6 @@ void Window::PollEvents() {
     glfwPollEvents();
 }
 
-double Window::GetTime() {
-    return glfwGetTime();
-}
-
 void Window::SetTitle(std::string title) {
     glfwSetWindowTitle(glfwWindow_, title.c_str());
 }
@@ -104,7 +100,6 @@ void Window::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("close", Close);
     SetFunction("pollEvents", PollEvents);
-    SetFunction("getTime", GetTime);
     SetFunction("isClosing", IsClosing);
     SetAccessor("width", GetWidth, NULL);
     SetAccessor("height", GetHeight, NULL);
@@ -133,12 +128,6 @@ void Window::Close(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     auto self = GetInternalObject(args.Holder());
     self->Close();
-}
-
-void Window::GetTime(const FunctionCallbackInfo<Value>& args) {
-    HandleScope scope(args.GetIsolate());
-    auto self = GetInternalObject(args.Holder());
-    args.GetReturnValue().Set(self->GetTime());
 }
 
 void Window::PollEvents(const FunctionCallbackInfo<Value>& args) {

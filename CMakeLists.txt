@@ -36,6 +36,8 @@ set (JSPLAY_SRCS
   src/main
   src/utils/console
   src/utils/file-reader
+  src/utils/timer.cpp
+  src/utils/timer.h
   src/script/script-global.h
   src/script/script-global.cpp
   src/script/script-engine.h

@@ -42,7 +42,6 @@ public:
 
     void Close();
     static void EnsureCurrentContext();
-    double GetTime();
     bool IsClosing();
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
     void SetTitle(std::string title);
@@ -64,7 +63,6 @@ protected:
     virtual void Initialize() override;
 
 private:
-    static void GetTime(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void IsClosing(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Close(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void PollEvents(const v8::FunctionCallbackInfo<v8::Value>& args);

@@ -26,6 +26,7 @@ SOFTWARE.*/
 #include <audio/sound-source.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
+#include <utils/timer.h>
 #include "script-object-wrap.h"
 #include "script-global.h"
 #include "scripthelper.h"
@@ -43,6 +44,7 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
     InstallConstructor<Mouse>("Mouse");
     InstallConstructor<SoundBuffer>("SoundBuffer");
     InstallConstructor<SoundSource>("SoundSource");
+    InstallConstructor<Timer>("Timer");
 
     console_.InstallAsTemplate("console", v8Template());
     fileReader_.InstallAsTemplate("file", v8Template());

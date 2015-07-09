@@ -70,6 +70,11 @@ void ShaderProgram::SetVertexAttribute(
 int ShaderProgram::GetUniformLocation(std::string name) {
     auto iterator = uniforms_.find(name);
     if (iterator == uniforms_.end()) {
+        auto location = glGetUniformLocation(glProgram_, name.c_str());
+        if (location == -1) {
+            throw std::runtime_error(
+                    "Uniform value '" + name + "' does not exist");
+        }
         uniforms_[name] = glGetUniformLocation(glProgram_, name.c_str());
     }
     return static_cast<int>(uniforms_[name]);
@@ -149,36 +154,44 @@ void ShaderProgram::SetUniformValue(
     auto str = std::string(*v8::String::Utf8Value(name));
     auto self = GetInternalObject(info.Holder());
 
-    if (value->IsFloat32Array()) {
-        Handle<Float32Array> array = Handle<Float32Array>::Cast(value);
-        GLfloat *data = new GLfloat[array->Length()];
-        for (int i = 0; i < array->Length(); i++) {
-            data[i] = (GLfloat) array->Get(i)->NumberValue();
+    try {
+        if (value->IsFloat32Array()) {
+            Handle<Float32Array> array = Handle<Float32Array>::Cast(value);
+            GLfloat *data = new GLfloat[array->Length()];
+            for (int i = 0; i < array->Length(); i++) {
+                data[i] = (GLfloat) array->Get(i)->NumberValue();
+            }
+            switch (array->Length()) {
+                case 2: {
+                    self->SetUniformVector2(str, data);
+                    break;
+                }
+                case 3: {
+                    self->SetUniformVector3(str, data);
+                    break;
+                }
+                case 4: {
+                    self->SetUniformVector4(str, data);
+                    break;
+                }
+                case 16: {
+                    self->SetUniformMatrix4(str, data);
+                    break;
+                }
+            }
+            delete[] data;
         }
-        switch (array->Length()) {
-            case 2: {
-                self->SetUniformVector2(str, data);
-                break;
-            }
-            case 3: {
-                self->SetUniformVector3(str, data);
-                break;
-            }
-            case 4: {
-                self->SetUniformVector4(str, data);
-                break;
-            }
-            case 16: {
-                self->SetUniformMatrix4(str, data);
-                break;
-            }
+        else if (value->IsInt32()) {
+            self->SetUniformInteger(str, value->Int32Value());
         }
-        delete[] data;
+        else if (value->IsNumber()) {
+            self->SetUniformFloat(str, static_cast<float>(value->NumberValue()));
+        }
     }
-    else if (value->IsInt32()) {
-        self->SetUniformInteger(str, value->Int32Value());
+    catch (std::exception& error) {
+        ScriptEngine::current().ThrowTypeError(error.what());
     }
-    else if (value->IsNumber()) {
-        self->SetUniformFloat(str, static_cast<float>(value->NumberValue()));
-    }
+
+
+
 }

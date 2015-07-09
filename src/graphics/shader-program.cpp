@@ -29,10 +29,26 @@ SOFTWARE.*/
 
 using namespace v8;
 
-ShaderProgram::ShaderProgram(Isolate* isolate, GraphicsDevice* graphicsDevice) :
+ShaderProgram::ShaderProgram(Isolate* isolate, GraphicsDevice* graphicsDevice,
+                             std::string path) :
         ScriptObjectWrap(isolate), graphicsDevice_(graphicsDevice) {
+
     Window::EnsureCurrentContext();
     glProgram_ = glCreateProgram();
+
+    if (path.compare(path.length() - 1, 1, "/") != 0) {
+        path += "/";
+    }
+    auto geometry = path + "geometry.glsl";
+    auto vertex = path + "vertex.glsl";
+    auto fragment = path + "fragment.glsl";
+
+    if (FileReader::Exists(geometry)) {
+        AttachShader(ShaderType::Geometry, FileReader::ReadAsText(geometry));
+    }
+    AttachShader(ShaderType::Vertex, FileReader::ReadAsText(vertex));
+    AttachShader(ShaderType::Fragment, FileReader::ReadAsText(fragment));
+    glLinkProgram(glProgram_);
 }
 
 ShaderProgram::~ShaderProgram() {
@@ -42,10 +58,6 @@ ShaderProgram::~ShaderProgram() {
 void ShaderProgram::AttachShader(ShaderType shaderType, std::string source) {
     Shader shader(shaderType, source);
     glAttachShader(glProgram_, shader.glShader());
-}
-
-void ShaderProgram::Link() {
-    glLinkProgram(glProgram_);
 }
 
 void ShaderProgram::SetVertexAttribute(
@@ -115,27 +127,11 @@ void ShaderProgram::New(const FunctionCallbackInfo<Value>& args) {
     ScriptHelper helper(args.GetIsolate());
 
     auto graphicsDevice = helper.GetObject<GraphicsDevice>(args[0]);
-    auto arg = args[1]->ToObject();
-    auto vertex = helper.GetString(arg, "vertexShaderFilename");
-    auto geometry = helper.GetString(arg, "geometryShaderFilename");
-    auto fragment = helper.GetString(arg, "fragmentShaderFilename");
-
+    auto path = ScriptEngine::current().executionPath() +
+            helper.GetString(args[1]);
     try {
-        auto shaderProgram = new ShaderProgram(args.GetIsolate(),
-                                               graphicsDevice);
-        auto executionPath = ScriptEngine::current().executionPath();
-        shaderProgram->AttachShader(
-                ShaderType::Vertex,
-                FileReader::ReadAsText(executionPath + vertex));
-        shaderProgram->AttachShader(
-                ShaderType::Fragment,
-                FileReader::ReadAsText(executionPath + fragment));
-        if (geometry != "") {
-            shaderProgram->AttachShader(
-                    ShaderType::Geometry,
-                    FileReader::ReadAsText(executionPath + geometry));
-        }
-        shaderProgram->Link();
+        auto shaderProgram = new ShaderProgram(
+                args.GetIsolate(), graphicsDevice, path);
         args.GetReturnValue().Set(shaderProgram->v8Object());
     }
     catch (std::exception& ex) {

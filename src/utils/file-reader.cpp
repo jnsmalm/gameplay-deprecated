@@ -27,6 +27,15 @@ SOFTWARE.*/
 
 using namespace v8;
 
+bool FileReader::Exists(std::string filename) {
+    std::ifstream file(filename);
+    if (file.good()) {
+        file.close();
+        return true;
+    }
+    return false;
+}
+
 std::string FileReader::ReadAsText(std::string filename) {
     std::ifstream in { filename };
     if (!in) {

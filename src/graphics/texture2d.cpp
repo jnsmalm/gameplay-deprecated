@@ -37,6 +37,7 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
 
     std::vector<unsigned char> image;
     unsigned width, height;
+    // TODO: Change image loading to https://github.com/nothings/stb
     auto error = lodepng::decode(image, width, height, filename);
     if (error) {
         throw std::runtime_error("Failed to load image '" + filename + "'");

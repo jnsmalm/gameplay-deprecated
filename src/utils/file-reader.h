@@ -32,6 +32,7 @@ class FileReader : public ScriptObjectWrap<FileReader> {
 public:
     FileReader(v8::Isolate *isolate) : ScriptObjectWrap(isolate) {}
 
+    static bool Exists(std::string filename);
     static std::string ReadAsText(std::string filename);
 
 protected:

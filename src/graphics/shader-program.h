@@ -35,11 +35,10 @@ class GraphicsDevice;
 class ShaderProgram : public ScriptObjectWrap<ShaderProgram> {
 
 public:
-    ShaderProgram(v8::Isolate* isolate, GraphicsDevice* graphicsDevice);
+    ShaderProgram(v8::Isolate* isolate, GraphicsDevice* graphicsDevice,
+                  std::string path);
     ~ShaderProgram();
 
-    void AttachShader(ShaderType shaderType, std::string source);
-    void Link();
     void SetVertexAttribute(
       std::string name, GLint size, GLsizei stride, GLvoid* offset);
     void SetUniformFloat(std::string name, float value);
@@ -55,8 +54,9 @@ public:
     }
 
 private:
-    virtual void Initialize() override;
+    void AttachShader(ShaderType shaderType, std::string source);
     int GetUniformLocation(std::string name);
+    virtual void Initialize() override;
     static void SetUniformValue(v8::Local<v8::String> name,
                                 v8::Local<v8::Value> value,
                                 const v8::PropertyCallbackInfo<v8::Value> &info);

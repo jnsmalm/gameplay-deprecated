@@ -41,12 +41,15 @@ public:
 
     void SetVertexAttribute(
       std::string name, GLint size, GLsizei stride, GLvoid* offset);
+
+    // TODO: Move uniform setters to UniformCollection
     void SetUniformFloat(std::string name, float value);
     void SetUniformInteger(std::string name, int value);
     void SetUniformMatrix4(std::string name, GLfloat *value);
     void SetUniformVector2(std::string name, GLfloat *value);
     void SetUniformVector3(std::string name, GLfloat *value);
     void SetUniformVector4(std::string name, GLfloat *value);
+
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     GLuint glProgram() {

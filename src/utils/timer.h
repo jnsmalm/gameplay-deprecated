@@ -31,22 +31,27 @@ class Timer : public ScriptObjectWrap<Timer> {
 
 public:
     Timer(v8::Isolate* isolate) : ScriptObjectWrap(isolate) {
-        start_ = glfwGetTime();
+        Reset();
     }
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
+    void Reset() {
+        base_ = glfwGetTime();
+    }
+
     double elapsed() {
-        return glfwGetTime() - start_;
+        return glfwGetTime() - base_;
     }
 
 protected:
     void Initialize() override;
 
 private:
+    static void Reset(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void GetElapsed(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    double start_;
+    double base_;
 
 };
 

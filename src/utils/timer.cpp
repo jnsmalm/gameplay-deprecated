@@ -33,6 +33,13 @@ void Timer::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
 void Timer::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("elapsed", GetElapsed);
+    SetFunction("reset", Reset);
+}
+
+void Timer::Reset(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    self->Reset();
 }
 
 void Timer::GetElapsed(const v8::FunctionCallbackInfo<v8::Value> &args) {

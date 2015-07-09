@@ -35,10 +35,6 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
     glfwSetErrorCallback([](int error, const char* description) {
         throw std::runtime_error(description);
     });
-    if (!glfwInit()) {
-        throw std::runtime_error("Failed to initialize glfw");
-    }
-
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -76,7 +72,6 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
 
 Window::~Window() {
     glfwDestroyWindow(glfwWindow_);
-    glfwTerminate();
 }
 
 bool Window::IsClosing() {

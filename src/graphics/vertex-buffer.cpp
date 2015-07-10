@@ -47,6 +47,7 @@ void VertexBuffer::SetData(float *vertices, size_t size) {
     auto vertexBuffer = graphicsDevice_->vertexBuffer();
     graphicsDevice_->SetVertexBuffer(this);
     glBindVertexArray(glVertexArray_);
+    // TODO: Add buffer data usage to script
     glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size),
                  vertices, GL_STREAM_DRAW);
     glBindVertexArray(0);

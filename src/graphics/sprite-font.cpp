@@ -96,6 +96,13 @@ SpriteFontGlyph SpriteFont::LoadGlyph(char c) {
 }
 
 void SpriteFont::SetupGlyphs(std::string chars) {
+    // Remember the current texture
+    GLint old_active_unit, old_texture;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &old_active_unit);
+    glActiveTexture(GL_TEXTURE0);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+
+    glBindTexture(GL_TEXTURE_2D, texture_->glTexture());
     // It is also very important to disable the default 4-byte alignment
     // restrictions that OpenGL uses for uploading textures and other data.
     // Normally you won't be affected by this restriction, as most textures have
@@ -117,6 +124,10 @@ void SpriteFont::SetupGlyphs(std::string chars) {
     }
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+    // Restore the previous texture
+    glBindTexture(GL_TEXTURE_2D, old_texture);
+    glActiveTexture(old_active_unit);
 }
 
 void SpriteFont::PlaceGlyph(SpriteFontGlyph* glyph, int x, int y) {

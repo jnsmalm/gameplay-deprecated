@@ -35,6 +35,12 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
 
     Window::EnsureCurrentContext();
 
+    // Remember the current texture
+    GLint old_active_unit, old_texture;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &old_active_unit);
+    glActiveTexture(GL_TEXTURE0);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+
     std::vector<unsigned char> image;
     unsigned width, height;
     // TODO: Change image loading to https://github.com/nothings/stb
@@ -46,12 +52,16 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
     height_ = height;
 
     glGenTextures(1, &glTexture_);
-    glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
+    // TODO: Add texture filtering to script
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, &image[0]);
+
+    // Restore the previous texture
+    glBindTexture(GL_TEXTURE_2D, old_texture);
+    glActiveTexture(old_active_unit);
 }
 
 Texture2D::Texture2D(Isolate* isolate, int width, int height, GLenum format) :
@@ -59,19 +69,28 @@ Texture2D::Texture2D(Isolate* isolate, int width, int height, GLenum format) :
 
     Window::EnsureCurrentContext();
 
+    // Remember the current texture
+    GLint old_active_unit, old_texture;
+    glGetIntegerv(GL_ACTIVE_TEXTURE, &old_active_unit);
+    glActiveTexture(GL_TEXTURE0);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+
     std::vector<GLubyte> empty(width * height * 4, 0);
     glGenTextures(1, &glTexture_);
-    glActiveTexture(GL_TEXTURE8);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-      GL_UNSIGNED_BYTE, &empty[0]);
+                 GL_UNSIGNED_BYTE, &empty[0]);
+
+    // Restore the previous texture
+    glBindTexture(GL_TEXTURE_2D, old_texture);
+    glActiveTexture(old_active_unit);
 
     width_ = width;
     height_ = height;
 }
 
 Texture2D::~Texture2D() {
-  glDeleteTextures(1, &glTexture_);
+    glDeleteTextures(1, &glTexture_);
 }
 
 void Texture2D::Initialize() {

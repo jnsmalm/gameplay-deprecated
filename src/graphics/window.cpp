@@ -35,21 +35,33 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
     glfwSetErrorCallback([](int error, const char* description) {
         throw std::runtime_error(description);
     });
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    glfwWindow_ = glfwCreateWindow(
-            width, height, title.c_str(),
-            fullscreen ? glfwGetPrimaryMonitor() : 0, NULL);
+    GLFWmonitor* monitor = fullscreen ? glfwGetPrimaryMonitor() : 0;
+    glfwWindow_ = glfwCreateWindow(width, height, title.c_str(), monitor, NULL);
     if (!glfwWindow_) {
-        glfwTerminate();
         throw std::runtime_error("Failed to create window");
     }
 
-    glfwGetWindowSize(glfwWindow_, &width_, &height_);
+    glfwSetFramebufferSizeCallback(
+            glfwWindow_, [](GLFWwindow* window, int width, int height) {
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        glViewport(0, 0, mode->width, mode->height);
+    });
+
+    if (monitor) {
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+        width_ = mode->width; height_ = mode->height;
+    }
+    else {
+        glfwGetWindowSize(glfwWindow_, &width_, &height_);
+    }
+
     glfwMakeContextCurrent(glfwWindow_);
     glfwSwapInterval(1);
 

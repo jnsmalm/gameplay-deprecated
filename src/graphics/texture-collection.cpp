@@ -14,7 +14,12 @@ void TextureCollection::SetTexture(uint32_t index, Local<v8::Value> value,
     HandleScope scope(info.GetIsolate());
     ScriptHelper helper(info.GetIsolate());
     auto self = GetInternalObject(info.Holder());
-    auto texture = helper.GetObject<Texture2D>(value);
-    self->graphicsDevice_->SetTexture(index, texture);
+    if (value->IsNull() || value->IsUndefined()) {
+        self->graphicsDevice_->SetTexture(index, nullptr);
+    }
+    else {
+        auto texture = helper.GetObject<Texture2D>(value);
+        self->graphicsDevice_->SetTexture(index, texture);
+    }
     info.GetReturnValue().Set(value);
 }

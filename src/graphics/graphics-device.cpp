@@ -105,7 +105,12 @@ void GraphicsDevice::SetTexture(int index, Texture2D* texture) {
         default:
             throw std::runtime_error("Unknown texture unit");
     }
-    glBindTexture(GL_TEXTURE_2D, texture->glTexture());
+    if (texture == nullptr) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    else {
+        glBindTexture(GL_TEXTURE_2D, texture->glTexture());
+    }
 }
 
 void GraphicsDevice::SetVertexBuffer(VertexBuffer *vertexBuffer) {

@@ -27,17 +27,15 @@ SOFTWARE.*/
 
 using namespace v8;
 
-void GlyphCollection::Initialize() {
-    ScriptObjectWrap::Initialize();
-    SetNamedPropertyHandler(GetGlyph, NULL);
-}
+namespace
+{
+void GetGlyphWithSymbol(Local<String> name,
+                        const PropertyCallbackInfo<Value> &info) {
 
-void GlyphCollection::GetGlyph(Local<String> name,
-                               const PropertyCallbackInfo<Value> &info) {
     HandleScope scope(info.GetIsolate());
     ScriptHelper helper(info.GetIsolate());
 
-    auto self = GetInternalObject(info.Holder());
+    auto self = helper.GetObject<GlyphCollection>(info.Holder());
     auto str = helper.GetString(name);
     auto glyph = (*self)[str[0]];
 
@@ -61,4 +59,20 @@ void GlyphCollection::GetGlyph(Local<String> name,
     result.SetObject("source", &source);
 
     info.GetReturnValue().Set(result.v8_object());
+}
+
+void GetGlyphWithDigit(uint32_t index,
+                   const v8::PropertyCallbackInfo<v8::Value> &info) {
+    HandleScope scope(info.GetIsolate());
+    ScriptHelper helper(info.GetIsolate());
+    auto name = String::NewFromUtf8(
+            info.GetIsolate(), std::to_string(index).c_str());
+    GetGlyphWithSymbol(name, info);
+}
+}
+
+void GlyphCollection::Initialize() {
+    ScriptObjectWrap::Initialize();
+    SetNamedPropertyHandler(GetGlyphWithSymbol, NULL);
+    SetIndexedPropertyHandler(GetGlyphWithDigit, NULL);
 }

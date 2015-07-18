@@ -38,8 +38,6 @@ public:
     }
 
 private:
-    static void GetGlyph(v8::Local<v8::String> name,
-                         const v8::PropertyCallbackInfo<v8::Value> &info);
     virtual void Initialize() override;
 
     std::map<char, SpriteFontGlyph> glyphs_;

@@ -50,9 +50,8 @@ void WaveFormat::Load(std::string filename) {
             file.read(reinterpret_cast<char *>(&subChunk2Size),
                       sizeof(unsigned int));
             data = new char[subChunk2Size];
-            file.read(reinterpret_cast<char *>(data),
-                      subChunk2Size);
-        } while (strcmp(subChunk2ID, "data") != 0);
+            file.read(reinterpret_cast<char *>(data), subChunk2Size);
+        } while (strncmp(subChunk2ID, "data", 4) != 0);
         file.close();
     }
 }

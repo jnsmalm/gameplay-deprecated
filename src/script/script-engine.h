@@ -28,6 +28,7 @@ SOFTWARE.*/
 #include <string>
 #include <vector>
 #include <numeric>
+#include <memory>
 
 class ScriptGlobal;
 

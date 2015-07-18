@@ -25,8 +25,13 @@ SOFTWARE.*/
 #include <gl/glew.h>
 #include <glfw/glfw3.h>
 #include <memory>
+#include <iostream>
 
 int main(int argc, char *argv[]) {
+    if (argc == 1) {
+        std::cout << "Script argument is missing" << std::endl;
+        return 0;
+    }
     if (!glfwInit()) {
         //
     }

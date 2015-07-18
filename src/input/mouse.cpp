@@ -50,7 +50,13 @@ bool Mouse::IsButtonPress(int button) {
 }
 
 void Mouse::UpdateState() {
+    int offset_x = 0, offset_y = 0;
+    if (glfwGetWindowMonitor(window_->glfwWindow()) != NULL) {
+        glfwGetWindowPos(window_->glfwWindow(), &offset_x, &offset_y);
+    }
     glfwGetCursorPos(window_->glfwWindow(), &x_, &y_);
+    x_ += offset_x;
+    y_ += offset_y;
     oldState_ = newState_;
 }
 

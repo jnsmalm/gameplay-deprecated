@@ -27,6 +27,11 @@ SOFTWARE.*/
 #include <gl/glew.h>
 #include <script/script-object-wrap.h>
 
+enum class VertexBufferUsage {
+    Static,
+    Dynamic,
+};
+
 class GraphicsDevice;
 class VertexDeclaration;
 
@@ -37,7 +42,7 @@ public:
                  VertexDeclaration* vertexDeclaration);
     ~VertexBuffer();
 
-    void SetData(float *vertices, size_t size);
+    void SetData(float *vertices, size_t size, VertexBufferUsage usage);
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     VertexDeclaration *vertexDeclaration() {

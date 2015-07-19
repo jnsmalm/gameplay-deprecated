@@ -43,13 +43,29 @@ VertexBuffer::~VertexBuffer() {
     glDeleteBuffers(1, &glVertexBuffer_);
 }
 
-void VertexBuffer::SetData(float *vertices, size_t size) {
+void VertexBuffer::SetData(float *vertices, size_t size,
+                           VertexBufferUsage usage) {
     auto vertexBuffer = graphicsDevice_->vertexBuffer();
     graphicsDevice_->SetVertexBuffer(this);
     glBindVertexArray(glVertexArray_);
-    // TODO: Add buffer data usage to script
+
+    GLenum gl_usage;
+    switch (usage) {
+        case VertexBufferUsage::Static: {
+            gl_usage = GL_STATIC_DRAW;
+            break;
+        }
+        case VertexBufferUsage::Dynamic: {
+            gl_usage = GL_DYNAMIC_DRAW;
+            break;
+        }
+        default: {
+            gl_usage = GL_STATIC_DRAW;
+        }
+    }
     glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size),
-                 vertices, GL_STREAM_DRAW);
+                 vertices, gl_usage);
+
     glBindVertexArray(0);
     graphicsDevice_->SetVertexBuffer(vertexBuffer);
 }
@@ -94,12 +110,22 @@ void VertexBuffer::New(const FunctionCallbackInfo<Value>& args) {
 
 void VertexBuffer::SetData(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
     Handle<Array> array = Handle<Array>::Cast(args[0]);
     float *vertices = new float[array->Length()];
     for (int i = 0; i < array->Length(); i++) {
         vertices[i] = (float) array->Get(i)->NumberValue();
     }
+
+    auto usage = helper.GetString(args[1]);
+    VertexBufferUsage bufferUsage = VertexBufferUsage::Static;
+    if (usage == "dynamic") {
+        bufferUsage = VertexBufferUsage::Dynamic;
+    }
+
     auto self = GetInternalObject(args.Holder());
-    self->SetData(vertices, sizeof(float) * array->Length());
+    self->SetData(vertices, sizeof(float) * array->Length(), bufferUsage);
+
     delete[] vertices;
 }

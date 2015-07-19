@@ -122,7 +122,7 @@ void Window::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
     auto arg = helper.GetObject(args[0]);
-    auto title = helper.GetString(arg, "title", "Game");
+    auto title = helper.GetString(arg, "title", "Play");
     auto fullscreen = helper.GetBoolean(arg, "fullscreen", false);
     auto width = helper.GetInteger(arg, "width", 800);
     auto height = helper.GetInteger(arg, "height", 600);

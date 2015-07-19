@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_SPRITEFONT_H
-#define JSPLAY_SPRITEFONT_H
+#ifndef JSPLAY_FONTTEXTURE_H
+#define JSPLAY_FONTTEXTURE_H
 
 #include "texture2d.h"
 #include <map>
@@ -31,7 +31,7 @@ SOFTWARE.*/
 #include FT_FREETYPE_H
 #include "glyph-collection.h"
 
-struct SpriteFontGlyph {
+struct FontTextureGlyph {
     struct Rectangle {
         int x;
         int y;
@@ -45,26 +45,26 @@ struct SpriteFontGlyph {
     Point advance;
 };
 
-class SpriteFont : public ScriptObjectWrap<SpriteFont> {
+class FontTexture : public ScriptObjectWrap<FontTexture> {
 
 public:
-    SpriteFont(v8::Isolate* isolate,
+    FontTexture(v8::Isolate* isolate,
                std::string filename, int size, std::string chars);
-    ~SpriteFont();
+    ~FontTexture();
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
     int MeasureString(std::string text);
 
     GlyphCollection* glyphs() { return &glyphs_; }
-    Texture2D * texture() { return texture_; }
+    Texture2D* texture() { return texture_; }
 
 protected:
     virtual void Initialize() override;
 
 private:
-    SpriteFontGlyph LoadGlyph(char c);
+    FontTextureGlyph LoadGlyph(char c);
     void SetupGlyphs(std::string chars);
-    void PlaceGlyph(SpriteFontGlyph* glyph, int x, int y);
+    void PlaceGlyph(FontTextureGlyph* glyph, int x, int y);
     static void MeasureString(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     GlyphCollection glyphs_;
@@ -73,4 +73,4 @@ private:
     int maxGlyphHeight_ = 0;
 };
 
-#endif // JSPLAY_SPRITEFONT_H
+#endif // JSPLAY_FONTTEXTURE_H

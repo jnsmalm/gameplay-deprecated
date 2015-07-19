@@ -6,7 +6,7 @@ set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
 set (V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
-#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release)
 
 if (WIN32)
   set (V8_LIBS
@@ -48,8 +48,8 @@ set (JSPLAY_SRCS
   src/input/mouse
   src/graphics/texture2d.h
   src/graphics/texture2d.cpp
-  src/graphics/sprite-font.h
-  src/graphics/sprite-font.cpp
+  src/graphics/font-texture.h
+  src/graphics/font-texture.cpp
   src/graphics/shader
   src/graphics/shader-program.h
   src/graphics/shader-program.cpp

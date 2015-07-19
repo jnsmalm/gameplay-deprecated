@@ -21,12 +21,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 #include <graphics/window.h>
-#include <graphics/sprite-font.h>
 #include <audio/sound-buffer.h>
 #include <audio/sound-source.h>
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <utils/timer.h>
+#include <graphics/font-texture.h>
 #include "script-object-wrap.h"
 #include "script-global.h"
 #include "scripthelper.h"
@@ -36,7 +36,7 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
         ScriptObjectWrap(isolate), console_(isolate), fileReader_(isolate) {
 
     InstallConstructor<Window>("Window");
-    InstallConstructor<SpriteFont>("SpriteFont");
+    InstallConstructor<FontTexture>("FontTexture");
     InstallConstructor<Texture2D>("Texture2D");
     InstallConstructor<ShaderProgram>("ShaderProgram");
     InstallConstructor<VertexBuffer>("VertexBuffer");

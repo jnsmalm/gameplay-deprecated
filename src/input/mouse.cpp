@@ -39,14 +39,36 @@ Mouse::Mouse(Isolate *isolate, Window* window) : ScriptObjectWrap(isolate),
     glfwSetInputMode(window_->glfwWindow(), GLFW_STICKY_MOUSE_BUTTONS, 1);
 }
 
-bool Mouse::IsButtonDown(int button) {
-    newState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
-    return newState_[button] == GLFW_PRESS;
+bool Mouse::IsButtonDown(MouseButton button) {
+    int btn = 0;
+    switch (button) {
+        case MouseButton::Left: {
+            btn = 0;
+            break;
+        }
+        case MouseButton::Right: {
+            btn = 1;
+            break;
+        }
+    }
+    newState_[btn] = glfwGetMouseButton(window_->glfwWindow(), btn);
+    return newState_[btn] == GLFW_PRESS;
 }
 
-bool Mouse::IsButtonPress(int button) {
-    newState_[button] = glfwGetMouseButton(window_->glfwWindow(), button);
-    return oldState_[button] == GLFW_RELEASE && newState_[button] == GLFW_PRESS;
+bool Mouse::IsButtonPress(MouseButton button) {
+    int btn = 0;
+    switch (button) {
+        case MouseButton::Left: {
+            btn = 0;
+            break;
+        }
+        case MouseButton::Right: {
+            btn = 1;
+            break;
+        }
+    }
+    newState_[btn] = glfwGetMouseButton(window_->glfwWindow(), btn);
+    return oldState_[btn] == GLFW_RELEASE && newState_[btn] == GLFW_PRESS;
 }
 
 void Mouse::UpdateState() {
@@ -96,18 +118,38 @@ void Mouse::GetY(Local<String> name, const PropertyCallbackInfo<Value> &args) {
 
 void Mouse::IsButtonDown(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
     auto self = GetInternalObject(args.Holder());
-    auto button = args[0]->NumberValue();
-    auto value = self->IsButtonDown(button);
-    args.GetReturnValue().Set(value);
+    auto button = helper.GetString(args[0]);
+    bool result = false;
+
+    if (button == "left") {
+        result = self->IsButtonDown(MouseButton::Left);
+    }
+    if (button == "right") {
+        result = self->IsButtonDown(MouseButton::Right);
+    }
+
+    args.GetReturnValue().Set(result);
 }
 
 void Mouse::IsButtonPress(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
     auto self = GetInternalObject(args.Holder());
-    auto button = args[0]->NumberValue();
-    auto value = self->IsButtonPress(button);
-    args.GetReturnValue().Set(value);
+    auto button = helper.GetString(args[0]);
+    bool result = false;
+
+    if (button == "left") {
+        result = self->IsButtonPress(MouseButton::Left);
+    }
+    if (button == "right") {
+        result = self->IsButtonPress(MouseButton::Right);
+    }
+
+    args.GetReturnValue().Set(result);
 }
 
 void Mouse::UpdateState(const FunctionCallbackInfo<Value>& args) {

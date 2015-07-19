@@ -27,6 +27,11 @@ SOFTWARE.*/
 #include <map>
 #include <script/script-object-wrap.h>
 
+enum class MouseButton {
+    Left,
+    Right,
+};
+
 class Window;
 
 class Mouse : public ScriptObjectWrap<Mouse> {
@@ -34,8 +39,8 @@ class Mouse : public ScriptObjectWrap<Mouse> {
 public:
     Mouse(v8::Isolate *isolate, Window* window);
 
-    bool IsButtonDown(int button);
-    bool IsButtonPress(int button);
+    bool IsButtonDown(MouseButton button);
+    bool IsButtonPress(MouseButton button);
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
     void UpdateState();
 

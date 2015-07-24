@@ -113,7 +113,7 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
     isolate_->Dispose();
 }
 
-Handle<Value> ScriptEngine::Execute(std::string filename) {
+Handle<Value> ScriptEngine::Execute(std::string filepath) {
     EscapableHandleScope handle_scope(isolate_);
 
     auto context = Context::New(isolate_, NULL, global_->v8Template());
@@ -122,24 +122,25 @@ Handle<Value> ScriptEngine::Execute(std::string filename) {
     ScriptModule module(isolate_);
     module.InstallAsObject("module", context->Global());
 
+    filepath = fullPath(filepath);
     auto script = String::NewFromUtf8(
-            isolate_, FileReader::ReadAsText(scriptPath() + filename).c_str());
+            isolate_, FileReader::ReadAsText(filepath).c_str());
 
     TryCatch tryCatch;
 
     auto compiled = Script::Compile(
-            script, String::NewFromUtf8(isolate_, filename.c_str()));
+            script, String::NewFromUtf8(isolate_, filepath.c_str()));
     if (compiled.IsEmpty()) {
         PrintCompileError(isolate_, &tryCatch);
         return v8::Null(isolate_);
     }
 
-    auto index = filename.find_last_of("\\/");
+    auto index = filepath.find_last_of("\\/");
     if (index == std::string::npos) {
         scriptPath_.push_back("");
     }
     else {
-        scriptPath_.push_back(filename.substr(0, index + 1));
+        scriptPath_.push_back(filepath.substr(0, index + 1));
     }
 
     auto result = compiled->Run();

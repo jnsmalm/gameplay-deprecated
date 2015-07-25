@@ -56,13 +56,12 @@ public:
                                std::string(""));
     }
 
-    std::string fullPath(std::string filepath) {
+    std::string resolvePath(std::string filepath) {
         if (filepath.compare(0, 1, "/") != 0) {
             return executionPath() + filepath;
         }
         else {
-            filepath.erase(0, 1);
-            return scriptPath() + filepath;
+            return executionPath() + scriptPath() + filepath.erase(0, 1);
         }
     }
 

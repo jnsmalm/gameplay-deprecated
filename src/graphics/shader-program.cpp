@@ -132,8 +132,7 @@ void ShaderProgram::New(const FunctionCallbackInfo<Value>& args) {
     ScriptHelper helper(args.GetIsolate());
 
     auto graphicsDevice = helper.GetObject<GraphicsDevice>(args[0]);
-    auto path = ScriptEngine::current().executionPath() +
-            helper.GetString(args[1]);
+    auto path = ScriptEngine::current().resolvePath(helper.GetString(args[1]));
     try {
         auto shaderProgram = new ShaderProgram(
                 args.GetIsolate(), graphicsDevice, path);

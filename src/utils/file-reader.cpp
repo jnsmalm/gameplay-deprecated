@@ -54,8 +54,8 @@ void FileReader::Initialize() {
 void FileReader::ReadText(const v8::FunctionCallbackInfo<v8::Value>& args) {
     v8::HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto filename = ScriptEngine::current().executionPath() +
-                    helper.GetString(args[0]);
+    auto filename = ScriptEngine::current().resolvePath(
+            helper.GetString(args[0]));
     try {
         auto text = FileReader::ReadAsText(filename);
         args.GetReturnValue().Set(v8::String::NewFromUtf8(

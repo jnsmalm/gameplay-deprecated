@@ -63,8 +63,8 @@ SoundBuffer::~SoundBuffer() {
 void SoundBuffer::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto filename = ScriptEngine::current().executionPath() +
-            helper.GetString(args[0]);
+    auto filename = ScriptEngine::current().resolvePath(
+            helper.GetString(args[0]));
     try {
         auto soundBuffer = new SoundBuffer(args.GetIsolate(), filename);
         args.GetReturnValue().Set(soundBuffer->v8Object());

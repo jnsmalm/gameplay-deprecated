@@ -32,9 +32,12 @@ namespace {
 class ScriptModule : public ScriptObjectWrap<ScriptModule> {
 
 public:
-    ScriptModule(v8::Isolate* isolate) : ScriptObjectWrap(isolate) {
+    ScriptModule(v8::Isolate* isolate, std::string path) :
+            ScriptObjectWrap(isolate) {
         v8Object()->Set(v8::String::NewFromUtf8(isolate, "exports"),
                         v8::Object::New(isolate));
+        v8Object()->Set(v8::String::NewFromUtf8(isolate, "path"),
+                        v8::String::NewFromUtf8(isolate, path.c_str()));
     }
 };
 
@@ -97,6 +100,8 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
     }
     else {
         executionPath_ = filename.substr(0, index + 1);
+        filename = filename.substr(index + 1, filename.length() -
+                executionPath_.length());
     }
 
     ArrayBufferAllocator array_buffer_allocator;
@@ -119,29 +124,32 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
     auto context = Context::New(isolate_, NULL, global_->v8Template());
     Context::Scope context_scope(context);
 
-    ScriptModule module(isolate_);
-    module.InstallAsObject("module", context->Global());
-
-    filepath = fullPath(filepath);
+    auto resolvedPath = resolvePath(filepath);
     auto script = String::NewFromUtf8(
-            isolate_, FileReader::ReadAsText(filepath).c_str());
+            isolate_, FileReader::ReadAsText(resolvedPath).c_str());
 
     TryCatch tryCatch;
 
     auto compiled = Script::Compile(
-            script, String::NewFromUtf8(isolate_, filepath.c_str()));
+            script, String::NewFromUtf8(isolate_, resolvedPath.c_str()));
     if (compiled.IsEmpty()) {
         PrintCompileError(isolate_, &tryCatch);
         return v8::Null(isolate_);
     }
 
-    auto index = filepath.find_last_of("\\/");
+    if (filepath.compare(0, 1, "/") == 0) {
+        filepath.erase(0, 1);
+    }
+    int index = filepath.find_last_of("\\/");
     if (index == std::string::npos) {
         scriptPath_.push_back("");
     }
     else {
         scriptPath_.push_back(filepath.substr(0, index + 1));
     }
+
+    ScriptModule module(isolate_, scriptPath());
+    module.InstallAsObject("module", context->Global());
 
     auto result = compiled->Run();
     if (result.IsEmpty()) {

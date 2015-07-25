@@ -102,10 +102,10 @@ void Texture2D::Initialize() {
 void Texture2D::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto filename = ScriptEngine::current().executionPath() +
-                    helper.GetString(args[0]);
+    auto filepath = ScriptEngine::current().resolvePath(
+            helper.GetString(args[0]));
     try {
-        auto texture = new Texture2D(args.GetIsolate(), filename);
+        auto texture = new Texture2D(args.GetIsolate(), filepath);
         args.GetReturnValue().Set(texture->v8Object());
     }
     catch (std::exception& ex) {

@@ -57,6 +57,10 @@ public:
         return glVertexBuffer_;
     }
 
+    bool isEmpty() {
+        return isEmpty_;
+    }
+
 protected:
     virtual void Initialize() override;
 
@@ -67,6 +71,7 @@ private:
     GLuint glVertexArray_;
     GraphicsDevice* graphicsDevice_;
     VertexDeclaration* vertexDeclaration_;
+    bool isEmpty_ = true;
 
 };
 

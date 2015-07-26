@@ -68,6 +68,7 @@ void VertexBuffer::SetData(float *vertices, size_t size,
 
     glBindVertexArray(0);
     graphicsDevice_->SetVertexBuffer(vertexBuffer);
+    isEmpty_ = false;
 }
 
 void VertexBuffer::Initialize() {

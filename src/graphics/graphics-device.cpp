@@ -46,12 +46,16 @@ void GraphicsDevice::Clear(float r, float g, float b, float a) {
 void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
                                     int startVertex, int primitiveCount) {
     if (vertexBuffer_ == nullptr) {
-        throw new std::runtime_error(
-                "Vertex buffer must be set before drawing primitives");
+        throw std::runtime_error(
+                "Vertex buffer must be set before drawing primitives.");
+    }
+    if (vertexBuffer_->isEmpty()) {
+        throw std::runtime_error(
+                "Vertex buffer can not be empty when drawing primitives.");
     }
     if (shaderProgram_ == nullptr) {
-        throw new std::runtime_error(
-                "Shader program must be set before drawing primitives");
+        throw std::runtime_error(
+                "Shader program must be set before drawing primitives.");
     }
     glBindVertexArray(vertexBuffer_->glVertexArray());
     vertexBuffer_->vertexDeclaration()->Apply(shaderProgram_);
@@ -164,8 +168,14 @@ void GraphicsDevice::DrawPrimitives(const FunctionCallbackInfo<Value>& args) {
     else if (primitiveType == "lineList") {
         primitive = PrimitiveType::LineList;
     }
-    GetInternalObject(args.Holder())->DrawPrimitives(
-            primitive, vertexStart, primitiveCount);
+
+    auto graphics = GetInternalObject(args.Holder());
+    try {
+        graphics->DrawPrimitives(primitive, vertexStart, primitiveCount);
+    }
+    catch (std::exception& ex) {
+        ScriptEngine::current().ThrowTypeError(ex.what());
+    }
 }
 
 void GraphicsDevice::Present(const FunctionCallbackInfo<Value>& args) {

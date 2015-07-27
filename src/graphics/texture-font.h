@@ -31,7 +31,7 @@ SOFTWARE.*/
 #include FT_FREETYPE_H
 #include "glyph-collection.h"
 
-struct FontTextureGlyph {
+struct TextureFontGlyph {
     struct Rectangle {
         int x;
         int y;
@@ -45,12 +45,12 @@ struct FontTextureGlyph {
     Point advance;
 };
 
-class FontTexture : public ScriptObjectWrap<FontTexture> {
+class TextureFont : public ScriptObjectWrap<TextureFont> {
 
 public:
-    FontTexture(v8::Isolate* isolate,
+    TextureFont(v8::Isolate* isolate,
                std::string filename, int size, std::string chars);
-    ~FontTexture();
+    ~TextureFont();
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
     int MeasureString(std::string text);
@@ -62,9 +62,9 @@ protected:
     virtual void Initialize() override;
 
 private:
-    FontTextureGlyph LoadGlyph(char c);
+    TextureFontGlyph LoadGlyph(char c);
     void SetupGlyphs(std::string chars);
-    void PlaceGlyph(FontTextureGlyph* glyph, int x, int y);
+    void PlaceGlyph(TextureFontGlyph * glyph, int x, int y);
     static void MeasureString(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     GlyphCollection glyphs_;

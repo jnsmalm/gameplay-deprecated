@@ -26,7 +26,7 @@ SOFTWARE.*/
 #include <input/keyboard.h>
 #include <input/mouse.h>
 #include <utils/timer.h>
-#include <graphics/font-texture.h>
+#include <graphics/texture-font.h>
 #include "script-object-wrap.h"
 #include "script-global.h"
 #include "scripthelper.h"
@@ -36,7 +36,7 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
         ScriptObjectWrap(isolate), console_(isolate), fileReader_(isolate) {
 
     InstallConstructor<Window>("Window");
-    InstallConstructor<FontTexture>("FontTexture");
+    InstallConstructor<TextureFont>("TextureFont");
     InstallConstructor<Texture2D>("Texture2D");
     InstallConstructor<ShaderProgram>("ShaderProgram");
     InstallConstructor<VertexBuffer>("VertexBuffer");

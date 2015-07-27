@@ -26,21 +26,21 @@ SOFTWARE.*/
 #include <script/script-object-wrap.h>
 #include <map>
 
-struct FontTextureGlyph;
+struct TextureFontGlyph;
 
 class GlyphCollection : public ScriptObjectWrap<GlyphCollection> {
 
 public:
     GlyphCollection(v8::Isolate *isolate) : ScriptObjectWrap(isolate) { }
 
-    FontTextureGlyph& operator[](const char glyphChar) {
+    TextureFontGlyph & operator[](const char glyphChar) {
         return glyphs_[glyphChar];
     }
 
 private:
     virtual void Initialize() override;
 
-    std::map<char, FontTextureGlyph> glyphs_;
+    std::map<char, TextureFontGlyph> glyphs_;
 };
 
 #endif // JSPLAY_GLYPHCOLLECTION_H

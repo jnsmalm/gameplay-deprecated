@@ -20,13 +20,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#include "font-texture.h"
+#include "texture-font.h"
 #include <script/script-engine.h>
 #include "script/scripthelper.h"
 
 using namespace v8;
 
-FontTexture::FontTexture(v8::Isolate *isolate, std::string filename, int size,
+TextureFont::TextureFont(v8::Isolate *isolate, std::string filename, int size,
                        std::string chars) : ScriptObjectWrap(isolate),
                                             glyphs_(isolate) {
 
@@ -49,11 +49,11 @@ FontTexture::FontTexture(v8::Isolate *isolate, std::string filename, int size,
     FT_Done_FreeType(library);
 }
 
-FontTexture::~FontTexture() {
+TextureFont::~TextureFont() {
     delete texture_;
 }
 
-void FontTexture::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
+void TextureFont::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
@@ -66,7 +66,7 @@ void FontTexture::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
             "[0123456789] (!?&-+=*/:+%@)");
 
     try {
-        auto font = new FontTexture(args.GetIsolate(), filename, size, chars);
+        auto font = new TextureFont(args.GetIsolate(), filename, size, chars);
         args.GetReturnValue().Set(font->v8Object());
     }
     catch (std::exception& ex) {
@@ -74,12 +74,12 @@ void FontTexture::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
     }
 }
 
-FontTextureGlyph FontTexture::LoadGlyph(char c) {
+TextureFontGlyph TextureFont::LoadGlyph(char c) {
     auto error = FT_Load_Char(face_, c, FT_LOAD_RENDER);
     if (error) {
         throw std::runtime_error("Failed to load font character");
     }
-    FontTextureGlyph glyph;
+    TextureFontGlyph glyph;
     glyph.offset.x = face_->glyph->bitmap_left;
     glyph.offset.y = face_->glyph->bitmap_top;
     glyph.source.w = face_->glyph->bitmap.width;
@@ -93,7 +93,7 @@ FontTextureGlyph FontTexture::LoadGlyph(char c) {
     return glyph;
 }
 
-void FontTexture::SetupGlyphs(std::string chars) {
+void TextureFont::SetupGlyphs(std::string chars) {
     // Remember the current texture
     GLint old_active_unit, old_texture;
     glGetIntegerv(GL_ACTIVE_TEXTURE, &old_active_unit);
@@ -128,7 +128,7 @@ void FontTexture::SetupGlyphs(std::string chars) {
     glActiveTexture(old_active_unit);
 }
 
-void FontTexture::PlaceGlyph(FontTextureGlyph* glyph, int x, int y) {
+void TextureFont::PlaceGlyph(TextureFontGlyph * glyph, int x, int y) {
     if (glyph->source.h > maxGlyphHeight_) {
         maxGlyphHeight_ = glyph->source.h;
     }
@@ -148,12 +148,12 @@ void FontTexture::PlaceGlyph(FontTextureGlyph* glyph, int x, int y) {
                     bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
 }
 
-void FontTexture::Initialize() {
+void TextureFont::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("measureString", MeasureString);
 }
 
-int FontTexture::MeasureString(std::string text) {
+int TextureFont::MeasureString(std::string text) {
     int size = 0;
     for (int i = 0; i < text.length(); i++) {
         auto glyph = glyphs_[text.at(i)];
@@ -162,7 +162,7 @@ int FontTexture::MeasureString(std::string text) {
     return size;
 }
 
-void FontTexture::MeasureString(
+void TextureFont::MeasureString(
         const v8::FunctionCallbackInfo<v8::Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());

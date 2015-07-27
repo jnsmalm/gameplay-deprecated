@@ -71,8 +71,7 @@ set (JSPLAY_SRCS
   src/audio/wave-format.cpp
   src/audio/wave-format.h
   src/audio/sound-source.cpp
-  src/audio/sound-source.h
-  deps/lodepng/lodepng)
+  src/audio/sound-source.h)
 
 set (JSPLAY_LIBS
   ${V8_LIBS}
@@ -123,7 +122,7 @@ include_directories(
   deps/glew/include
   deps/freetype/include
   deps/openal/include
-  deps/lodepng
+  deps/stb
   deps/v8/include
   src
   deps/v8)

@@ -24,44 +24,62 @@ SOFTWARE.*/
 #include <script/script-engine.h>
 #include "script/scripthelper.h"
 #include "graphics/window.h"
-
-#include <lodepng.h>
-#include <vector>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 using namespace v8;
+
+namespace
+{
+    GLenum GetTextureFormat(int channels) {
+        switch (channels) {
+            case 1: return GL_LUMINANCE;
+            case 2: return GL_LUMINANCE_ALPHA;
+            case 3: return GL_RGB;
+            case 4: return GL_RGBA;
+        }
+    }
+
+    GLint GetImageAlignment(int width, int channels) {
+        if (width * channels % 4 == 0) {
+            return 4;
+        }
+        else if (width * channels % 2 == 0) {
+            return 2;
+        }
+        return 1;
+    }
+}
 
 Texture2D::Texture2D(Isolate* isolate, std::string filename) :
         ScriptObjectWrap(isolate) {
 
     Window::EnsureCurrentContext();
 
-    // Remember the current texture
-    GLint old_active_unit, old_texture;
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &old_active_unit);
-    glActiveTexture(GL_TEXTURE0);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
-
-    std::vector<unsigned char> image;
-    unsigned width, height;
-    // TODO: Change image loading to https://github.com/nothings/stb
-    auto error = lodepng::decode(image, width, height, filename);
-    if (error) {
+    int channels;
+    unsigned char *image = stbi_load(
+            filename.c_str(), &width_, &height_, &channels, 0);
+    if (image == NULL) {
         throw std::runtime_error("Failed to load image '" + filename + "'");
     }
-    width_ = width;
-    height_ = height;
+
+    // TODO: Add texture filtering to script
+
+    GLint old_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
 
     glGenTextures(1, &glTexture_);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
-    // TODO: Add texture filtering to script
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width_, height_, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, &image[0]);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, GetImageAlignment(width_, channels));
+    glTexImage2D(GL_TEXTURE_2D, 0, GetTextureFormat(channels), width_, height_,
+                 0, GetTextureFormat(channels), GL_UNSIGNED_BYTE, image);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-    // Restore the previous texture
     glBindTexture(GL_TEXTURE_2D, old_texture);
-    glActiveTexture(old_active_unit);
+
+    stbi_image_free(image);
 }
 
 Texture2D::Texture2D(Isolate* isolate, int width, int height, GLenum format) :
@@ -69,21 +87,15 @@ Texture2D::Texture2D(Isolate* isolate, int width, int height, GLenum format) :
 
     Window::EnsureCurrentContext();
 
-    // Remember the current texture
-    GLint old_active_unit, old_texture;
-    glGetIntegerv(GL_ACTIVE_TEXTURE, &old_active_unit);
-    glActiveTexture(GL_TEXTURE0);
-    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
-
     std::vector<GLubyte> empty(width * height * 4, 0);
+
+    GLint old_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
     glGenTextures(1, &glTexture_);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
                  GL_UNSIGNED_BYTE, &empty[0]);
-
-    // Restore the previous texture
     glBindTexture(GL_TEXTURE_2D, old_texture);
-    glActiveTexture(old_active_unit);
 
     width_ = width;
     height_ = height;

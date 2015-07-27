@@ -58,8 +58,8 @@ void FontTexture::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
     ScriptHelper helper(args.GetIsolate());
 
     auto arg = args[0]->ToObject();
-    auto filename = ScriptEngine::current().executionPath() +
-                    helper.GetString(arg, "filename");
+    auto filename = ScriptEngine::current().resolvePath(
+            helper.GetString(arg, "filename"));
     auto size = helper.GetInteger(arg, "size", 20);
     auto chars = helper.GetString(arg, "chars",
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.,"

@@ -30,6 +30,7 @@ SOFTWARE.*/
 enum class MouseButton {
     Left,
     Right,
+    Middle,
 };
 
 class Window;

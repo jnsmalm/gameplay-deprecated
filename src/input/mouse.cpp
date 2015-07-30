@@ -50,6 +50,10 @@ bool Mouse::IsButtonDown(MouseButton button) {
             btn = 1;
             break;
         }
+        case MouseButton::Middle: {
+            btn = 2;
+            break;
+        }
     }
     newState_[btn] = glfwGetMouseButton(window_->glfwWindow(), btn);
     return newState_[btn] == GLFW_PRESS;
@@ -64,6 +68,10 @@ bool Mouse::IsButtonPress(MouseButton button) {
         }
         case MouseButton::Right: {
             btn = 1;
+            break;
+        }
+        case MouseButton::Middle: {
+            btn = 2;
             break;
         }
     }
@@ -130,6 +138,9 @@ void Mouse::IsButtonDown(const FunctionCallbackInfo<Value>& args) {
     if (button == "right") {
         result = self->IsButtonDown(MouseButton::Right);
     }
+    if (button == "middle") {
+        result = self->IsButtonDown(MouseButton::Middle);
+    }
 
     args.GetReturnValue().Set(result);
 }
@@ -147,6 +158,9 @@ void Mouse::IsButtonPress(const FunctionCallbackInfo<Value>& args) {
     }
     if (button == "right") {
         result = self->IsButtonPress(MouseButton::Right);
+    }
+    if (button == "middle") {
+        result = self->IsButtonPress(MouseButton::Middle);
     }
 
     args.GetReturnValue().Set(result);

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2.2)
 
-project(jsplay)
+project(play)
 
 set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
@@ -133,6 +133,6 @@ if (UNIX)
   add_definitions(-std=c++11 -stdlib=libc++)
 endif()
 
-add_executable(jsplay ${JSPLAY_SRCS})
+add_executable(play ${JSPLAY_SRCS})
 
-target_link_libraries(jsplay ${JSPLAY_LIBS})
+target_link_libraries(play ${JSPLAY_LIBS})

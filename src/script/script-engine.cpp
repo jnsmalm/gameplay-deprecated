@@ -137,7 +137,7 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
         return v8::Null(isolate_);
     }
 
-    if (filepath.compare(0, 1, ".") == 0) {
+    if (filepath.compare(0, 2, "./") == 0) {
         filepath.erase(0, 1);
     }
     if (filepath.compare(0, 1, "/") == 0) {

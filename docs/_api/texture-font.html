@@ -1,0 +1,55 @@
+---
+category: 'graphics'
+sortorder: 70
+---
+
+<h3 id="texture-font">TextureFont</h3>
+
+<p>Loads a font from file and renders the character glyphs to a texture, used when drawing text. Supported font files: ttf, ttc, woff, fnt, otf.</p>
+
+<pre class="prettyprint">
+var font = new TextureFont({
+  // The font file to use. (required)
+  filename: 'font.ttf',
+  // The height in pixels for the font. (default: 20)
+  size: 50,
+  // The glyph characters to load. (default: all upper/lower-case english letters, digits and some symbols)
+  chars: 'AaBbCc123!'
+});
+ 
+// Gets the texture with the rendered glyphs.
+var texture = font.texture;
+
+// Gets the width in pixels of the specified string
+var width = font.measureString('abc');
+</pre>
+
+<h4>Character glyphs</h4>
+
+<p>Glyphs are the characters that has been rendered to the texture. When creating a font you can specifiy which characters to render to the texture. If the specified characters are too many and/or the font size is to large, an exception will be thrown if the characters could not fit on the texture. The rendered glyphs only use the red channel on the texture.</p>
+
+<p>The glyphs are available as an object <code>glyphs</code> on the font, will return <code>null</code> when the specified character does not exist. A glyph has the following information:</p>
+
+<ul>
+  <li>Offset, used for aligning the characters when drawing.</li>
+  <li>Advance, used to get the position for the next character to draw.</li>
+  <li>Source, the source rectangle (location) for the character on the texture.</li>
+</ul>
+
+<pre class="prettyprint">
+//var font = new TextureFont(...)
+var glyphs = font.glyphs;
+
+// Gets the glyph information for the character 'a'.
+var a = glyphs['a'];
+ 
+// Gets the glyph offset (x, y)
+var offset = a.offset;
+ 
+// Gets the glyph advance (x, y)
+var advance = a.advance;
+ 
+// Gets the glyph source (x, y, w, h)
+var source = a.source;
+</pre>
+

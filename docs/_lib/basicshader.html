@@ -1,0 +1,66 @@
+---
+category: "shaders"
+sortorder: 3
+---
+
+<h3 id="basic-shader">BasicShader</h3>
+
+<p>A basic predefined vertex/fragment-shader that supports vertices that have a position, color and texture.</p>
+
+<pre class="prettyprint">
+var BasicShader = require('lib/shader.js').BasicShader;
+
+// var window = new Window(...)
+var basic = new BasicShader(window);
+ 
+// var texture = new Texture2D(...)
+basic.setTexture(texture);
+ 
+// Set the shader program for the graphics.
+window.graphics.setShaderProgram(basic.shaderProgram);
+</pre>
+
+<h4>Vertex</h4>
+
+<p>The vertex used with <em>BasicShader</em> has support for position, color and texture coordinates. When creating the vertex, non of these properties are required (they all have default values). You will want to at least set the position though. When creating the <a href="{{ site.baseurl }}/api/#vertex-buffer">VertexBuffer</a>, the vertex declaration from the vertex is used.</p>
+
+<pre class="prettyprint">
+var vertex1 = new BasicShader.Vertex({
+    position: { x: 0, y: 1, z: 0 },
+    color: { r: 1, g: 1, b: 1, a: 1 },
+    textureCoordinates: { u: 0.5, v: 0 }
+});
+var vertex2 = new BasicShader.Vertex({
+    position: { x: -1, y: -1, z: 0 },
+    color: { r: 1, g: 1, b: 1, a: 1 },
+    textureCoordinates: { u: 1, v: 1 }
+});
+var vertex3 = new BasicShader.Vertex({
+    position: { x: 1, y: -1, z: 0 },
+    color: { r: 1, g: 1, b: 1, a: 1 },
+    textureCoordinates: { u: 0, v: 1 }
+});
+
+// var window = new Window(...)
+var vertexBuffer = new VertexBuffer(
+    window.graphics, BasicShader.Vertex.declaration());
+</pre>
+
+<h4>VertexList</h4>
+
+<p>Holds a list of vertices. To set data for a vertex buffer the <code>toArray</code> function can be used.</p>
+
+<pre class="prettyprint">
+// var vertex1 = new BasicShader.Vertex(...)
+// var vertex2 = new BasicShader.Vertex(...)
+// var vertex3 = new BasicShader.Vertex(...)
+ 
+// Create the vertex list with the specified vertices.
+var vertices = new BasicShader.VertexList([ vertex1, vertex2 ]);
+ 
+// Vertices can also be added with a function.
+vertices.add(vertex3);
+
+// var vertexBuffer = new VertexBuffer(...)
+vertexBuffer.setData(vertices.toArray());
+</pre>

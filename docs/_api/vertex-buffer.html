@@ -1,0 +1,61 @@
+---
+category: 'graphics'
+sortorder: 80
+---
+
+<h3 id="vertex-buffer">VertexBuffer</h3>
+
+<p>Stores vertex data, used when drawing primitives.</p>
+
+<h4>Vertex declaration</h4>
+
+<p>The vertex declaration describes the attributes for the vertex data. It's an array with objects that has <code>attributeName</code> and <code>attributeType</code> properties. The vertex declaration must match the shader program used. For example, the vertex shader below has the following in-parameters.</p>
+
+<pre class="prettyprint">
+in vec3 position;
+in vec4 color;
+in vec2 textureCoords;
+</pre>
+
+<p>The vertex declaration for that shader should have the attributes below, the order is important when setting the vertex data. The attribute type can have any of the following values: <em>'float', 'vec2', 'vec3', 'vec4'.</em>
+
+<pre class="prettyprint">
+var vertexDeclaration = [
+  { attributeName: 'position', attributeType: 'vec3' },
+  { attributeName: 'color', attributeType: 'vec4' },
+  { attributeName: 'textureCoords', attributeType: 'vec2' }
+];
+</pre>
+
+<h4>Vertex data</h4>
+
+<p>The vertex data is an array with values to store in the vertex buffer. The order of the vertex data must match the vertex declaration. When setting data for the vertex buffer a hint is specified for how the buffer data will be stored. If the data is modified very few times it should be set to 'static'. If the data is modified many times it should be set to 'dynamic'.</p>
+
+<pre class="prettyprint">
+// Create the vertex declaration.
+var vertexDeclaration = [
+  // (x, y, z)
+  { attributeName: 'position', attributeType: 'vec3' },
+  // (u, v)
+  { attributeName: 'textureCoords', attributeType: 'vec2' }
+];
+ 
+// var window = new Window(...)
+var vertexBuffer = new VertexBuffer(window.graphics, vertexDeclaration);
+ 
+// Array with vertices that matches the declaration above (x, y, z, u, v).
+var vertices = [
+   // Vertex 1
+   0.0,  0.5, 0.0, 0.0, 0.0,
+   // Vertex 2
+   0.5, -0.5, 0.0, 0.0, 0.0,
+   // Vertex 3
+  -0.5, -0.5, 0.0, 0.0, 0.0,
+];
+ 
+// The usage can be set to 'static' or 'dynamic'.
+var usage = 'dynamic';
+ 
+// Sets the vertex data for the buffer.
+vertexBuffer.setData(vertices, usage);
+</pre>

@@ -1,0 +1,27 @@
+---
+category: 'general'
+sortorder: 2
+---
+
+<h3 id="file-paths">File paths</h3>
+
+<p>When loading modules with <code>require</code> the path can be either relative to current script or relative to main script. Current script means the script that is loading the module. Main script means the script that was used to start the game. Filepaths relative to current script is prefixed with '/', without a leading '/' the filepath will be relative to the main script.</p>
+
+<p>The same principal applies when using other filepaths (e.g. when creating a texture or shader). Note that the current script is the script <strong>executing</strong> the code that is using the filepath, not necessarily the script where the filepath itself exists. Sometimes it's needed to get the path of the current module, in those cases <code>module.path</code> can be used.</p>
+
+<p>The contents of game.js</p>
+<pre class="prettyprint">
+// Load module relative to main script
+var ship = require('objects/ship.js');
+</pre>
+
+<p>The contents of objects/ship.js</p>
+<pre class="prettyprint">
+// Filepath will be objects/assets/ship.png
+var filepath = module.path + 'assets/ship.png';
+</pre>
+
+<p>Starting the <samp>play</samp> runtime with game.js as main script.</p>
+<pre class="prettyprint">
+% play game.js
+</pre>

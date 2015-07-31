@@ -1,0 +1,54 @@
+.affix {
+  top: 20px;
+  width: 213px;
+}
+ 
+@media (min-width: 1200px) {
+  .affix {
+    width: 263px;
+  }         
+}
+
+#nav.nav li a:hover {
+  background-color: transparent;
+}
+
+#nav.nav li a {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#nav.nav .active {
+  font-weight: bold;
+}
+ 
+#nav.nav .nav {
+  display: none;
+}
+ 
+#nav.nav .active .nav {
+  display: block;
+}
+ 
+#nav.nav .nav a {
+  font-weight: normal;
+  font-size: .85em;
+}
+ 
+#nav.nav .nav span {
+  margin: 0 10px 0 2px;
+}
+
+#nav.nav .nav .active a,
+#nav.nav .nav .active:hover a,
+#nav.nav .nav .active:focus a {
+  font-weight: bold;
+  padding-left: 35px;
+  border-left: 2px solid #ccc;
+}
+ 
+#nav.nav .nav .active span,
+#nav.nav .nav .active:hover span,
+#nav.nav .nav .active:focus span {
+  display: none;
+}

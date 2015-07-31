@@ -1,0 +1,37 @@
+---
+category: 'general'
+sortorder: 1
+---
+
+<h3 id="modules">Modules</h3>
+
+<p>It wouldn't be great if you had to code the whole game in a single file. A module is a part of a program used to encapsulate logic and functionality. The global <code>module</code> object is used to export only the functionality you want to expose to other files. All variables and functions not exported are by default local to the current file.</p>
+
+<p>The contents of foo.js</p>
+
+<pre class="prettyprint">
+var score = require('/score.js');
+score.destroyedMinorShip();
+score.destroyedLargeShip();
+score.print();
+</pre>
+
+<p>The contents of score.js</p>
+
+<pre class="prettyprint">
+var score = 0;
+ 
+module.exports.destroyedMinorShip = function () {
+  score += 10;
+};
+ 
+module.exports.destroyedLargeShip = function () {
+  score += 50;
+};
+
+module.exports.print = function () {
+  console.log('score: ' + score);
+}
+</pre>
+
+

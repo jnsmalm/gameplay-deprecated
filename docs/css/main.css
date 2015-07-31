@@ -1,0 +1,56 @@
+body {
+  font-family: Lato, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 300;
+}
+
+.jumbotron {
+  background-color: rgb(100,149,237);
+  color: #fff;
+}
+
+#nav {
+  z-index: 1;
+}
+
+.nav {
+  font-weight: 400;
+}
+
+.navbar {
+  border: 0;
+  background-color: #fff;
+  margin-bottom: 0;
+}
+
+.navbar-brand {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.half-rule {
+  width: 100px;
+  margin: 40px auto;
+}
+
+.feature {
+  max-width: 70%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.title {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.nav-back-to-top {
+  margin-top: 15px;
+}
+
+.btn {
+  border: 0;
+}
+
+.glyphicon {
+  margin-right: 8px;
+}

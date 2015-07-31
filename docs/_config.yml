@@ -1,0 +1,34 @@
+# Site settings
+title: Gameplay
+email: your-email@domain.com
+description: > # this means to ignore newlines until "baseurl:"
+  Platform for creating desktop games with JavaScript. Easy to 
+  distribute and requires no installation. Supported on Mac OS X 
+  and Windows. It's free and open source.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://gameplayjs.com" # the base hostname & protocol for your site
+twitter_username: jekyllrb
+github_username:  jekyll
+highlighter: rouge
+
+# Build settings
+markdown: kramdown
+
+collections:
+  - api
+  - lib
+
+defaults:
+  - scope:
+      path: ""
+      type: api
+    values:
+      category: "general"
+      sortorder: 100000
+
+  - scope:
+      path: ""
+      type: lib
+    values:
+      category: "general"
+      sortorder: 100000

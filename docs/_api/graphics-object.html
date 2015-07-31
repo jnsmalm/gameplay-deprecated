@@ -1,0 +1,40 @@
+---
+category: 'graphics'
+sortorder: 20
+---
+
+<h3 id="graphics-object">GraphicsObject</h3>
+
+<p>Handles render states and used for drawing primitives. The graphics object is created automatically when creating a window and it's available as a reference.</p>
+
+<pre class="prettyprint">
+// var window = new Window(...)
+var graphics = window.graphics;
+ 
+// Vertical syncronization on/off (default: true).
+graphics.setSynchronizeWithVerticalRetrace(true);
+ 
+// var texture = new Texture2D(...)
+graphics.textures[0] = texture;
+ 
+// var buffer = new VertexBuffer(...)
+graphics.setVertexBuffer(buffer);
+ 
+// var program = new ShaderProgram(...)
+graphics.setShaderProgram(program);
+ 
+// Clear backbuffer to the color red.
+graphics.clear({ r: 1, g: 0, b: 0, a: 1 });
+ 
+graphics.drawPrimitives({
+  // Type of primitive to draw. Can have the following values: 'triangleList', 'lineList', 'pointList'.
+  primitiveType: 'triangleList',
+  // Index of the vertex to start drawing.
+  vertexStart: 0,
+  // Number of primitives to draw. (This example only draws 1 triangle.)
+  primitiveCount: 1
+});
+ 
+// Swaps the backbuffer and frontbuffer and displays the backbuffer content.
+graphics.present();
+</pre>

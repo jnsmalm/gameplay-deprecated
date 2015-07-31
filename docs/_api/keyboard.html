@@ -1,0 +1,23 @@
+---
+category: 'input'
+sortorder: 30
+---
+
+<h3 id="keyboard">Keyboard</h3>
+
+<p>Handles input state from a keyboard. Both <code>isKeyDown</code> and <code>isKeyPress</code> functions takes a key code as an argument. Key codes can be found at the <a href="http://www.glfw.org/docs/latest/group__keys.html" target="_blank">GLFW</a> website.</p>
+
+<pre class="prettyprint">
+// var window = new Window(...)
+var keyboard = new Keyboard(window);
+ 
+// Update the state for the keyboard.
+keyboard.updateState();
+ 
+if (keyboard.isKeyDown('A'.charCodeAt(0))) {
+  // The 'A' key is down.
+};
+if (keyboard.isKeyPress(32)) {
+  // The space key was just pressed.
+};
+</pre>

@@ -1,0 +1,23 @@
+---
+category: "sprites"
+sortorder: 2
+---
+
+<h3 id="sprite">Sprite</h3>
+
+<p>Simplifies drawing of a sprite, it has the same properties as the parameter object that is used when calling the <em>draw</em> function on SpriteBatch.</p>
+
+<pre class="prettyprint">
+var Sprite = require('lib/sprite.js').Sprite;
+
+// var spriteBatch = new SpriteBatch(...)
+var sprite = new Sprite(spriteBatch, 'sprite.png');
+
+// Set the position for the sprite.
+sprite.position.x = 100;
+sprite.position.y = 200;
+
+spriteBatch.begin();
+sprite.draw();
+spriteBatch.end();
+</pre>

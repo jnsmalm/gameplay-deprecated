@@ -1,0 +1,50 @@
+---
+layout: default
+title: 'Library'
+scripts:
+  - affix
+
+sections:
+  - name: Game
+    category: 'game'
+    desc: The game module includes functionality for creating a window, setting up a game loop and calling update and draw at specified intervals.
+
+  - name: Sprites
+    category: 'sprites'
+    desc: The sprite module includes functionality for drawing 2D sprites.
+
+  - name: Shaders
+    category: 'shaders'
+    desc: Predefined shaders that are designed to get you started without having any knowledge of writing code for vertex/fragment-shaders.
+---
+
+<div class="jumbotron">
+  <div class="container">
+    <h2 class="title">Gameplay Library</h2>
+    <p>A set of common components useful when developing games. The library is written in JavaScript and uses the underlying Gameplay API. The source code is easy to access and customize or extend.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-9">
+      <div class="alert alert-warning" role="alert">
+        This project is currently in beta (early stages). Breaking changes can occur even between minor versions.
+      </div>
+      {% for section in page.sections %}
+        {% assign name = section.name | downcase %}
+        <h2 id="{{ name }}">{{ section.name }}</h2>
+        <blockquote>
+          <p>{{ section.desc }}</p>
+        </blockquote>
+        {% assign items = site.lib | where:"category", name | sort: 'sortorder' %}
+        {% for item in items %}
+          {{ item.content }}
+        {% endfor %}
+      {% endfor %}
+    </div>
+    <div class="col-md-3 scrollspy">
+      {% include navigation.html data=site.data.lib %}
+    </div>
+  </div>
+</div>

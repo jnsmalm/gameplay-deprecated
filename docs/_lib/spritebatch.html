@@ -1,0 +1,94 @@
+---
+category: "sprites"
+sortorder: 1
+---
+
+<h3 id="sprite-batch">SpriteBatch</h3>
+
+<p>Draw 2D sprites with screen coordinates. Supports scaling, rotation and tinting. As its name would suggest, it batches draw calls to be able to draw as many sprites as fast as possible. It also supports drawing text.</p>
+
+<pre class="prettyprint">
+var SpriteBatch = require('lib/sprite.js').SpriteBatch;
+ 
+// var window = new Window(...);
+var batch = new SpriteBatch(window);
+</pre>
+
+<h4>Draw sprites</h4>
+
+<p>To add a sprite to be drawn the <code>draw</code> function is used. This function takes an object parameter that specifies the sprite properties. All of these properties have default values so you don't have to specify all of them if you don't need it. The only required property for the object parameter is the <em>texture</em>. The default parameter object is defined as:</p>
+
+<pre class="prettyprint">
+// var texture = new Texture2D(...)
+var sprite = {
+  // Source rectangle on the texture.
+  source: { x: 0, y: 0, w: texture.width, h: texture.height },
+  // Position for the sprite.
+  position: { x: 0, y: 0 },
+  // Scaling for the sprite.
+  scaling: { x: 1, y: 1 },
+  // Rotation (in radians) for the sprite.
+  rotation: 0,
+  // Origin for the sprite.
+  origin: { x: 0, y: 0 },
+  // Color for the sprite.
+  color: { r: 1, g: 1, b: 1, a: 1 }
+};
+</pre>
+
+<p>Specify only the properties you need (<em>texture</em> is required).</p>
+
+<pre class="prettyprint">
+// var texture = new Texture2D(...)
+var sprite = {
+  // Texture for the sprite.
+  texture: texture,
+  // Position for the sprite.
+  position: { x: 50, y: 50 }
+};
+</pre>
+
+<p>Draw sprites between <code>begin</code> and <code>end</code>. The <code>begin</code> function sets up the rendering states needed before drawing sprites. The <code>end</code> function reset those rendering states and flushes the sprites not yet drawn.</p>
+
+<pre class="prettyprint">
+// var batch = new SpriteBatch(...);
+batch.begin();
+
+for (var i=0; i<10; i++) {
+  // var sprite = {...}
+  batch.draw(sprite);
+}
+
+batch.end();
+</pre>
+
+<h4>Draw text</h4>
+
+<p>When drawing text you must first create a <a href="{{ site.baseurl }}/api/#teture-font">TextureFont</a>. The same concept applies when drawing text as drawing sprites, you don't have to specifiy all the object properties, only <em>font</em> and <em>text</em> is required. To vertically align the text, <em>baseline</em> is used. It can have any of the following values: <em>'top'</em>, <em>'middle'</em>, <em>'alphabetic'</em>.</p>
+
+<pre class="prettyprint">
+// var textureFont = new TextureFont(...);
+var text = {
+  // Font used when drawing text.
+  font: textureFont,
+  // Text to draw.
+  text: 'Text to draw goes here',
+  // Position for the text.
+  position: { x: 0, y: 0 },
+  // Scaling for the text.
+  scaling: { x: 1, y: 1 },
+  // Rotation (in radians) for the text.
+  rotation: 0,
+  // Origin for the text.
+  origin: { x: 0, y: 0 },
+  // Color for the text.
+  color: { r: 1, g: 1, b: 1, a: 1 },
+  // Vertical align the text.
+  baseline: 'top'
+};
+
+// var batch = new SpriteBatch(...);
+batch.begin();
+batch.drawText(text);
+batch.end();
+</pre>

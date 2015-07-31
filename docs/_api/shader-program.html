@@ -1,0 +1,41 @@
+---
+category: 'graphics'
+sortorder: 90
+---
+
+<h3 id="shader-program">ShaderProgram</h3>
+
+<p>Load shaders from file, used when drawing primitives. A shader program is a combination of vertex/geometry/fragment-shaders. When creating the shader program, a path to the shaders are specified. The following files are expected to be in that path: vertex.glsl, fragment.glsl. The file geometry.glsl will also be loaded if it exists. Writing shader-code is nothing specific for Gameplay, for a more general understanding of GLSL (OpenGL Shading Language), visit <a href="https://open.gl" target="blank">https://open.gl</a></p>
+
+<pre class="prettyprint">
+// var window = new Window(...)
+var program = new ShaderProgram(window.graphics, 'path/to/shaders');
+
+// Use the shader program.
+window.graphics.setShaderProgram(program);
+</pre>
+
+<h4>Uniforms</h4>
+
+<p>A uniform is a global GLSL variable that act as a parameter that the user of a shader program can pass to that program. For example, a shader has the uniforms defined below.</p>
+
+<pre class="prettyprint">
+uniform vec2 position;
+uniform vec3 direction;
+uniform vec4 color;
+uniform mat4 projection;
+uniform float time;
+uniform int visible;
+</pre>
+
+<p>Uniform values can be set using the code below. The following types of uniforms can be set on a shader program: <em>int, float, vec2, vec3, vec4, mat4.</em> All values (except int and float) are set using the type <em>Float32Array</em>.</p>
+
+<pre class="prettyprint">
+// var program = new ShaderProgram(...)
+program['position'] = new Float32Array(2);
+program['direction'] = new Float32Array(3);
+program['color'] = new Float32Array(4);
+program['projection'] = new Float32Array(16);
+program['time'] = 0.167;
+program['visible'] = 1;
+</pre>

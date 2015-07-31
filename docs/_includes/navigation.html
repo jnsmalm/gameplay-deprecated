@@ -1,0 +1,31 @@
+<ul id="nav" class="nav hidden-xs hidden-sm" data-spy="affix">
+  {% for data in include.data %}
+    <li>
+      {% if data.link %}
+        <a href="#{{ data.link | downcase }}">{{ data.name }}</a>
+      {% else %}
+        <a href="#{{ data.name | downcase }}">{{ data.name }}</a>
+      {% endif %}
+      {% if data.menu %}
+        {% for menu in data.menu %}
+          <ul class="nav">
+            <li>
+              {% if menu.link %}
+                <a href="#{{ menu.link | downcase }}">
+                  <span class="fa fa-angle-double-right"></span>{{ menu.name }}
+                </a>
+              {% else %}
+                <a href="#{{ menu.name | downcase }}">
+                  <span class="fa fa-angle-double-right"></span>{{ menu.name }}
+                </a>
+              {% endif %}
+            </li>
+          </ul>
+        {% endfor %}
+      {% endif %}
+    </li>
+  {% endfor %}
+  <li class="nav-back-to-top">
+    <a href="#top"><small>Back to top</small></a>
+  </li> 
+</ul>

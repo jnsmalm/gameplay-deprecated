@@ -1,0 +1,51 @@
+---
+layout: default
+title: 'API'
+scripts:
+  - affix
+
+sections:
+  - name: General
+    desc: This section explains general concepts and commonly used functionality in Gameplay. These concepts are important when you will begin writing your own games, but also useful when developing with the Gameplay Library.
+
+  - name: Graphics
+    desc: Core functionality for drawing graphics. The graphics API provides the ability to create a window and uses vertex buffers, textures and shaders to draw 2D and 3D graphics. For a more general understanding of this sections graphic concepts in OpenGL, visit https://open.gl
+
+  - name: Input
+    desc: Handles input from keyboard and mouse. A high-resolution timer is also available.
+
+  - name: Audio
+    desc: Functionality for playing wav sounds.
+---
+
+<div class="jumbotron">
+  <div class="container">
+    <h2 class="title">Gameplay API</h1>
+    <p>Core functionality for drawing graphics, handling input and playing sounds. It's built-in the runtime and available to all scripts running in Gameplay.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+  <div class="col-md-9">
+    <div class="alert alert-warning" role="alert">
+      This project is currently in beta (early stages). Breaking changes can occur even between minor versions.
+    </div>
+    {% for section in page.sections %}
+      {% assign name = section.name | downcase %}
+      <h2 id="{{ name }}">{{ section.name }}</h2>
+      <blockquote>
+        <p>{{ section.desc }}</p>
+      </blockquote>
+      {% assign items = site.api | where:"category", name | sort: 'sortorder' %}
+      {% for item in items %}
+        {{ item.content }}
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <div class="col-md-3 scrollspy">
+    {% include navigation.html data=site.data.api %}
+  </div>
+</div>
+</div>
+

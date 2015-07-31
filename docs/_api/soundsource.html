@@ -1,0 +1,32 @@
+---
+category: 'audio'
+sortorder: 110
+---
+
+<h3 id="soundsource">SoundSource</h3>
+
+<p>Plays a sound buffer, many sources can be created with the same buffer. To get the current state for the sound source, the <code>state</code> property can be used, it can have any of the following values: <em>'initial', 'playing', 'paused', 'stopped', 'unknown'</em>.</p>
+
+<pre class="prettyprint">
+// var buffer = new SoundBuffer(...);
+var source = new SoundSource(buffer);
+ 
+// Plays the sound.
+source.play();
+ 
+// Wait until the sound is done playing.
+while (source.state === 'playing') {
+}
+ 
+// Stop playing the sound.
+source.stop();
+ 
+// Pause the sound.
+source.pause();
+ 
+// Change the volume for the sound (between 0-1).
+source.volume = 0.5;
+ 
+// Loop the sound.
+source.loop = true;
+</pre>

@@ -1,0 +1,67 @@
+---
+category: "game"
+sortorder: 1
+---
+
+<h3 id="game">Game</h3>
+
+<p>Creates a window and enters a game loop. A common set up for a game is defined below.</p>
+
+<pre class="prettyprint">
+var Game = require('lib/game.js').Game;
+ 
+// Create the game, the options are passed on when creating the window.
+var game = new Game({
+  width: 800,
+  height: 600,
+  fullscreen: false,
+  title: 'Example'
+});
+ 
+game.update = function (elapsed) {
+  // Update game here (elapsed is in seconds).
+};
+ 
+game.draw = function () {
+  // Draw game here.
+};
+ 
+// Start running the game, will not return until game window is closed.
+game.run();
+</pre>
+
+<h4>Time step</h4>
+
+<p>There are two types of time steps supported: fixed-step and variable-step. In a fixed-step game loop, Game calls update once the targetElapsedTime has elapsed. After update is called, if it is not time to call update again, Game calls draw. After draw is called, if it is not time to call update again, Game idles until it is time to call update. When using a variable-step game loop, update and draw will be called as fast as the Game can run.</p>
+
+<pre class="prettyprint">
+// Value indicating whether to use fixed time steps. Default value is true.
+game.isFixedTimeStep = true;
+
+// Target time (in seconds) between calls to update when isFixedTimeStep is true. Default value is 1/60th of a second (60 fps).
+game.targetElapsedTime = 1.0 / 60.0;
+</pre>
+
+<h4>Window</h4>
+
+<p>A property exists for the created <a href="{{ site.baseurl }}/api/#window">window</a>. A short cut for the window <a href="{{ site.baseurl }}/api/#graphics-object">graphics</a> is also available.</p>
+
+<pre class="prettyprint">
+// Gets the window for the game.
+var window = game.window;
+
+// Gets the graphics object.
+var graphics = game.graphics;
+</pre>
+
+<h4>Input</h4>
+
+<p>Input for <a href="{{ site.baseurl }}/api/#mouse">Mouse</a> and <a href="{{ site.baseurl }}/api/#keyboard">Keyboard</a> is automatically set up.</p>
+
+<pre class="prettyprint">
+// Gets the mouse for the game.
+var mouse = game.mouse;
+
+// Gets the keyboard for the game.
+var keyboard = game.keyboard;
+</pre>

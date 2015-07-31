@@ -1,0 +1,44 @@
+---
+category: 'graphics'
+sortorder: 10
+---
+
+<h3 id="window" class="no-top-margin">Window</h3>
+
+<p>Encapsulates functionality for a window, used for drawing graphics and handle input events. When creating a window, the graphics (OpenGL context) is also created. Therefor a window must be created before creating any other graphic related objects.</p>
+
+<h4 id="apa">Full screen</h4>
+
+<p>When full screen is set, the width/height used when creating the window will also change the display resolution. If the requested resolution (width/height) is not supported by the display, the closest supported resolution will be used instead. To find out which resolution was selected, use <code>window.width</code> and <code>window.height</code> after creating the window.</p>
+
+<pre class="prettyprint">
+var window = new Window({
+  // The preferred width for the window (default: 800).
+  width: 800,
+  // The preferred height for the window (default: 600).
+  height: 600,
+  // When fullscreen is set the specified width/height is not guaranteed (default: false).
+  fullscreen: false,
+  // The title for the window (default: 'Play').
+  title: 'Example'
+});
+ 
+// Gets the width/height of the window. (When using fullscreen these properties represents the current resolution for the display.)
+var w = window.width;
+var h = window.height;
+ 
+// Graphics object (used for setting render states and drawing primitives).
+var graphics = window.graphics;
+ 
+// Change the title for the window.
+window.setTitle('Play');
+ 
+// Loop until the user closes the window.
+while (!window.isClosing()) {
+  // Poll for and process window events.
+  window.pollEvents();
+}
+ 
+// Close the window.
+window.close();
+</pre>

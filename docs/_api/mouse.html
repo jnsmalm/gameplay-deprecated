@@ -1,0 +1,30 @@
+---
+category: 'input'
+sortorder: 40
+---
+
+<h3 id="mouse">Mouse</h3>
+
+<p>Handles input state from a mouse. Both <code>isButtonDown</code> and <code>isButtonPress</code> functions takes a button as an argument, it can have any of the following values: <em>'left', 'right', 'middle'.</em></p>
+
+<pre class="prettyprint">
+// var window = new Window(...)
+var mouse = new Mouse(window);
+ 
+// Update the state for the mouse.
+mouse.updateState();
+
+// Gets the coordinates relative to the window.
+var x = mouse.x;
+var y = mouse.y;
+ 
+if (mouse.isButtonDown('left') {
+  // The left mouse button is down.
+};
+if (mouse.isButtonDown('middle') {
+  // The middle mouse button is down.
+};
+if (mouse.isButtonPress('right')) {
+  // The right mouse button was just pressed.
+};
+</pre>

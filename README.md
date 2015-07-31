@@ -16,9 +16,10 @@ to be downloaded and compiled before building JSPlay.
 
 - Go to [Google's V8 website](https://developers.google.com/v8/build) and follow
 the instructions to download the source code for V8.
-- Switch to git tag 4.5.9
+- Switch to git tag 4.5.9 and sync tools
 ```
 git checkout tags/4.5.9
+gclient sync --with_branch_heads --jobs 16
 ```
 - V8 must be built with c++11 and libc++, to do that you:
 	- Change the value CLANG_CXX_LANGUAGE_STANDARD to gnu++11 in the
@@ -33,9 +34,10 @@ git checkout tags/4.5.9
 
 - Go to [Google's V8 website](https://developers.google.com/v8/build) and follow
 the instructions to download the source code for V8.
-- Switch to git tag 4.5.9
+- Switch to git tag 4.5.9 and sync tools
 ```
 git checkout tags/4.5.9
+gclient sync --with_branch_heads --jobs 16
 ```
 - Follow the instructions for building V8 with Visual Studio, Use Visual Studio
 2013 or later (it's doesn't seem to work with Visual Studio Express, instead try

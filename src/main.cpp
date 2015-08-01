@@ -29,11 +29,23 @@ SOFTWARE.*/
 
 int main(int argc, char *argv[]) {
     if (argc == 1) {
-        std::cout << "Script argument is missing" << std::endl;
+        std::cout << "No script was specified." << std::endl;
+        return 1;
+    }
+    std::string filename;
+    for (int i=1; i<argc; i++) {
+        if (strcmp(argv[i], "--version") == 0) {
+            std::cout << "Gameplay v" << GAMEPLAY_VERSION << std::endl;
+        } else {
+            filename = argv[i];
+        }
+    }
+    if (filename.empty()) {
         return 0;
     }
     if (!glfwInit()) {
-        //
+        std::cout << "Failed to initialize glfw." << std::endl;
+        return 1;
     }
     std::unique_ptr<AudioManager> audio;
     try {
@@ -42,7 +54,13 @@ int main(int argc, char *argv[]) {
     catch (std::exception& error) {
         //
     }
-    ScriptEngine::current().Run(argv[1], argc, argv);
+    try {
+        ScriptEngine::current().Run(filename, argc, argv);
+    }
+    catch (std::exception& error) {
+        std::cout << error.what() << std::endl;
+        return 1;
+    }
     glfwTerminate();
     return 0;
 }

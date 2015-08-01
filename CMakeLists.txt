@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2.2)
 
 project(play)
 
+set (GAMEPLAY_VERSION "0.1.1")
+
 set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
 set (V8_LIBS_DIR
@@ -127,7 +129,10 @@ include_directories(
   src
   deps/v8)
 
-add_definitions(-DGLEW_STATIC -DAL_LIBTYPE_STATIC)
+add_definitions(
+  -DGLEW_STATIC
+  -DAL_LIBTYPE_STATIC
+  -DGAMEPLAY_VERSION="${GAMEPLAY_VERSION}")
 
 if (UNIX)
   add_definitions(-std=c++11 -stdlib=libc++)

@@ -1,16 +1,16 @@
-# JSPlay
+# Gameplay
 
 Platform for building desktop games with JavaScript.
 
 ### Download the source from GitHub
 ```
-git clone https://github.com/jnsmalm/jsplay.git
+git clone https://github.com/jnsmalm/gameplay.git
 ```
 
 ### Download and build V8
 
-V8 is the JavaScript engine from Google used by JSPlay. The source for V8 needs
-to be downloaded and compiled before building JSPlay.
+V8 is the JavaScript engine from Google used by Gameplay. The source for V8 needs
+to be downloaded and compiled before building Gameplay.
 
 ##### Mac OS X
 
@@ -28,7 +28,7 @@ gclient sync --with_branch_heads --jobs 16
 	CLANG_CXX_LANGUAGE_STANDARD
 	- Remember to modify it where it says 'clang==1'
 - Build V8 using 'make native'.
-- Copy or move the V8 folder to jsplay/deps.
+- Copy or move the V8 folder to gameplay/deps.
 
 ##### Windows with Visual Studio
 
@@ -45,18 +45,18 @@ Visual Studio Community).
 - Before building: Copy the contents in depot_tools/python276_bin (you should
 have that folder before getting the source for V8) to v8/third_party/python_26.
 - Build for release.
-- Copy or move the V8 folder to jsplay/deps.
+- Copy or move the V8 folder to gameplay/deps.
 
 
-### Build JSPlay
+### Build Gameplay
 
-JSPlay uses the [CMake](http://www.cmake.org) build system. Supported is Make
+Gameplay uses the [CMake](http://www.cmake.org) build system. Supported is Make
 for Mac OS X and Visual Studio for Windows. You can probably build it using
 other tools but those have not been tested.
 
 ##### Mac OS X
 ```
-cd jsplay
+cd gameplay
 mkdir build
 cd build
 cmake ..
@@ -67,7 +67,7 @@ make
 
 Generate Visual Studio solution with:
 ```
-cd jsplay
+cd gameplay
 md build
 cd build
 cmake .. -G "Visual Studio 12 2013"

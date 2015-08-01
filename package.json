@@ -1,0 +1,11 @@
+{
+  "name": "gameplay",
+  "version": "0.1.1",
+  "private": true,
+  "devDependencies": {
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-zip": "^3.0.2"
+  }
+}
+

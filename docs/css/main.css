@@ -33,9 +33,15 @@ body {
 }
 
 .feature {
-  max-width: 70%;
+  max-width: 100%;
   margin-right: auto;
   margin-left: auto;
+}
+
+@media (min-width: 768px) {
+  .feature {
+    max-width: 70%;
+  }
 }
 
 .title {

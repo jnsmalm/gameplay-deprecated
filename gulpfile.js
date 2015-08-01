@@ -4,7 +4,7 @@ var zip = require('gulp-zip');
 var pkg = require('./package.json');
 
 gulp.task('clean', function (cb) {
-  del(['dist/**/*', '!dist/play'], cb);
+  del(['dist/**/*', '!dist/play*.*'], cb);
 });
 
 gulp.task('dist', function() {
@@ -14,8 +14,8 @@ gulp.task('dist', function() {
   } else if (process.platform === 'win32') {
     platform = '-win';
   }
-  return gulp.src(['./{lib,examples}/**/*.{js,glsl,png,ttf}','dist/play','LICENSE'])
-    .pipe(zip('gameplay-' + pkg.version + platform + '.zip'))
+  return gulp.src(['./{lib,examples}/**/*.{js,glsl,png,ttf}','dist/play*.*','LICENSE'])
+    .pipe(zip('gameplay-v' + pkg.version + platform + '.zip'))
     .pipe(gulp.dest('dist'));
 });
 

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,19 @@ SOFTWARE.*/
 #include "texture-collection.h"
 #include "vertex-declaration.h"
 #include "window.h"
+#include "vertex-data-state.h"
 
 using namespace v8;
+
+namespace {
+    void SetVertexDataState(const FunctionCallbackInfo<Value>& args) {
+        HandleScope scope(args.GetIsolate());
+        ScriptHelper helper(args.GetIsolate());
+        auto vertexBuffer = helper.GetObject<VertexDataState>(args[0]);
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetVertexDataState(vertexBuffer);
+    }
+}
 
 GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
         ScriptObjectWrap(isolate), textures_(isolate, this), window_(window) {
@@ -43,22 +54,16 @@ void GraphicsDevice::Clear(float r, float g, float b, float a) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
+void GraphicsDevice::DrawVertices(PrimitiveType primitiveType,
                                     int startVertex, int primitiveCount) {
-    if (vertexBuffer_ == nullptr) {
+    if (vertexDataState_ == nullptr) {
         throw std::runtime_error(
-                "Vertex buffer must be set before drawing primitives.");
-    }
-    if (vertexBuffer_->isEmpty()) {
-        throw std::runtime_error(
-                "Vertex buffer can not be empty when drawing primitives.");
+                "Vertex data state must be set before drawing vertices.");
     }
     if (shaderProgram_ == nullptr) {
         throw std::runtime_error(
-                "Shader program must be set before drawing primitives.");
+                "Shader program must be set before drawing vertices.");
     }
-    glBindVertexArray(vertexBuffer_->glVertexArray());
-    vertexBuffer_->vertexDeclaration()->Apply(shaderProgram_);
     switch (primitiveType) {
         case PrimitiveType::TriangleList:
             glDrawArrays(GL_TRIANGLES, startVertex, primitiveCount * 3);
@@ -70,7 +75,32 @@ void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
             glDrawArrays(GL_LINES, startVertex, primitiveCount * 2);
             break;
     }
-    glBindVertexArray(0);
+}
+
+void GraphicsDevice::DrawElements(PrimitiveType primitiveType,
+                                  int startIndex, int primitiveCount) {
+    if (vertexDataState_ == nullptr) {
+        throw std::runtime_error(
+                "Vertex data state must be set before drawing elements.");
+    }
+    if (shaderProgram_ == nullptr) {
+        throw std::runtime_error(
+                "Shader program must be set before drawing elements.");
+    }
+    switch (primitiveType) {
+        case PrimitiveType::TriangleList:
+            glDrawElements(GL_TRIANGLES, primitiveCount * 3, GL_UNSIGNED_INT,
+                           (void*)(startIndex * sizeof(GLuint)));
+            break;
+        case PrimitiveType::PointList:
+            glDrawElements(GL_TRIANGLES, primitiveCount, GL_UNSIGNED_INT,
+                           (void*)(startIndex * sizeof(GLuint)));
+            break;
+        case PrimitiveType::LineList:
+            glDrawElements(GL_TRIANGLES, primitiveCount * 2, GL_UNSIGNED_INT,
+                           (void*)(startIndex * sizeof(GLuint)));
+            break;
+    }
 }
 
 void GraphicsDevice::Present() {
@@ -117,25 +147,26 @@ void GraphicsDevice::SetTexture(int index, Texture2D* texture) {
     }
 }
 
-void GraphicsDevice::SetVertexBuffer(VertexBuffer *vertexBuffer) {
-    if (vertexBuffer == nullptr) {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+void GraphicsDevice::SetVertexDataState(VertexDataState *vertexDataState) {
+    if (vertexDataState == nullptr) {
+        glBindVertexArray(0);
     }
-    else if (vertexBuffer != vertexBuffer_) {
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer->glVertexBuffer());
+    else if (vertexDataState != vertexDataState_) {
+        glBindVertexArray(vertexDataState->glVertexArray());
     }
-    vertexBuffer_ = vertexBuffer;
+    vertexDataState_ = vertexDataState;
 }
 
 void GraphicsDevice::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("clear", Clear);
-    SetFunction("drawPrimitives", DrawPrimitives);
+    SetFunction("drawVertices", DrawVertices);
+    SetFunction("drawElements", DrawElements);
     SetFunction("present", Present);
     SetFunction("setShaderProgram", SetShaderProgram);
     SetFunction("setSynchronizeWithVerticalRetrace",
                 SetSynchronizeWithVerticalRetrace);
-    SetFunction("setVertexBuffer", SetVertexBuffer);
+    SetFunction("setVertexDataState", ::SetVertexDataState);
 }
 
 void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {
@@ -150,7 +181,7 @@ void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {
     GetInternalObject(args.Holder())->Clear(r, g, b, a);
 }
 
-void GraphicsDevice::DrawPrimitives(const FunctionCallbackInfo<Value>& args) {
+void GraphicsDevice::DrawVertices(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptObjectHelper options(args.GetIsolate(), args[0]->ToObject());
 
@@ -171,7 +202,35 @@ void GraphicsDevice::DrawPrimitives(const FunctionCallbackInfo<Value>& args) {
 
     auto graphics = GetInternalObject(args.Holder());
     try {
-        graphics->DrawPrimitives(primitive, vertexStart, primitiveCount);
+        graphics->DrawVertices(primitive, vertexStart, primitiveCount);
+    }
+    catch (std::exception& ex) {
+        ScriptEngine::current().ThrowTypeError(ex.what());
+    }
+}
+
+void GraphicsDevice::DrawElements(const FunctionCallbackInfo<Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptObjectHelper options(args.GetIsolate(), args[0]->ToObject());
+
+    auto primitiveType = options.GetString("primitiveType");
+    auto indexStart = options.GetInteger("indexStart");
+    auto primitiveCount = options.GetInteger("primitiveCount");
+
+    PrimitiveType primitive;
+    if (primitiveType == "triangleList") {
+        primitive = PrimitiveType::TriangleList;
+    }
+    else if (primitiveType == "pointList") {
+        primitive = PrimitiveType::PointList;
+    }
+    else if (primitiveType == "lineList") {
+        primitive = PrimitiveType::LineList;
+    }
+
+    auto graphics = GetInternalObject(args.Holder());
+    try {
+        graphics->DrawElements(primitive, indexStart, primitiveCount);
     }
     catch (std::exception& ex) {
         ScriptEngine::current().ThrowTypeError(ex.what());
@@ -196,11 +255,4 @@ void GraphicsDevice::SetSynchronizeWithVerticalRetrace(
     ScriptHelper helper(args.GetIsolate());
     auto value = helper.GetBoolean(args[0]);
     GetInternalObject(args.Holder())->SetSynchronizeWithVerticalRetrace(value);
-}
-
-void GraphicsDevice::SetVertexBuffer(const FunctionCallbackInfo<Value>& args) {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-    auto vertexBuffer = helper.GetObject<VertexBuffer>(args[0]);
-    GetInternalObject(args.Holder())->SetVertexBuffer(vertexBuffer);
 }

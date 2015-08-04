@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,28 @@ SOFTWARE.*/
 
 #include "vertex-declaration.h"
 
-void VertexDeclaration::Apply(ShaderProgram *shaderProgram) {
-    if (this->shaderProgram_ == shaderProgram) {
-        return;
-    }
+void VertexDeclaration::Setup(ShaderProgram *shaderProgram) {
     int stride = 0;
-    for (auto element : vertexElements_) {
+    for (auto element : elements_) {
         stride += element.offset;
     }
     int offset = 0;
-    for (auto element : vertexElements_) {
-        shaderProgram->SetVertexAttribute(element.name, element.size, stride,
-                                          (GLvoid *)offset);
+    for (auto element : elements_) {
+        auto attribute = glGetAttribLocation(
+                shaderProgram->glProgram(), element.name.c_str());
+        if (attribute == -1) {
+            throw std::runtime_error(
+                    "Couldn't find element name '" + element.name + "'");
+        }
+        // This depends on that the correct vertex buffer has been set.
+        glEnableVertexAttribArray(attribute);
+        glVertexAttribPointer(attribute, element.size, GL_FLOAT, GL_FALSE,
+                              stride, (GLvoid *)offset);
         offset += element.offset;
     }
-    this->shaderProgram_ = shaderProgram;
 }
 
-void VertexDeclaration::AddVertexElement(
+void VertexDeclaration::AddElement(
         std::string name, int size, int offset) {
-    vertexElements_.push_back(VertexElement { name, size, offset });
+    elements_.push_back(VertexElement { name, size, offset });
 }

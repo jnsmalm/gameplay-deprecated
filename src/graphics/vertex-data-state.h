@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,59 +20,45 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_VERTEXBUFFER_H
-#define JSPLAY_VERTEXBUFFER_H
+#ifndef GAMEPLAY_VERTEXDATASTATE_H
+#define GAMEPLAY_VERTEXDATASTATE_H
 
-#include "v8.h"
 #include <gl/glew.h>
 #include <script/script-object-wrap.h>
+#include "vertex-declaration.h"
+#include <assert.h>
 
-enum class VertexBufferUsage {
+enum class BufferUsage {
     Static,
     Dynamic,
 };
 
-class GraphicsDevice;
-class VertexDeclaration;
-
-class VertexBuffer : public ScriptObjectWrap<VertexBuffer> {
+class VertexDataState : public ScriptObjectWrap<VertexDataState> {
 
 public:
-    VertexBuffer(v8::Isolate* isolate, GraphicsDevice* graphicsDevice,
-                 VertexDeclaration* vertexDeclaration);
-    ~VertexBuffer();
+    VertexDataState(v8::Isolate *isolate, GraphicsDevice* graphicsDevice);
+    ~VertexDataState();
 
-    void SetData(float *vertices, size_t size, VertexBufferUsage usage);
+    void SetVertices(float *vertices, size_t size, BufferUsage usage);
+    void SetElements(int *indices, size_t size, BufferUsage usage);
+    void SetVertexDeclaration(VertexDeclaration *declaration,
+                              ShaderProgram *program);
+
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-    VertexDeclaration *vertexDeclaration() {
-        return vertexDeclaration_;
-    }
 
     GLuint glVertexArray() {
         return glVertexArray_;
-    }
-
-    GLuint glVertexBuffer() {
-        return glVertexBuffer_;
-    }
-
-    bool isEmpty() {
-        return isEmpty_;
     }
 
 protected:
     virtual void Initialize() override;
 
 private:
-    static void SetData(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-    GLuint glVertexBuffer_;
-    GLuint glVertexArray_;
     GraphicsDevice* graphicsDevice_;
-    VertexDeclaration* vertexDeclaration_;
-    bool isEmpty_ = true;
-
+    GLuint glVertexArray_;
+    GLuint glVertexBuffer_;
+    GLuint glElementBuffer_;
 };
 
-#endif // JSPLAY_VERTEXBUFFER_H
+
+#endif //GAMEPLAY_VERTEXDATASTATE_H

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -58,13 +58,6 @@ ShaderProgram::~ShaderProgram() {
 void ShaderProgram::AttachShader(ShaderType shaderType, std::string source) {
     Shader shader(shaderType, source);
     glAttachShader(glProgram_, shader.glShader());
-}
-
-void ShaderProgram::SetVertexAttribute(
-  std::string name, GLint size, GLsizei stride, GLvoid* offset) {
-    auto attribute = glGetAttribLocation(glProgram_, name.c_str());
-    glEnableVertexAttribArray(attribute);
-    glVertexAttribPointer(attribute, size, GL_FLOAT, GL_FALSE, stride, offset);
 }
 
 int ShaderProgram::GetUniformLocation(std::string name) {

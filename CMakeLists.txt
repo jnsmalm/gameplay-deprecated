@@ -56,12 +56,12 @@ set (JSPLAY_SRCS
   src/graphics/shader-program.h
   src/graphics/shader-program.cpp
   src/graphics/window
-  src/graphics/vertex-buffer.cpp
-  src/graphics/vertex-buffer.h
   src/graphics/graphics-device.cpp
   src/graphics/graphics-device.h
   src/graphics/vertex-declaration.cpp
   src/graphics/vertex-declaration.h
+  src/graphics/vertex-data-state.cpp
+  src/graphics/vertex-data-state.h
   src/graphics/texture-collection.cpp
   src/graphics/texture-collection.h
   src/graphics/glyph-collection.h
@@ -113,6 +113,8 @@ if (MSVC)
     endif()
   endforeach()
 endif()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glew)

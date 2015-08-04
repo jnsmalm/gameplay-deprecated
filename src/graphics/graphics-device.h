@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,14 +20,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_GRAPHICSDEVICE_H
-#define JSPLAY_GRAPHICSDEVICE_H
+#ifndef GAMEPLAY_GRAPHICSDEVICE_H
+#define GAMEPLAY_GRAPHICSDEVICE_H
 
 #include <script/script-object-wrap.h>
-#include "vertex-buffer.h"
 #include "texture2d.h"
 #include "shader-program.h"
 #include "texture-collection.h"
+#include "vertex-data-state.h"
 
 enum class PrimitiveType {
     TriangleList,
@@ -36,6 +36,7 @@ enum class PrimitiveType {
 };
 
 class Window;
+class VertexDataState;
 
 class GraphicsDevice : public ScriptObjectWrap<GraphicsDevice> {
 
@@ -43,20 +44,22 @@ public:
     GraphicsDevice(v8::Isolate* isolate, Window *window_);
 
     void Clear(float r, float g, float b, float a);
-    void DrawPrimitives(PrimitiveType primitiveType, int startVertex,
-                        int primitiveCount);
+    void DrawVertices(PrimitiveType primitiveType, int startVertex,
+                      int primitiveCount);
+    void DrawElements(PrimitiveType primitiveType, int startVertex,
+                      int primitiveCount);
     void Present();
     void SetShaderProgram(ShaderProgram *shaderProgram);
     void SetSynchronizeWithVerticalRetrace(bool value);
     void SetTexture(int index, Texture2D* texture);
-    void SetVertexBuffer(VertexBuffer *vertexBuffer);
+    void SetVertexDataState(VertexDataState *vertexDataState);
 
     ShaderProgram* shaderProgram() {
         return shaderProgram_;
     }
 
-    VertexBuffer* vertexBuffer() {
-        return vertexBuffer_;
+    VertexDataState* vertexDataState() {
+        return vertexDataState_;
     }
 
     TextureCollection* textures() {
@@ -70,19 +73,18 @@ public:
 private:
     void Initialize() override;
     static void Clear(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void DrawPrimitives(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void DrawVertices(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static void DrawElements(const v8::FunctionCallbackInfo<v8::Value> &args);
     static void Present(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void SetShaderProgram(
             const v8::FunctionCallbackInfo<v8::Value>& args);
     static void SetSynchronizeWithVerticalRetrace(
             const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void SetVertexBuffer(
-            const v8::FunctionCallbackInfo<v8::Value>& args);
 
     TextureCollection textures_;
-    VertexBuffer* vertexBuffer_ = nullptr;
+    VertexDataState* vertexDataState_ = nullptr;
     ShaderProgram* shaderProgram_ = nullptr;
     Window* window_ = nullptr;
 };
 
-#endif // JSPLAY_GRAPHICSDEVICE_H
+#endif // GAMEPLAY_GRAPHICSDEVICE_H

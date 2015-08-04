@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_SHADERPROGRAM_H
-#define JSPLAY_SHADERPROGRAM_H
+#ifndef GAMEPLAY_SHADERPROGRAM_H
+#define GAMEPLAY_SHADERPROGRAM_H
 
 #include "shader.h"
 #include "v8.h"
@@ -38,9 +38,6 @@ public:
     ShaderProgram(v8::Isolate* isolate, GraphicsDevice* graphicsDevice,
                   std::string path);
     ~ShaderProgram();
-
-    void SetVertexAttribute(
-      std::string name, GLint size, GLsizei stride, GLvoid* offset);
 
     // TODO: Move uniform setters to UniformCollection
     void SetUniformFloat(std::string name, float value);
@@ -69,4 +66,4 @@ private:
     std::map<std::string, GLint> uniforms_;
 };
 
-#endif // JSPLAY_SHADERPROGRAM_H
+#endif // GAMEPLAY_SHADERPROGRAM_H

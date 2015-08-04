@@ -24,22 +24,24 @@ var vertex3 = new BasicShader.Vertex({
 // Create the vertex list with the specified vertices.
 var vertices = new BasicShader.VertexList([ vertex1, vertex2, vertex3 ]);
 
-// Create the vertex buffer used for storing the triangle vertices.
-var vertexBuffer = new VertexBuffer(
-    game.graphics, BasicShader.Vertex.declaration());
-
-// Set the vertices for the buffer.
-vertexBuffer.setData(vertices.toArray());
-
 // Create the basic shader with the window for the game.
 var basicShader = new BasicShader(game.window);
 
-// Set the vertex buffer and shader program for the graphics.
-game.graphics.setVertexBuffer(vertexBuffer);
+// Create the vertex data state used for storing the triangle vertices.
+var vertexDataState = new VertexDataState(game.graphics);
+
+vertexDataState.setVertexDeclaration(BasicShader.Vertex.declaration(),
+    basicShader.shaderProgram)
+
+// Set the vertices for the buffer.
+vertexDataState.setVertices(vertices.toArray(), 'static');
+
+// Set the vertex data state and shader program for the graphics.
+game.graphics.setVertexDataState(vertexDataState);
 game.graphics.setShaderProgram(basicShader.shaderProgram);
 
 game.draw = function () {
-    game.graphics.drawPrimitives({
+    game.graphics.drawVertices({
         primitiveType: 'triangleList',
         vertexStart: 0,
         primitiveCount: 1

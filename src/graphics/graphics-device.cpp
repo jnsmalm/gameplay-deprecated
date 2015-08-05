@@ -60,7 +60,7 @@ void SetBlendState(const FunctionCallbackInfo<Value>& args) {
     }
     else {
         ScriptEngine::current().ThrowTypeError(
-                "Couln't set blend state to '" + state + "'.");
+                "Couldn't set blend state to '" + state + "'.");
     }
 }
 
@@ -83,7 +83,7 @@ void SetDepthStencilState(const FunctionCallbackInfo<Value>& args) {
     }
     else {
         ScriptEngine::current().ThrowTypeError(
-                "Couln't set depth stencil state to '" + state + "'.");
+                "Couldn't set depth stencil state to '" + state + "'.");
     }
 }
 

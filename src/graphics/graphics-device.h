@@ -35,6 +35,18 @@ enum class PrimitiveType {
     PointList
 };
 
+enum class BlendState {
+    Additive,
+    AlphaBlend,
+    Opaque,
+};
+
+enum class DepthStencilState {
+    Default,
+    DepthRead,
+    None,
+};
+
 class Window;
 class VertexDataState;
 
@@ -53,6 +65,8 @@ public:
     void SetSynchronizeWithVerticalRetrace(bool value);
     void SetTexture(int index, Texture2D* texture);
     void SetVertexDataState(VertexDataState *vertexDataState);
+    void SetBlendState(BlendState state);
+    void SetDepthStencilState(DepthStencilState state);
 
     ShaderProgram* shaderProgram() {
         return shaderProgram_;

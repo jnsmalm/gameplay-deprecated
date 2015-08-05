@@ -32,21 +32,68 @@ SOFTWARE.*/
 using namespace v8;
 
 namespace {
-    void SetVertexDataState(const FunctionCallbackInfo<Value>& args) {
-        HandleScope scope(args.GetIsolate());
-        ScriptHelper helper(args.GetIsolate());
-        auto vertexBuffer = helper.GetObject<VertexDataState>(args[0]);
+
+void SetVertexDataState(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto vertexBuffer = helper.GetObject<VertexDataState>(args[0]);
+    helper.GetObject<GraphicsDevice>(args.Holder())->
+            SetVertexDataState(vertexBuffer);
+}
+
+void SetBlendState(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto state = helper.GetString(args[0]);
+    if (state == "additive") {
         helper.GetObject<GraphicsDevice>(args.Holder())->
-                SetVertexDataState(vertexBuffer);
+                SetBlendState(BlendState::Additive);
     }
+    else if (state == "alphaBlend") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetBlendState(BlendState::AlphaBlend);
+    }
+    else if (state == "opaque") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetBlendState(BlendState::Opaque);
+    }
+    else {
+        ScriptEngine::current().ThrowTypeError(
+                "Couln't set blend state to '" + state + "'.");
+    }
+}
+
+void SetDepthStencilState(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto state = helper.GetString(args[0]);
+    if (state == "default") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetDepthStencilState(DepthStencilState::Default);
+    }
+    else if (state == "depthRead") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetDepthStencilState(DepthStencilState::DepthRead);
+    }
+    else if (state == "none") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetDepthStencilState(DepthStencilState::None);
+    }
+    else {
+        ScriptEngine::current().ThrowTypeError(
+                "Couln't set depth stencil state to '" + state + "'.");
+    }
+}
+
 }
 
 GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
         ScriptObjectWrap(isolate), textures_(isolate, this), window_(window) {
     textures_.InstallAsObject("textures", this->v8Object());
-    // TODO: Add blendstate to script
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    SetBlendState(BlendState::Opaque);
+    SetDepthStencilState(DepthStencilState::Default);
 }
 
 void GraphicsDevice::Clear(float r, float g, float b, float a) {
@@ -157,6 +204,45 @@ void GraphicsDevice::SetVertexDataState(VertexDataState *vertexDataState) {
     vertexDataState_ = vertexDataState;
 }
 
+void GraphicsDevice::SetBlendState(BlendState state) {
+    switch (state) {
+        case BlendState::Additive: {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+        }
+        case BlendState::AlphaBlend: {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        }
+        case BlendState::Opaque: {
+            glDisable(GL_BLEND);
+            break;
+        }
+    }
+}
+
+void GraphicsDevice::SetDepthStencilState(DepthStencilState state) {
+    switch (state) {
+        case DepthStencilState::Default: {
+            glEnable(GL_DEPTH_TEST);
+            glDepthMask(GL_TRUE);
+            break;
+        }
+        case DepthStencilState::DepthRead: {
+            glEnable(GL_DEPTH_TEST);
+            glDepthMask(GL_FALSE);
+            break;
+        }
+        case DepthStencilState::None: {
+            glDisable(GL_DEPTH_TEST);
+            glDepthMask(GL_FALSE);
+            break;
+        }
+    }
+}
+
 void GraphicsDevice::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("clear", Clear);
@@ -167,6 +253,8 @@ void GraphicsDevice::Initialize() {
     SetFunction("setSynchronizeWithVerticalRetrace",
                 SetSynchronizeWithVerticalRetrace);
     SetFunction("setVertexDataState", ::SetVertexDataState);
+    SetFunction("setBlendState", ::SetBlendState);
+    SetFunction("setDepthStencilState", ::SetDepthStencilState);
 }
 
 void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {

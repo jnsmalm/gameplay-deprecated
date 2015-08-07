@@ -29,26 +29,52 @@ SOFTWARE.*/
 
 using namespace v8;
 
-namespace
-{
-    GLenum GetTextureFormat(int channels) {
-        switch (channels) {
-            case 1: return GL_LUMINANCE;
-            case 2: return GL_LUMINANCE_ALPHA;
-            case 3: return GL_RGB;
-            case 4: return GL_RGBA;
-        }
-    }
+namespace {
 
-    GLint GetImageAlignment(int width, int channels) {
-        if (width * channels % 4 == 0) {
-            return 4;
-        }
-        else if (width * channels % 2 == 0) {
-            return 2;
-        }
-        return 1;
+void GetChannels(Local<String> name, const PropertyCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto self = helper.GetObject<Texture2D>(args.Holder());
+    args.GetReturnValue().Set(self->channels());
+}
+
+GLenum GetTextureFormat(int channels) {
+    switch (channels) {
+        case 1: return GL_LUMINANCE;
+        case 2: return GL_LUMINANCE_ALPHA;
+        case 3: return GL_RGB;
+        case 4: return GL_RGBA;
     }
+}
+
+GLint GetImageAlignment(int width, int channels) {
+    if (width * channels % 4 == 0) {
+        return 4;
+    }
+    else if (width * channels % 2 == 0) {
+        return 2;
+    }
+    return 1;
+}
+
+void GetData(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto texture = helper.GetObject<Texture2D>(args.Holder());
+    int size = texture->width() * texture->height() * texture->channels();
+    float* pixels = new float[size];
+    texture->GetData(pixels);
+
+    auto array = v8::Array::New(args.GetIsolate(), size);
+    for (int i=0; i<size; i++) {
+        array->Set(i, v8::Number::New(args.GetIsolate(), pixels[i]));
+    }
+    delete[] pixels;
+
+    args.GetReturnValue().Set(array);
+}
+
 }
 
 Texture2D::Texture2D(Isolate* isolate, std::string filename) :
@@ -56,9 +82,8 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
 
     Window::EnsureCurrentContext();
 
-    int channels;
     unsigned char *image = stbi_load(
-            filename.c_str(), &width_, &height_, &channels, 0);
+            filename.c_str(), &width_, &height_, &channels_, 0);
     if (image == NULL) {
         throw std::runtime_error("Failed to load image '" + filename + "'");
     }
@@ -72,9 +97,9 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
     glBindTexture(GL_TEXTURE_2D, glTexture_);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, GetImageAlignment(width_, channels));
-    glTexImage2D(GL_TEXTURE_2D, 0, GetTextureFormat(channels), width_, height_,
-                 0, GetTextureFormat(channels), GL_UNSIGNED_BYTE, image);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, GetImageAlignment(width_, channels_));
+    glTexImage2D(GL_TEXTURE_2D, 0, GetTextureFormat(channels_), width_, height_,
+                 0, GetTextureFormat(channels_), GL_UNSIGNED_BYTE, image);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
     glBindTexture(GL_TEXTURE_2D, old_texture);
@@ -105,10 +130,24 @@ Texture2D::~Texture2D() {
     glDeleteTextures(1, &glTexture_);
 }
 
+void Texture2D::GetData(float* pixels) {
+    GLint old_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+    glBindTexture(GL_TEXTURE_2D, glTexture_);
+    glPixelStorei(GL_PACK_ALIGNMENT, GetImageAlignment(width_, channels_));
+    glGetTexImage(GL_TEXTURE_2D, 0,
+                  GetTextureFormat(channels_), GL_FLOAT, pixels);
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glBindTexture(GL_TEXTURE_2D, old_texture);
+    assert(glGetError() == GL_NO_ERROR);
+}
+
 void Texture2D::Initialize() {
     ScriptObjectWrap::Initialize();
+    SetAccessor("channels", GetChannels, NULL);
     SetAccessor("width", GetWidth, NULL);
     SetAccessor("height", GetHeight, NULL);
+    SetFunction("getData", ::GetData);
 }
 
 void Texture2D::New(const FunctionCallbackInfo<Value>& args) {

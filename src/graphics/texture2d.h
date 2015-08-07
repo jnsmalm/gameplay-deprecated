@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_TEXTURE2D_H
-#define JSPLAY_TEXTURE2D_H
+#ifndef GAMEPLAY_TEXTURE2D_H
+#define GAMEPLAY_TEXTURE2D_H
 
 #include <gl/glew.h>
 #include "v8.h"
@@ -35,11 +35,25 @@ public:
     Texture2D(v8::Isolate* isolate, int width, int height, GLenum format);
     ~Texture2D();
 
+    void GetData(float* pixels);
+
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    int width() { return width_; }
-    int height() { return height_; }
-    GLuint glTexture() { return glTexture_; }
+    int channels() {
+        return channels_;
+    }
+
+    int width() {
+        return width_;
+    }
+
+    int height() {
+        return height_;
+    }
+
+    GLuint glTexture() {
+        return glTexture_;
+    }
 
 protected:
     virtual void Initialize() override;
@@ -53,6 +67,7 @@ private:
     GLuint glTexture_;
     int width_;
     int height_;
+    int channels_;
 };
 
-#endif // JSPLAY_TEXTURE2D_H
+#endif // GAMEPLAY_TEXTURE2D_H

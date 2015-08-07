@@ -24,10 +24,10 @@ SOFTWARE.*/
 #include <script/script-engine.h>
 #include <script/scriptobjecthelper.h>
 #include "graphics-device.h"
-#include "texture-collection.h"
 #include "vertex-declaration.h"
 #include "window.h"
 #include "vertex-data-state.h"
+#include "texture2d.h"
 
 using namespace v8;
 
@@ -64,26 +64,49 @@ void SetBlendState(const FunctionCallbackInfo<Value>& args) {
     }
 }
 
-void SetDepthStencilState(const FunctionCallbackInfo<Value>& args) {
+void SetDepthState(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
     auto state = helper.GetString(args[0]);
     if (state == "default") {
         helper.GetObject<GraphicsDevice>(args.Holder())->
-                SetDepthStencilState(DepthStencilState::Default);
+                SetDepthState(DepthState::Default);
     }
-    else if (state == "depthRead") {
+    else if (state == "read") {
         helper.GetObject<GraphicsDevice>(args.Holder())->
-                SetDepthStencilState(DepthStencilState::DepthRead);
+                SetDepthState(DepthState::Read);
     }
     else if (state == "none") {
         helper.GetObject<GraphicsDevice>(args.Holder())->
-                SetDepthStencilState(DepthStencilState::None);
+                SetDepthState(DepthState::None);
     }
     else {
         ScriptEngine::current().ThrowTypeError(
-                "Couldn't set depth stencil state to '" + state + "'.");
+                "Couldn't set depth state to '" + state + "'.");
+    }
+}
+
+void SetStencilState(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto state = helper.GetString(args[0]);
+    if (state == "default") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetStencilState(StencilState::Default);
+    }
+    else if (state == "mask") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetStencilState(StencilState::Mask);
+    }
+    else if (state == "clip") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetStencilState(StencilState::Clip);
+    }
+    else {
+        ScriptEngine::current().ThrowTypeError(
+                "Couldn't set stencil state to '" + state + "'.");
     }
 }
 
@@ -93,12 +116,13 @@ GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
         ScriptObjectWrap(isolate), textures_(isolate, this), window_(window) {
     textures_.InstallAsObject("textures", this->v8Object());
     SetBlendState(BlendState::Opaque);
-    SetDepthStencilState(DepthStencilState::Default);
+    SetDepthState(DepthState::Default);
+    SetStencilState(StencilState::Default);
 }
 
 void GraphicsDevice::Clear(float r, float g, float b, float a) {
     glClearColor(r, g, b, a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void GraphicsDevice::DrawVertices(PrimitiveType primitiveType,
@@ -223,21 +247,44 @@ void GraphicsDevice::SetBlendState(BlendState state) {
     }
 }
 
-void GraphicsDevice::SetDepthStencilState(DepthStencilState state) {
+void GraphicsDevice::SetDepthState(DepthState state) {
     switch (state) {
-        case DepthStencilState::Default: {
+        case DepthState::Default: {
             glEnable(GL_DEPTH_TEST);
             glDepthMask(GL_TRUE);
             break;
         }
-        case DepthStencilState::DepthRead: {
+        case DepthState::Read: {
             glEnable(GL_DEPTH_TEST);
             glDepthMask(GL_FALSE);
             break;
         }
-        case DepthStencilState::None: {
+        case DepthState::None: {
             glDisable(GL_DEPTH_TEST);
             glDepthMask(GL_FALSE);
+            break;
+        }
+    }
+}
+
+void GraphicsDevice::SetStencilState(StencilState state) {
+    switch (state) {
+        case StencilState::Default: {
+            glDisable(GL_STENCIL_TEST);
+            break;
+        }
+        case StencilState::Mask: {
+            glEnable(GL_STENCIL_TEST);
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            glStencilMask(0xFF);
+            glClear(GL_STENCIL_BUFFER_BIT);
+            break;
+        }
+        case StencilState::Clip: {
+            glEnable(GL_STENCIL_TEST);
+            glStencilFunc(GL_EQUAL, 1, 0xFF);
+            glStencilMask(0x00);
             break;
         }
     }
@@ -254,7 +301,8 @@ void GraphicsDevice::Initialize() {
                 SetSynchronizeWithVerticalRetrace);
     SetFunction("setVertexDataState", ::SetVertexDataState);
     SetFunction("setBlendState", ::SetBlendState);
-    SetFunction("setDepthStencilState", ::SetDepthStencilState);
+    SetFunction("setDepthState", ::SetDepthState);
+    SetFunction("setStencilState", ::SetStencilState);
 }
 
 void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {

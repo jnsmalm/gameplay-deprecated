@@ -24,10 +24,7 @@ SOFTWARE.*/
 #define GAMEPLAY_GRAPHICSDEVICE_H
 
 #include <script/script-object-wrap.h>
-#include "texture2d.h"
-#include "shader-program.h"
 #include "texture-collection.h"
-#include "vertex-data-state.h"
 
 enum class PrimitiveType {
     TriangleList,
@@ -41,14 +38,21 @@ enum class BlendState {
     Opaque,
 };
 
-enum class DepthStencilState {
+enum class DepthState {
     Default,
-    DepthRead,
+    Read,
     None,
+};
+
+enum class StencilState {
+    Default,
+    Mask,
+    Clip,
 };
 
 class Window;
 class VertexDataState;
+class ShaderProgram;
 
 class GraphicsDevice : public ScriptObjectWrap<GraphicsDevice> {
 
@@ -66,7 +70,8 @@ public:
     void SetTexture(int index, Texture2D* texture);
     void SetVertexDataState(VertexDataState *vertexDataState);
     void SetBlendState(BlendState state);
-    void SetDepthStencilState(DepthStencilState state);
+    void SetDepthState(DepthState state);
+    void SetStencilState(StencilState state);
 
     ShaderProgram* shaderProgram() {
         return shaderProgram_;

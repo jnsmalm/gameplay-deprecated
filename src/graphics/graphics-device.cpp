@@ -110,6 +110,29 @@ void SetStencilState(const FunctionCallbackInfo<Value>& args) {
     }
 }
 
+void SetRasterizerState(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto state = helper.GetString(args[0]);
+    if (state == "cullNone") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetRasterizerState(RasterizerState::CullNone);
+    }
+    else if (state == "cullClockwise") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetRasterizerState(RasterizerState::CullClockwise);
+    }
+    else if (state == "cullCounterClockwise") {
+        helper.GetObject<GraphicsDevice>(args.Holder())->
+                SetRasterizerState(RasterizerState::CullCounterClockwise);
+    }
+    else {
+        ScriptEngine::current().ThrowTypeError(
+                "Couldn't set rasterizer state to '" + state + "'.");
+    }
+}
+
 }
 
 GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
@@ -118,6 +141,7 @@ GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
     SetBlendState(BlendState::Opaque);
     SetDepthState(DepthState::Default);
     SetStencilState(StencilState::Default);
+    SetRasterizerState(RasterizerState::CullClockwise);
 }
 
 void GraphicsDevice::Clear(float r, float g, float b, float a) {
@@ -290,6 +314,27 @@ void GraphicsDevice::SetStencilState(StencilState state) {
     }
 }
 
+void GraphicsDevice::SetRasterizerState(RasterizerState state) {
+    switch (state) {
+        case RasterizerState::CullNone: {
+            glDisable(GL_CULL_FACE);
+            break;
+        }
+        case RasterizerState::CullClockwise: {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            glFrontFace(GL_CCW);
+            break;
+        }
+        case RasterizerState::CullCounterClockwise: {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_BACK);
+            glFrontFace(GL_CW);
+            break;
+        }
+    }
+}
+
 void GraphicsDevice::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("clear", Clear);
@@ -303,6 +348,7 @@ void GraphicsDevice::Initialize() {
     SetFunction("setBlendState", ::SetBlendState);
     SetFunction("setDepthState", ::SetDepthState);
     SetFunction("setStencilState", ::SetStencilState);
+    SetFunction("setRasterizerState", ::SetRasterizerState);
 }
 
 void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {

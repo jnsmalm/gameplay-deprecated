@@ -50,6 +50,12 @@ enum class StencilState {
     Clip,
 };
 
+enum class RasterizerState {
+    CullNone,
+    CullClockwise,
+    CullCounterClockwise,
+};
+
 class Window;
 class VertexDataState;
 class ShaderProgram;
@@ -72,6 +78,7 @@ public:
     void SetBlendState(BlendState state);
     void SetDepthState(DepthState state);
     void SetStencilState(StencilState state);
+    void SetRasterizerState(RasterizerState state);
 
     ShaderProgram* shaderProgram() {
         return shaderProgram_;

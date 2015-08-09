@@ -47,18 +47,9 @@ var sphere = new GeometryDataState(
 function SetupBasicShader () {
     var basicShader = new BasicShader(game.window);
     graphics.setShaderProgram(basicShader.shaderProgram);
-
-    basicShader.shaderProgram['materialShininess'] = 0.8;
-    basicShader.shaderProgram['materialSpecularColor'] =
-        vec3.fromValues(0.1,0.1,0.1);
-
-    basicShader.shaderProgram.numLights = 1;
-    basicShader.shaderProgram['allLights[0].position'] =
-        vec4.fromValues(0,0,1,1);
-    basicShader.shaderProgram['allLights[0].intensities'] =
-        vec3.fromValues(1,1,1);
-    basicShader.shaderProgram['allLights[0].ambientCoefficient'] = 0.2;
-
+    basicShader.setMaterialShininess(0.8);
+    basicShader.setMaterialSpecularColor(vec3.fromValues(0.1,0.1,0.1));
+    basicShader.addLight(new BasicShader.PointLight(0,0,1));
     return basicShader;
 }
 
@@ -81,7 +72,7 @@ function GeometryDataState (geom, materialColor) {
 
 GeometryDataState.prototype.draw = function (model) {
     basicShader.setModel(model);
-    basicShader.shaderProgram['materialColor'] = this.materialColor;
+    basicShader.setMaterialColor(this.materialColor);
     graphics.setVertexDataState(this.vertexDataState);
     graphics.drawElements({
         primitiveType: 'triangleList',

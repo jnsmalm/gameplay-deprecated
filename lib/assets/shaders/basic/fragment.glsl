@@ -15,12 +15,13 @@ limitations under the License.*/
 #version 150
 
 uniform mat4 model;
-uniform vec3 cameraPosition = vec3(0,0,0);
+uniform vec3 cameraPosition;
 
-uniform sampler2D materialTex;
 uniform float materialShininess;
 uniform vec3 materialSpecularColor;
 uniform vec3 materialColor;
+uniform sampler2D materialTexture;
+uniform float materialTextureEnabled;
 
 #define MAX_LIGHTS 10
 uniform int numLights;
@@ -86,7 +87,10 @@ vec3 ApplyLight(Light light, vec3 surfaceColor, vec3 normal, vec3 surfacePos,
 void main() {
     vec3 normal = normalize(transpose(inverse(mat3(model))) * fragNormal);
     vec3 surfacePos = vec3(model * vec4(fragVert, 1));
-    vec4 surfaceColor = vec4(materialColor, 1);//texture(materialTex, fragTexCoord);
+    vec4 surfaceColor = vec4(materialColor, 1);
+    if (materialTextureEnabled != 0) {
+        surfaceColor = texture(materialTexture, fragTexCoord);
+    }
     vec3 surfaceToCamera = normalize(cameraPosition - surfacePos);
 
     //combine color from all the lights

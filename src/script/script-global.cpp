@@ -28,6 +28,7 @@ SOFTWARE.*/
 #include <utils/timer.h>
 #include <graphics/texture-font.h>
 #include <graphics/vertex-data-state.h>
+#include <utils/path-helper.h>
 #include "script-object-wrap.h"
 #include "script-global.h"
 #include "scripthelper.h"
@@ -60,11 +61,20 @@ void ScriptGlobal::Require(const v8::FunctionCallbackInfo<v8::Value>& args) {
     v8::HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
     try {
-        auto filename = helper.GetString(args[0]);
-        auto result = ScriptEngine::current().Execute(filename);
+        auto filepath = helper.GetString(args[0]);
+        auto resolved = ScriptEngine::current().resolvePath(filepath);
+        auto normalized = PathHelper::Normalize(resolved);
+        if (moduleCache.count(normalized) == 1) {
+            args.GetReturnValue().Set(moduleCache[normalized]);
+            return;
+        }
+        auto result = ScriptEngine::current().Execute(filepath);
+        moduleCache[normalized].Reset(args.GetIsolate(), result);
         args.GetReturnValue().Set(result);
     }
     catch (std::exception& ex) {
         ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
+
+std::map<std::string, v8::Persistent<v8::Value>> ScriptGlobal::moduleCache;

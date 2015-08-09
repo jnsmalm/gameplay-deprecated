@@ -20,26 +20,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef GAMEPLAY_FILEREADER_H
-#define GAMEPLAY_FILEREADER_H
+#ifndef GAMEPLAY_FILEPATH_H
+#define GAMEPLAY_FILEPATH_H
 
-#include "v8.h"
 #include <string>
-#include <script/script-object-wrap.h>
+#include <assert.h>
 
-class FileReader : public ScriptObjectWrap<FileReader> {
+class PathHelper {
 
 public:
-    FileReader(v8::Isolate *isolate) : ScriptObjectWrap(isolate) {}
-
-    static bool Exists(std::string filename);
-    static std::string ReadAsText(std::string filename);
-
-protected:
-    void Initialize() override;
-
-private:
-    static void ReadText(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static std::string Normalize(std::string filepath) {
+        std::string result = filepath;
+        while (result.find("../", 2) != std::string::npos) {
+            auto pos = result.find("../", 2);
+            auto end = result.rfind("/", pos - 1);
+            auto beg = result.rfind("/", end - 1);
+            if (end == std::string::npos) {
+                end = 0;
+            }
+            if (beg == std::string::npos) {
+                beg = 0;
+            }
+            result.erase(pos, 3);
+            result.erase(beg, end - beg + 1);
+        }
+        return result;
+    }
 };
 
-#endif // GAMEPLAY_FILEREADER_H
+
+#endif //GAMEPLAY_FILEPATH_H

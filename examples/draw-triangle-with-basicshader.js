@@ -1,5 +1,6 @@
 var Game = require('/../lib/game.js').Game;
 var BasicShader = require('/../lib/shader.js').BasicShader;
+var vec3 = require('/../lib/gl-matrix/vec3.js');
 
 var game = new Game({
     width: 1024,
@@ -9,15 +10,15 @@ var game = new Game({
 
 // Create the vertices that form the triangle.
 var vertex1 = new BasicShader.Vertex({
-    position: { x: 0, y: 1, z: 0 },
+    position: vec3.fromValues(0,1,0),
     color: { r: 1, g: 0, b: 0, a: 1 }
 });
 var vertex2 = new BasicShader.Vertex({
-    position: { x: -1, y: -1, z: 0 },
+    position: vec3.fromValues(-1,-1,0),
     color: { r: 0, g: 1, b: 0, a: 1 }
 });
 var vertex3 = new BasicShader.Vertex({
-    position: { x: 1, y: -1, z: 0 },
+    position: vec3.fromValues(1,-1,0),
     color: { r: 0, g: 0, b: 1, a: 1 }
 });
 

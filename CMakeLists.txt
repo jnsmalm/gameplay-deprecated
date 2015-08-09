@@ -40,6 +40,7 @@ set (JSPLAY_SRCS
   src/utils/file-reader
   src/utils/timer.cpp
   src/utils/timer.h
+  src/utils/path-helper.h
   src/script/script-global.h
   src/script/script-global.cpp
   src/script/script-engine.h

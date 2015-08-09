@@ -66,16 +66,8 @@ function GeometryDataState (geom, materialColor) {
     var vertices = new BasicShader.VertexList();
     for (var i=0; i<geom.vertices.length; i++) {
         vertices.add(new BasicShader.Vertex({
-            position: {
-                x: geom.vertices[i].position[0],
-                y: geom.vertices[i].position[1],
-                z: geom.vertices[i].position[2],
-            },
-            normal: {
-                x: geom.vertices[i].normal[0],
-                y: geom.vertices[i].normal[1],
-                z: geom.vertices[i].normal[2],
-            }
+            position: geom.vertices[i].position,
+            normal: geom.vertices[i].normal
         }));
     }
     this.vertexDataState = new VertexDataState(graphics);

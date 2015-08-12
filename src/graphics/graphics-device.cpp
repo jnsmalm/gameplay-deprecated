@@ -141,7 +141,7 @@ GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
     SetBlendState(BlendState::Opaque);
     SetDepthState(DepthState::Default);
     SetStencilState(StencilState::Default);
-    SetRasterizerState(RasterizerState::CullClockwise);
+    SetRasterizerState(RasterizerState::CullNone);
 }
 
 void GraphicsDevice::Clear(float r, float g, float b, float a) {

@@ -22,8 +22,8 @@ SOFTWARE.*/
 
 #include "script-engine.h"
 #include "script-global.h"
-#include <script/script-object-wrap.h>
-#include <iostream>
+#include "scripthelper.h"
+#include "script-debug.h"
 
 using namespace v8;
 
@@ -104,6 +104,13 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
                 executionPath_.length());
     }
 
+    bool debug = false;
+    for (int i=1; i<argc; i++) {
+        if (strcmp(argv[i], "debug") == 0) {
+            debug = true;
+        }
+    }
+
     ArrayBufferAllocator array_buffer_allocator;
     Isolate::CreateParams create_params;
     create_params.array_buffer_allocator = &array_buffer_allocator;
@@ -113,6 +120,9 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
         Isolate::Scope isolate_scope(isolate_);
         HandleScope handle_scope(isolate_);
         global_.reset(new ScriptGlobal(isolate_));
+        if (debug) {
+            ScriptDebug::current().Start(isolate_);
+        }
         Execute(filename);
     }
     isolate_->Dispose();

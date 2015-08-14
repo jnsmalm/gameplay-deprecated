@@ -34,6 +34,8 @@ SOFTWARE.*/
 #include <filereadstream.h>
 #include <iomanip>
 #include <sstream>
+#include <mutex>
+#include <condition_variable>
 
 class ScriptDebugClientData : public v8::Debug::ClientData
 {
@@ -58,14 +60,17 @@ public:
         debugInput_ = new std::thread(AsyncDebugPrompt, isolate);
     }
 
+    void Stop() {
+        debugInputStopped_ = true;
+        debugInputCondition_.notify_one();
+    }
+
 private:
     ScriptDebug() {
     }
 
     ~ScriptDebug() {
         if (debugInput_ != nullptr) {
-            debugInputStopped_ = true;
-            debugInputCondition_.notify_one();
             debugInput_->join();
             delete debugInput_;
         }

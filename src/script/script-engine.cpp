@@ -124,6 +124,9 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
             ScriptDebug::current().Start(isolate_);
         }
         Execute(filename);
+        if (debug) {
+            ScriptDebug::current().Stop();
+        }
     }
     isolate_->Dispose();
 }

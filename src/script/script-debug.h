@@ -36,6 +36,7 @@ SOFTWARE.*/
 #include <sstream>
 #include <mutex>
 #include <condition_variable>
+#include <rlutil.h>
 
 class ScriptDebugClientData : public v8::Debug::ClientData
 {
@@ -199,12 +200,12 @@ private:
         // Print the statement before current statement (may be empty).
         std::cout << source.substr(0, clientData->sourceColumn_);
         // Change color to green to highlight current statement.
-        std::cout << "\033[32m";
+        rlutil::setColor(rlutil::GREEN);
         // Print the current statement.
         std::cout << source.substr(clientData->sourceColumn_,
                                    semicolon - clientData->sourceColumn_);
         // Reset color.
-        std::cout << "\033[0m";
+        rlutil::setColor(rlutil::BLACK);
         // Print the next statement (may be empty).
         std::cout << source.substr(semicolon, source.length() - semicolon);
         std::cout << std::endl;

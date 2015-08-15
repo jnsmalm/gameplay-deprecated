@@ -8,7 +8,7 @@ set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
 set (V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
-#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release)
 
 if (WIN32)
   set (V8_LIBS
@@ -127,6 +127,7 @@ include_directories(
   deps/glfw/include
   deps/glew/include
   deps/freetype/include
+  deps/rlutil
   deps/rapidjson
   deps/openal/include
   deps/stb

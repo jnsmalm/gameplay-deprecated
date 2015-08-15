@@ -419,6 +419,15 @@ RLUTIL_INLINE void setColor(int c) {
 #endif
 }
 
+RLUTIL_INLINE void resetColor() {
+#if defined(_WIN32) && !defined(RLUTIL_USE_ANSI)
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, (WORD)GREY);
+#else
+		RLUTIL_PRINT(getANSIColor(BLACK));
+#endif
+	}
+
 /// Function: cls
 /// Clears screen and moves cursor home.
 RLUTIL_INLINE void cls(void) {

@@ -205,7 +205,7 @@ private:
         std::cout << source.substr(clientData->sourceColumn_,
                                    semicolon - clientData->sourceColumn_);
         // Reset color.
-        rlutil::setColor(rlutil::BLACK);
+        rlutil::resetColor();
         // Print the next statement (may be empty).
         std::cout << source.substr(semicolon, source.length() - semicolon);
         std::cout << std::endl;

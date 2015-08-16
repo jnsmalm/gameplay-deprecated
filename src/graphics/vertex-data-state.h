@@ -40,7 +40,7 @@ public:
     ~VertexDataState();
 
     void SetVertices(float *vertices, size_t size, BufferUsage usage);
-    void SetElements(int *indices, size_t size, BufferUsage usage);
+    void SetIndices(int *indices, size_t size, BufferUsage usage);
     void SetVertexDeclaration(VertexDeclaration *declaration,
                               ShaderProgram *program);
 

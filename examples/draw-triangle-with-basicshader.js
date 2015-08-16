@@ -32,7 +32,7 @@ var basicShader = new BasicShader(game.window);
 var vertexDataState = new VertexDataState(game.graphics);
 
 vertexDataState.setVertexDeclaration(BasicShader.Vertex.declaration(),
-    basicShader.shaderProgram)
+    basicShader.shaderProgram);
 
 // Set the vertices for the buffer.
 vertexDataState.setVertices(vertices.toArray(), 'static');
@@ -42,7 +42,7 @@ game.graphics.setVertexDataState(vertexDataState);
 game.graphics.setShaderProgram(basicShader.shaderProgram);
 
 game.draw = function () {
-    game.graphics.drawVertices({
+    game.graphics.drawPrimitives({
         primitiveType: 'triangleList',
         vertexStart: 0,
         primitiveCount: 1

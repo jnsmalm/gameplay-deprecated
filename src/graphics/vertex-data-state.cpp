@@ -63,14 +63,14 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
     delete[] vertices;
 }
 
-void SetElements(const FunctionCallbackInfo<Value> &args) {
+void SetIndices(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
     Handle<Array> array = Handle<Array>::Cast(args[0]);
-    int *vertices = new int[array->Length()];
+    int *indices = new int[array->Length()];
     for (int i = 0; i < array->Length(); i++) {
-        vertices[i] = (int) array->Get(i)->NumberValue();
+        indices[i] = (int) array->Get(i)->NumberValue();
     }
 
     try {
@@ -87,14 +87,14 @@ void SetElements(const FunctionCallbackInfo<Value> &args) {
                     "Can't set elements with usage '" + usage + "'.");
         }
         auto self = helper.GetObject<VertexDataState>(args.Holder());
-        self->SetElements(vertices, sizeof(int) * array->Length(),
+        self->SetIndices(indices, sizeof(int) * array->Length(),
                           bufferUsage);
     }
     catch (std::exception &err) {
         ScriptEngine::current().ThrowTypeError(err.what());
     }
 
-    delete[] vertices;
+    delete[] indices;
 }
 
 void SetVertexDeclaration(const FunctionCallbackInfo<Value> &args) {
@@ -178,7 +178,7 @@ void VertexDataState::SetVertices(
     graphicsDevice_->SetVertexDataState(old);
 }
 
-void VertexDataState::SetElements(
+void VertexDataState::SetIndices(
         int *indices, size_t size, BufferUsage usage) {
 
     auto old = graphicsDevice_->vertexDataState();
@@ -202,7 +202,7 @@ void VertexDataState::SetVertexDeclaration(
 void VertexDataState::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("setVertices", ::SetVertices);
-    SetFunction("setElements", ::SetElements);
+    SetFunction("setIndices", ::SetIndices);
     SetFunction("setVertexDeclaration", ::SetVertexDeclaration);
 }
 

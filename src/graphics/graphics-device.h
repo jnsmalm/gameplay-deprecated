@@ -66,10 +66,10 @@ public:
     GraphicsDevice(v8::Isolate* isolate, Window *window_);
 
     void Clear(float r, float g, float b, float a);
-    void DrawVertices(PrimitiveType primitiveType, int startVertex,
-                      int primitiveCount);
-    void DrawElements(PrimitiveType primitiveType, int startVertex,
-                      int primitiveCount);
+    void DrawPrimitives(PrimitiveType primitiveType, int startVertex,
+                        int primitiveCount);
+    void DrawIndexedPrimitives(PrimitiveType primitiveType, int startVertex,
+                               int primitiveCount);
     void Present();
     void SetShaderProgram(ShaderProgram *shaderProgram);
     void SetSynchronizeWithVerticalRetrace(bool value);
@@ -99,8 +99,9 @@ public:
 private:
     void Initialize() override;
     static void Clear(const v8::FunctionCallbackInfo<v8::Value>& args);
-    static void DrawVertices(const v8::FunctionCallbackInfo<v8::Value> &args);
-    static void DrawElements(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static void DrawPrimitives(const v8::FunctionCallbackInfo<v8::Value> &args);
+    static void DrawIndexedPrimitives(
+            const v8::FunctionCallbackInfo<v8::Value> &args);
     static void Present(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void SetShaderProgram(
             const v8::FunctionCallbackInfo<v8::Value>& args);

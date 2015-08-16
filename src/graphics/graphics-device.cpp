@@ -149,7 +149,7 @@ void GraphicsDevice::Clear(float r, float g, float b, float a) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void GraphicsDevice::DrawVertices(PrimitiveType primitiveType,
+void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
                                     int startVertex, int primitiveCount) {
     if (vertexDataState_ == nullptr) {
         throw std::runtime_error(
@@ -172,8 +172,8 @@ void GraphicsDevice::DrawVertices(PrimitiveType primitiveType,
     }
 }
 
-void GraphicsDevice::DrawElements(PrimitiveType primitiveType,
-                                  int startIndex, int primitiveCount) {
+void GraphicsDevice::DrawIndexedPrimitives(PrimitiveType primitiveType,
+                                           int startIndex, int primitiveCount) {
     if (vertexDataState_ == nullptr) {
         throw std::runtime_error(
                 "Vertex data state must be set before drawing elements.");
@@ -338,8 +338,8 @@ void GraphicsDevice::SetRasterizerState(RasterizerState state) {
 void GraphicsDevice::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("clear", Clear);
-    SetFunction("drawVertices", DrawVertices);
-    SetFunction("drawElements", DrawElements);
+    SetFunction("drawPrimitives", DrawPrimitives);
+    SetFunction("drawIndexedPrimitives", DrawIndexedPrimitives);
     SetFunction("present", Present);
     SetFunction("setShaderProgram", SetShaderProgram);
     SetFunction("setSynchronizeWithVerticalRetrace",
@@ -363,7 +363,7 @@ void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {
     GetInternalObject(args.Holder())->Clear(r, g, b, a);
 }
 
-void GraphicsDevice::DrawVertices(const FunctionCallbackInfo<Value> &args) {
+void GraphicsDevice::DrawPrimitives(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptObjectHelper options(args.GetIsolate(), args[0]->ToObject());
 
@@ -384,14 +384,15 @@ void GraphicsDevice::DrawVertices(const FunctionCallbackInfo<Value> &args) {
 
     auto graphics = GetInternalObject(args.Holder());
     try {
-        graphics->DrawVertices(primitive, vertexStart, primitiveCount);
+        graphics->DrawPrimitives(primitive, vertexStart, primitiveCount);
     }
     catch (std::exception& ex) {
         ScriptEngine::current().ThrowTypeError(ex.what());
     }
 }
 
-void GraphicsDevice::DrawElements(const FunctionCallbackInfo<Value> &args) {
+void GraphicsDevice::DrawIndexedPrimitives(
+        const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptObjectHelper options(args.GetIsolate(), args[0]->ToObject());
 
@@ -412,7 +413,7 @@ void GraphicsDevice::DrawElements(const FunctionCallbackInfo<Value> &args) {
 
     auto graphics = GetInternalObject(args.Holder());
     try {
-        graphics->DrawElements(primitive, indexStart, primitiveCount);
+        graphics->DrawIndexedPrimitives(primitive, indexStart, primitiveCount);
     }
     catch (std::exception& ex) {
         ScriptEngine::current().ThrowTypeError(ex.what());

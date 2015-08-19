@@ -16,7 +16,7 @@ gulp.task('dist', function() {
     platform = '-win';
   }
   return gulp.src(
-      ['./{lib,examples}/**/*.{js,glsl,png,ttf}','bin/play*','LICENSE'])
+      ['./{lib,examples}/**/*.{js,glsl,png,ttf,obj}','bin/play*','LICENSE'])
     .pipe(zip('gameplay-v' + pkg.version + platform + '.zip'))
     .pipe(gulp.dest('dist'));
 });

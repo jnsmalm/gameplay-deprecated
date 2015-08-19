@@ -65,7 +65,7 @@ function GeometryDataState (geom, materialColor) {
     this.vertexDataState.setVertexDeclaration(BasicShader.Vertex.declaration(),
         basicShader.shaderProgram);
     this.vertexDataState.setVertices(vertices.toArray(), 'static');
-    this.vertexDataState.setElements(geom.getIndices());
+    this.vertexDataState.setIndices(geom.getIndices());
     this.numberOfFaces = geom.faces.length;
     this.materialColor = materialColor || vec3.fromValues(1,1,1);
 }
@@ -74,7 +74,7 @@ GeometryDataState.prototype.draw = function (model) {
     basicShader.setModel(model);
     basicShader.setMaterialColor(this.materialColor);
     graphics.setVertexDataState(this.vertexDataState);
-    graphics.drawElements({
+    graphics.drawIndexedPrimitives({
         primitiveType: 'triangleList',
         vertexStart: 0,
         primitiveCount: this.numberOfFaces

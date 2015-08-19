@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2.2)
 
 project(play)
 
-set (GAMEPLAY_VERSION "0.1.1")
+set (GAMEPLAY_VERSION "0.2.0")
 
 set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)

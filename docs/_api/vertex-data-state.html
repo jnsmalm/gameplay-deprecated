@@ -1,0 +1,77 @@
+---
+category: 'graphics'
+sortorder: 80
+---
+
+<h3 id="vertex-data-state">VertexDataState</h3>
+
+<p>Holds the vertices and indices used when drawing primitives.</p>
+
+<pre class="prettyprint">
+// var window = new Window(...);
+var vertexDataState = new VertexDataState(window.graphics);
+</pre>
+
+<p>To use the <code>VertexDataState</code>, you set it on the <a href="#graphics-object">GraphicsObject</a>.</p>
+
+<pre class="prettyprint">
+// var window = new Window(...);
+window.graphics.setVertexDataState(vertexDataState);
+</pre>
+
+<p>Before you can draw primitives with <code>VertexDataState</code>, you need to describe what kind of data the vertices contains. You also need to set the actual vertex data.</p>
+
+<h4>Vertex declaration</h4>
+
+<p>The vertex declaration describes the attributes (i.e. what it contains) for the vertex data. It's an array with objects that has <code>name</code> and <code>type</code> properties. The vertex declaration must match the shader program used. For example, the vertex shader below has the following in-parameters:</p>
+
+<pre class="prettyprint">
+in vec3 position;
+in vec2 textureCoords;
+</pre>
+
+<p>The vertex declaration for that shader should have the attributes below, the order is important when setting the vertex data. The attribute type can have any of the following values: <em>'float', 'vec2', 'vec3', 'vec4'.</em>
+
+<pre class="prettyprint">
+var vertexDeclaration = [
+  { name: 'position', type: 'vec3' },
+  { name: 'textureCoords', type: 'vec2' }
+];
+
+// var shaderProgram = new ShaderProgram(...);
+vertexDataState.setVertexDeclaration(vertexDeclaration, shaderProgram);
+</pre>
+
+<h4>Vertex data</h4>
+
+<p>Vertex data is an array with values to store in the <code>VertexDataState</code>. The order of the vertex data must match the vertex declaration. When setting vertex data a hint is specified for how the data will be stored. If the data is modified very few times it should be set to 'static'. If the data is modified many times it should be set to 'dynamic'.</p>
+
+<pre class="prettyprint">
+// Vertices data that matches the declaration above (x, y, z, u, v).
+var vertices = [
+   // Vertex 1
+   0.0,  0.5, 0.0, 0.0, 0.0,
+   // Vertex 2
+   0.5, -0.5, 0.0, 0.0, 0.0,
+   // Vertex 3
+  -0.5, -0.5, 0.0, 0.0, 0.0,
+];
+ 
+// The usage can be set to 'static' or 'dynamic'.
+var usage = 'dynamic';
+ 
+// Sets the vertex data for the buffer.
+vertexDataState.setVertices(vertices, usage);
+</pre>
+
+<h4>Index data</h4>
+
+<p>Index data can be used for drawing primitives that share vertices. It's an array with the indices for the vertices. It's not required to have index data, but it can improve performance.</p>
+
+<pre class="prettyprint">
+// The usage can be set to 'static' or 'dynamic'.
+var usage = 'static';
+
+// Setup indices to use vertices with index 0, 1, 2 and 3.
+vertexDataState.setIndices([0,1,2,3], usage);
+</pre>

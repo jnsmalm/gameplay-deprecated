@@ -6,12 +6,13 @@
       link: file-paths
 
     - name: Console
+    - name: Debugging
 
 - name: Graphics
   menu:
     - name: Window
 
-    - name: GraphicsObject
+    - name: Graphics Object
       link: graphics-object
 
     - name: Texture2D
@@ -20,8 +21,8 @@
     - name: TextureFont
       link: texture-font
 
-    - name: VertexBuffer
-      link: vertex-buffer
+    - name: VertexDataState
+      link: vertex-data-state
 
     - name: ShaderProgram
       link: shader-program

@@ -5,50 +5,43 @@ sortorder: 3
 
 <h3 id="basic-shader">BasicShader</h3>
 
-<p>A basic predefined vertex/fragment-shader that supports vertices that have a position, color and texture.</p>
+<p>Predefined vertex/fragment-shader that supports vertices that have a position, normal and texture.</p>
 
 <pre class="prettyprint">
 var BasicShader = require('lib/shader.js').BasicShader;
 
 // var window = new Window(...)
-var basic = new BasicShader(window);
+var basicShader = new BasicShader(window);
  
 // var texture = new Texture2D(...)
-basic.setTexture(texture);
+basicShader.setMaterialTexture(texture);
  
 // Set the shader program for the graphics.
-window.graphics.setShaderProgram(basic.shaderProgram);
+window.graphics.setShaderProgram(basicShader.shaderProgram);
 </pre>
 
 <h4>Vertex</h4>
 
-<p>The vertex used with <em>BasicShader</em> has support for position, color and texture coordinates. When creating the vertex, non of these properties are required (they all have default values). You will want to at least set the position though. When creating the <a href="{{ site.baseurl }}/api/#vertex-buffer">VertexBuffer</a>, the vertex declaration from the vertex is used.</p>
+<p>The vertex used with <code>BasicShader</code> has support for position, normal and texture coordinates. When creating the vertex, none of these properties are required (they all have default values). You will want to at least set the position though.</p>
 
 <pre class="prettyprint">
-var vertex1 = new BasicShader.Vertex({
-    position: { x: 0, y: 1, z: 0 },
-    color: { r: 1, g: 1, b: 1, a: 1 },
-    textureCoordinates: { u: 0.5, v: 0 }
+var vertex = new BasicShader.Vertex({
+    position: vec3.fromValues(0,1,0),
+    normal: vec3.fromValues(0,1,0),
+    textureCoords: vec2.fromValues(0.5,0)
 });
-var vertex2 = new BasicShader.Vertex({
-    position: { x: -1, y: -1, z: 0 },
-    color: { r: 1, g: 1, b: 1, a: 1 },
-    textureCoordinates: { u: 1, v: 1 }
-});
-var vertex3 = new BasicShader.Vertex({
-    position: { x: 1, y: -1, z: 0 },
-    color: { r: 1, g: 1, b: 1, a: 1 },
-    textureCoordinates: { u: 0, v: 1 }
-});
+</pre>
 
-// var window = new Window(...)
-var vertexBuffer = new VertexBuffer(
-    window.graphics, BasicShader.Vertex.declaration());
+<p>When setting the vertex declaration for the <a href="{{ site.baseurl }}/api/#vertex-data-state">VertexDataState</a>, the declaration from the <code>BasicShader</code> vertex can be used.</p>
+
+<pre class="prettyprint">
+// var vertexDataState = new VertexDataState(...);
+vertexDataState.setVertexDeclaration(BasicShader.Vertex.declaration(), basicShader.shaderProgram);
 </pre>
 
 <h4>VertexList</h4>
 
-<p>Holds a list of vertices. To set data for a vertex buffer the <code>toArray</code> function can be used.</p>
+<p>Holds a list of vertices. To set vertex data for a <code>VertexDataState</code>, the <code>toArray</code> function can be used.</p>
 
 <pre class="prettyprint">
 // var vertex1 = new BasicShader.Vertex(...)
@@ -61,6 +54,26 @@ var vertices = new BasicShader.VertexList([ vertex1, vertex2 ]);
 // Vertices can also be added with a function.
 vertices.add(vertex3);
 
-// var vertexBuffer = new VertexBuffer(...)
-vertexBuffer.setData(vertices.toArray());
+// var vertexDataState = new VertexDataState(...)
+vertexDataState.setVertices(vertices.toArray());
 </pre>
+
+<h4>Material</h4>
+
+<p>The material (appearence) for the drawn objects using <code>BasicShader</code> can be changed by a number of different functions.</p>
+
+<pre class="prettyprint">
+// var texture = new Texture2D(...);
+
+basicShader.setMaterialTexture(texture);
+basicShader.setMaterialColor(vec3.fromValues(1,0,0));
+basicShader.setMaterialSpecularColor(vec3.fromValues(1,1,1));
+basicShader.setMaterialShininess(0.5);
+</pre>
+
+
+
+
+
+
+

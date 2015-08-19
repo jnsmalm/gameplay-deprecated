@@ -14,3 +14,25 @@ var texture = new Texture2D('image.png');
 var w = texture.width;
 var h = texture.height;
 </pre>
+
+<h4>Color data</h4>
+
+<p>With the function <code>getData</code> you can get the color data for that texture. The result is an array with all the colors. If you want to get a color at a specific pixel you must take into consideration the <code>channels</code> property. <code>channels</code> can have a value of 1, 2, 3 or 4. E.g. the value of <code>channels</code> will be 3 when the image only has RGB channels (without alpha).</p>
+
+<pre class="prettyprint">
+// var texture = new Texture2D(...);
+var colors = texture.getData();
+
+function getPixelRGBA(x, y) {
+  var i = y * texture.width * texture.channels + x * texture.channels;
+  return {
+    r: colors[i],
+    g: colors[i + 1],
+    b: colors[i + 2],
+    a: colors[i + 3],
+  };
+}
+
+// Get pixel at x = 100, y = 25
+var pixelColor = getPixelRGBA(100, 25);
+</pre>

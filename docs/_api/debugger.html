@@ -1,0 +1,53 @@
+---
+category: 'general'
+sortorder: 4
+---
+
+<h3 id="debugging">Debugging</h3>
+
+<p>Gameplay has a debugging tool built-in. To start the debugger you pass the 'debug' argument when starting the play program.</p>
+
+<pre class="prettyprint">% play debug script.js</pre>
+
+<p>To set a breakpoint, place the <code>debugger;</code> statement where you want the debugger to stop.</p>
+
+<pre class="prettyprint">
+var sum = 0;
+function add(value) {
+  sum += value;
+}
+for (var i=0; i<5; i++) {
+  add(i);
+  debugger;
+}
+</pre>
+
+<p>The debugger stops and displays the source code at the breakpoint. The debug prompt appears and waits for your input.</p>
+
+<pre class="prettyprint">
+break at script.js:7
+  5 for (var i=0; i<5; i++) {
+  6   add(i);
+> 7   debugger;
+  8 }
+debug>
+</pre>
+
+<p>The following commands are available at the debug prompt:</p>
+
+<ul>
+  <li><strong>cont</strong> - Continue to the next breakpoint</li>
+  <li><strong>next</strong> - Step to the next statement</li>
+  <li><strong>in</strong> - Step into the next statement</li>
+  <li><strong>out</strong> - Step out from the current block</li>
+</ul> 
+
+<p>You can also press 'enter' to execute the previous debug command. If you want to inspect a value for a variable, just type the name of the variable. You can also enter any other JavaScript statement.</p>
+
+<pre class="prettyprint">
+debug> sum
+6
+debug> 1+2
+3
+</pre>
+

@@ -3,22 +3,84 @@ category: 'graphics'
 sortorder: 20
 ---
 
-<h3 id="graphics-object">GraphicsObject</h3>
+<h3 id="graphics-object">Graphics Object</h3>
 
-<p>Handles render states and used for drawing primitives. The graphics object is created automatically when creating a window and it's available as a reference.</p>
+<p>Handles render states and used for drawing primitives. The graphics object is created automatically when creating a window and is available as a reference.</p>
 
 <pre class="prettyprint">
 // var window = new Window(...)
 var graphics = window.graphics;
- 
-// Vertical syncronization on/off (default: true).
+</pre>
+
+<h4>Renderstates</h4>
+
+<p>The renderstates can be set to control how the graphics are drawn, depending on what you want to acheive. There are four ways to change the state.</p>
+
+<p>The <code>setBlendState</code> function controls how colors are blended into the framebuffer.</p>
+
+<pre class="prettyprint">
+// Draw objects without transparency.
+graphics.setBlendState('opaque');
+
+// Draw transparent objects that blends the alpha channel.
+graphics.setBlendState('alphaBlend');
+
+// Add up all the colors for the drawn objects.
+graphics.setBlendState('additive');
+</pre>
+
+<p>The <code>setDepthState</code> function controls the behavior of the depth buffer.</p>
+
+<pre class="prettyprint">
+// Read and write from/to the depth buffer.
+graphics.setDepthState('default');
+
+// Only read from the depth buffer.
+graphics.setDepthState('depthRead');
+
+// Do not read/write from/to the depth buffer
+graphics.setDepthState('none');
+</pre>
+
+<p>The <code>setStencilState</code> function controls the behavior of the stencil buffer.</p>
+
+<pre class="prettyprint">
+// Will not use the stencil buffer.
+graphics.setStencilState('default');
+
+// Create a mask (this will also clear the stencil buffer).
+graphics.setStencilState('mask');
+
+// Draw inside the created mask (i.e. clipping).
+graphics.setStencilState('clip');
+</pre>
+
+<p>The <code>setRasterizerState</code> controls how triangles are turned into pixels.</p>
+
+<pre class="prettyprint">
+// Will not cull anything.
+graphics.setRasterizerState('cullNone');
+
+// Cull (i.e don't draw) triangles that are drawn in clockwise order.
+graphics.setRasterizerState('cullClockwise');
+
+// Cull (i.e don't draw) triangles that are drawn in counter clockwise order.
+graphics.setRasterizerState('cullCounterClockwise');
+</pre>
+
+<h4>Draw primitives</h4>
+
+<p>To actually draw objects on the screen, the functions <code>drawPrimitives</code> or <code>drawIndexedPrimitives</code> is used. When drawing, all the current set states (e.g. textures and blendstate) will be used. The current set <a href="#shader-program">ShaderProgram</a> and <a href="#vertex-data-state">VertexDataState</a> will also be used.</p>
+
+<pre class="prettyprint">
+// Vertical syncronization on/off.
 graphics.setSynchronizeWithVerticalRetrace(true);
  
 // var texture = new Texture2D(...)
 graphics.textures[0] = texture;
  
-// var buffer = new VertexBuffer(...)
-graphics.setVertexBuffer(buffer);
+// var vertexDataState = new VertexDataState(...)
+graphics.setVertexDataState(vertexDataState);
  
 // var program = new ShaderProgram(...)
 graphics.setShaderProgram(program);

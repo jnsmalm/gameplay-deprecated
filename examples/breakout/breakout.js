@@ -11,21 +11,22 @@ _import('/objects.js');
 var game = new Game();
 
 var scene = new Scene(game.window);
-scene.camera.translate(0,0,-25);
+scene.camera.transform.translate(0,0,-25);
 
 var paddle = new Paddle(game.graphics, game.keyboard, scene);
 var ball = new Ball(game.graphics, paddle);
 
-scene.addChild(paddle);
-scene.addChild(new LeftWall(game.graphics));
-scene.addChild(new RightWall(game.graphics));
-scene.addChild(new Roof(game.graphics));
-scene.addChild(new Floor(game.graphics));
-scene.addChild(new DirectionalLight());
+scene.add(paddle);
+scene.add(ball);
+scene.add(new LeftWall(game.graphics));
+scene.add(new RightWall(game.graphics));
+scene.add(new Roof(game.graphics));
+scene.add(new Floor(game.graphics));
+scene.add(new DirectionalLight());
 
 for (var x=0; x<5; x++) {
     for (var y=0; y<4; y++) {
-        scene.addChild(new Brick(game.graphics, x * 2.25 - 4.5, y * 1.5 + 3));
+        scene.add(new Brick(game.graphics, x * 2.25 - 4.5, y * 1.5 + 3));
     }
 }
 
@@ -37,7 +38,7 @@ game.update = function(elapsed) {
         ball.launch(scene);
     }
     scene.update(elapsed);
-    CollisionManager.detectEntityCollisions(ball, scene.children);
+    CollisionManager.detectEntityCollisions(ball, scene.entities);
 };
 
 game.draw = function() {

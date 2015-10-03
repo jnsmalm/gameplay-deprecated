@@ -14,10 +14,13 @@ function Paddle(graphics, keyboard) {
         new ColorMaterial(graphics, new Vector3(0.3,0,0)));
     this.addComponent(new PaddleControlComponent(keyboard));
     this.addComponent(new BoxColliderComponent());
-    this.addComponent(new RigidBodyComponent(0,1));
+    this.addComponent(new RigidBodyComponent({
+        mass: 0,
+        restitution: 1
+    }));
     this.addComponent(new MeshComponent(mesh));
-    this.translate(0,-9.5,0);
-    this.scale(3,1,1);
+    this.transform.translate(0,-9.5,0);
+    this.transform.scale(3,1,1);
 }
 
 Utils.extend(Paddle, Entity);
@@ -27,7 +30,10 @@ function Ball(graphics, paddle) {
     var self = this;
     var mesh = new Mesh(graphics, null, new SphereGeometry(2),
         new ColorMaterial(graphics, new Vector3(0.3,0,0)));
-    this.addComponent(new RigidBodyComponent(1,1));
+    this.addComponent(new RigidBodyComponent({
+        mass: 1,
+        restitution: 1
+    }));
     this.addComponent(new SphereColliderComponent({
         radius: 0.5,
         collisionHandler: function(entity) {
@@ -49,19 +55,20 @@ Ball.prototype.launch = function(scene) {
         return;
     }
     this.components.rigidbody.enabled = true;
-    this.position(this.position().transform(this.parent.getTransform()));
-    scene.addChild(this);
-    this.scale(3,1,1);
+    this.transform.position(this.transform.position()
+        .transform(this.transform.parent().world()));
+    this.transform.parent(scene);
+    this.transform.scale(3,1,1);
     this.components.rigidbody.body.velocity = new Vector3();
     this.components.rigidbody.addImpulse(5,10,0);
 };
 
 Ball.prototype.reset = function(paddle) {
     this.components.rigidbody.enabled = false;
-    this.position(0,0,0);
-    this.translate(0,1.5,0);
-    this.scale(1/3,1,1);
-    paddle.addChild(this);
+    this.transform.position(0,0,0);
+    this.transform.translate(0,1.5,0);
+    this.transform.scale(1/3,1,1);
+    this.transform.parent(paddle);
 };
 
 function Brick(graphics, x, y) {
@@ -69,10 +76,13 @@ function Brick(graphics, x, y) {
     var mesh = new Mesh(graphics, null, new CubeGeometry(),
         new ColorMaterial(graphics, new Vector3(0.2,0.3,0)));
     this.addComponent(new BoxColliderComponent());
-    this.addComponent(new RigidBodyComponent(0,1));
+    this.addComponent(new RigidBodyComponent({
+        mass: 0,
+        restitution: 1
+    }));
     this.addComponent(new MeshComponent(mesh));
-    this.translate(x,y,0);
-    this.scale(2,1,1);
+    this.transform.translate(x,y,0);
+    this.transform.scale(2,1,1);
 }
 
 Utils.extend(Brick, Entity);
@@ -87,7 +97,10 @@ function Wall(graphics) {
     var mesh = new Mesh(graphics, null, new CubeGeometry(),
         new ColorMaterial(graphics, new Vector3(0.3,0,0)));
     this.addComponent(new BoxColliderComponent());
-    this.addComponent(new RigidBodyComponent(0,1));
+    this.addComponent(new RigidBodyComponent({
+        mass: 0,
+        restitution: 1
+    }));
     this.addComponent(new MeshComponent(mesh));
 }
 
@@ -95,24 +108,26 @@ Utils.extend(Wall, Entity);
 
 function LeftWall(graphics) {
     Wall.call(this, graphics);
-    this.translate(-10,0,0);
-    this.scale(1,20,1);
+    this.transform.translate(-10,0,0);
+    this.transform.rotate(0,0,-0.05);
+    this.transform.scale(1,20,1);
 }
 
 Utils.extend(LeftWall, Wall);
 
 function RightWall(graphics) {
     Wall.call(this, graphics);
-    this.translate(10,0,0);
-    this.scale(1,20,1);
+    this.transform.translate(10,0,0);
+    this.transform.rotate(0,0,0.05);
+    this.transform.scale(1,20,1);
 }
 
 Utils.extend(RightWall, Wall);
 
 function Roof(graphics) {
     Wall.call(this, graphics);
-    this.translate(0,10,0);
-    this.scale(24,1,1);
+    this.transform.translate(0,10,0);
+    this.transform.scale(24,1,1);
 }
 
 Utils.extend(Roof, Wall);
@@ -122,10 +137,13 @@ function Floor(graphics) {
     var mesh = new Mesh(graphics, null, new CubeGeometry(),
         new ColorMaterial(graphics, new Vector3(1,1,0.8)));
     this.addComponent(new BoxColliderComponent());
-    this.addComponent(new RigidBodyComponent(0));
+    this.addComponent(new RigidBodyComponent({
+        mass: 0,
+        restitution: 0
+    }));
     this.addComponent(new MeshComponent(mesh));
-    this.translate(0,-20,0);
-    this.scale(50,20,50);
+    this.transform.translate(0,-20,0);
+    this.transform.scale(50,20,50);
 }
 
 Utils.extend(Floor, Entity);
@@ -133,7 +151,7 @@ Utils.extend(Floor, Entity);
 function DirectionalLight() {
     Entity.call(this);
     this.addComponent(new PhongDirectionalLightComponent());
-    this.translate(0,0,1);
+    this.transform.translate(0,0,1);
 }
 
 Utils.extend(DirectionalLight, Entity);

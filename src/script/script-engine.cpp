@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,6 @@ SOFTWARE.*/
 
 #include "script-engine.h"
 #include "script-global.h"
-#include "scripthelper.h"
 #include "script-debug.h"
 
 using namespace v8;
@@ -101,7 +100,7 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
     else {
         executionPath_ = filename.substr(0, index + 1);
         filename = filename.substr(index + 1, filename.length() -
-                executionPath_.length());
+                                              executionPath_.length());
     }
 
     bool debug = false;
@@ -123,6 +122,8 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
         if (debug) {
             ScriptDebug::current().Start(isolate_);
         }
+        context_ = Context::New(isolate_, NULL, global_->v8Template());
+        Context::Scope context_scope(context_);
         Execute(filename);
         if (debug) {
             ScriptDebug::current().Stop();
@@ -134,12 +135,13 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
 Handle<Value> ScriptEngine::Execute(std::string filepath) {
     EscapableHandleScope handle_scope(isolate_);
 
-    auto context = Context::New(isolate_, NULL, global_->v8Template());
-    Context::Scope context_scope(context);
-
     auto resolvedPath = resolvePath(filepath);
-    auto script = String::NewFromUtf8(
-            isolate_, FileReader::ReadAsText(resolvedPath).c_str());
+
+    // The original script source is being wrapped in an anonymous function
+    // just to define a local scope.
+    auto source = "(function (module) { " +
+            FileReader::ReadAsText(resolvedPath) + " });";
+    auto script = String::NewFromUtf8(isolate_, source.c_str());
 
     TryCatch tryCatch;
 
@@ -164,11 +166,18 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
         scriptPath_.push_back(filepath.substr(0, index + 1));
     }
 
-    ScriptModule module(isolate_, scriptPath());
-    module.InstallAsObject("module", context->Global());
-
+    // The result from the running script is a function that defines the local
+    // scope for the script.
     auto result = compiled->Run();
-    if (result.IsEmpty()) {
+    auto scope = Handle<Function>::Cast(result);
+
+    // Create the current module for the script.
+    auto module = new ScriptModule(isolate_, scriptPath());
+    Handle<Value> argument = module->v8Object();
+
+    // Call the function that defines the local scope for the script (the module
+    // is passed as an argument). An error has occurred when result is empty.
+    if (scope->Call(scope, 1, &argument).IsEmpty()) {
         PrintStackTrace(isolate_, &tryCatch);
         scriptPath_.pop_back();
         return v8::Null(isolate_);
@@ -177,7 +186,7 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
     scriptPath_.pop_back();
 
     return handle_scope.Escape(
-            module.v8Object()->Get(String::NewFromUtf8(isolate_, "exports")));
+            module->v8Object()->Get(String::NewFromUtf8(isolate_, "exports")));
 }
 
 void ScriptEngine::ThrowTypeError(std::string message) {

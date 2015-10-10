@@ -77,6 +77,7 @@ private:
 
     v8::Platform* platform_;
     v8::Isolate* isolate_;
+    v8::Local<v8::Context> context_;
     std::unique_ptr<ScriptGlobal> global_;
     std::vector<std::string> scriptPath_;
     std::string executionPath_;

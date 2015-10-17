@@ -10,7 +10,7 @@ _import('/components.js');
 
 function Paddle(graphics, keyboard) {
     Entity.call(this);
-    var mesh = new Mesh(graphics, null, new CubeGeometry(),
+    var mesh = new Mesh(graphics, new CubeGeometry(),
         new ColorMaterial(graphics, new Vector3(0.3,0,0)));
     this.addComponent(new PaddleControlComponent(keyboard));
     this.addComponent(new BoxColliderComponent());
@@ -28,7 +28,7 @@ Utils.extend(Paddle, Entity);
 function Ball(graphics, paddle) {
     Entity.call(this);
     var self = this;
-    var mesh = new Mesh(graphics, null, new SphereGeometry(2),
+    var mesh = new Mesh(graphics, new SphereGeometry(2),
         new ColorMaterial(graphics, new Vector3(0.3,0,0)));
     this.addComponent(new RigidBodyComponent({
         mass: 1,
@@ -73,7 +73,7 @@ Ball.prototype.reset = function(paddle) {
 
 function Brick(graphics, x, y) {
     Entity.call(this);
-    var mesh = new Mesh(graphics, null, new CubeGeometry(),
+    var mesh = new Mesh(graphics, new CubeGeometry(),
         new ColorMaterial(graphics, new Vector3(0.2,0.3,0)));
     this.addComponent(new BoxColliderComponent());
     this.addComponent(new RigidBodyComponent({
@@ -94,7 +94,7 @@ Brick.prototype.destroy = function() {
 
 function Wall(graphics) {
     Entity.call(this);
-    var mesh = new Mesh(graphics, null, new CubeGeometry(),
+    var mesh = new Mesh(graphics, new CubeGeometry(),
         new ColorMaterial(graphics, new Vector3(0.3,0,0)));
     this.addComponent(new BoxColliderComponent());
     this.addComponent(new RigidBodyComponent({
@@ -134,7 +134,7 @@ Utils.extend(Roof, Wall);
 
 function Floor(graphics) {
     Entity.call(this);
-    var mesh = new Mesh(graphics, null, new CubeGeometry(),
+    var mesh = new Mesh(graphics, new CubeGeometry(),
         new ColorMaterial(graphics, new Vector3(1,1,0.8)));
     this.addComponent(new BoxColliderComponent());
     this.addComponent(new RigidBodyComponent({

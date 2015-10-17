@@ -42,7 +42,7 @@ public:
                 beg = 0;
             }
             result.erase(pos, 3);
-            result.erase(beg, end - beg + 1);
+            result.erase(beg, end - beg);
         }
         return result;
     }

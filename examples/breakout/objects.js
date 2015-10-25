@@ -55,20 +55,19 @@ Ball.prototype.launch = function(scene) {
         return;
     }
     this.components.rigidbody.enabled = true;
-    this.transform.position(this.transform.position()
-        .transform(this.transform.parent().world()));
-    this.transform.parent(scene);
     this.transform.scale(3,1,1);
+    var position = this.transform.position;
+    this.transform.parent(scene);
+    this.transform.position = position;
     this.components.rigidbody.body.velocity = new Vector3();
     this.components.rigidbody.addImpulse(5,10,0);
 };
 
 Ball.prototype.reset = function(paddle) {
     this.components.rigidbody.enabled = false;
-    this.transform.position(0,0,0);
-    this.transform.translate(0,1.5,0);
-    this.transform.scale(1/3,1,1);
     this.transform.parent(paddle);
+    this.transform.localPosition = new Vector3(0,1.5,0);
+    this.transform.scale(1/3,1,1);
 };
 
 function Brick(graphics, x, y) {

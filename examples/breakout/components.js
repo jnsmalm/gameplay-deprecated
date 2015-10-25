@@ -22,9 +22,9 @@ PaddleControlComponent.prototype.update = function() {
     if (this.keyboard.isKeyDown(Keys.RIGHT)) {
         speed = 0.3;
     }
-    var position = this.entity.transform.position()[0] + speed;
-    position = Math.min(Math.max(position, -8), 8);
-    this.entity.transform.position(new Vector3(position, -9.5, 0));
+    var x = this.entity.transform.position.x() + speed;
+    x = Math.min(Math.max(x, -8), 8);
+    this.entity.transform.position = new Vector3(x, -9.5, 0);
 };
 
 module.exports.PaddleControlComponent = PaddleControlComponent;

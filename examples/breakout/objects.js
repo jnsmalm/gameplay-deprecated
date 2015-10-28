@@ -147,14 +147,6 @@ function Floor(graphics) {
 
 Utils.extend(Floor, Entity);
 
-function DirectionalLight() {
-    Entity.call(this);
-    this.addComponent(new PhongDirectionalLightComponent());
-    this.transform.translate(0,0,1);
-}
-
-Utils.extend(DirectionalLight, Entity);
-
 function ColorMaterial(graphics, color) {
     PhongMaterial.call(this, graphics);
     this.color(color);

@@ -16,17 +16,16 @@ scene.camera.transform.translate(0,0,-25);
 var paddle = new Paddle(game.graphics, game.keyboard, scene);
 var ball = new Ball(game.graphics, paddle);
 
-scene.add(paddle);
-scene.add(ball);
-scene.add(new LeftWall(game.graphics));
-scene.add(new RightWall(game.graphics));
-scene.add(new Roof(game.graphics));
-scene.add(new Floor(game.graphics));
-scene.add(new DirectionalLight());
+scene.addEntity(paddle);
+scene.addEntity(ball);
+scene.addEntity(new LeftWall(game.graphics));
+scene.addEntity(new RightWall(game.graphics));
+scene.addEntity(new Roof(game.graphics));
+scene.addEntity(new Floor(game.graphics));
 
 for (var x=0; x<5; x++) {
     for (var y=0; y<4; y++) {
-        scene.add(new Brick(game.graphics, x * 2.25 - 4.5, y * 1.5 + 3));
+        scene.addEntity(new Brick(game.graphics, x * 2.25 - 4.5, y * 1.5 + 3));
     }
 }
 

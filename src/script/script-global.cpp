@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ SOFTWARE.*/
 #include <graphics/texture-font.h>
 #include <graphics/vertex-data-state.h>
 #include <utils/path-helper.h>
+#include <utils/file-watcher.h>
 #include "script-object-wrap.h"
 #include "script-global.h"
 #include "scripthelper.h"
@@ -47,6 +48,7 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
     InstallConstructor<SoundBuffer>("SoundBuffer");
     InstallConstructor<SoundSource>("SoundSource");
     InstallConstructor<Timer>("Timer");
+    InstallConstructor<FileWatcher>("FileWatcher");
 
     console_.InstallAsTemplate("console", v8Template());
     fileReader_.InstallAsTemplate("file", v8Template());

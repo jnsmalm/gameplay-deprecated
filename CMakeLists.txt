@@ -75,14 +75,17 @@ set (JSPLAY_SRCS
   src/audio/wave-format.cpp
   src/audio/wave-format.h
   src/audio/sound-source.cpp
-  src/audio/sound-source.h)
+  src/audio/sound-source.h
+  src/utils/file-watcher.cpp
+  src/utils/file-watcher.h)
 
 set (JSPLAY_LIBS
   ${V8_LIBS}
   freetype
   libglew_static
   ${OPENAL_LIBS}
-  glfw ${GLFW_LIBRARIES})
+  glfw ${GLFW_LIBRARIES}
+  efsw)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # Find and set libraries for Mac OS X
@@ -122,6 +125,7 @@ add_subdirectory(deps/glfw)
 add_subdirectory(deps/glew)
 add_subdirectory(deps/freetype)
 add_subdirectory(deps/openal)
+add_subdirectory(deps/efsw)
 
 include_directories(
   deps/glfw/include
@@ -133,7 +137,8 @@ include_directories(
   deps/stb
   deps/v8/include
   src
-  deps/v8)
+  deps/v8
+  deps/efsw/include)
 
 add_definitions(
   -DGLEW_STATIC

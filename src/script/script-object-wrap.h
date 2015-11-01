@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -47,8 +47,21 @@ public:
     static void InstallAsConstructor(
             v8::Isolate* isolate, std::string name,
             v8::Handle<v8::ObjectTemplate> objectTemplate) {
+
+        auto constructor = v8::FunctionTemplate::New(isolate, T::New);
+        v8Constructor_.Reset(isolate, constructor);
         objectTemplate->Set(v8::String::NewFromUtf8(isolate, name.c_str()),
-                            v8::FunctionTemplate::New(isolate, T::New));
+                            constructor);
+    }
+
+    static void SetConstructorFunction(v8::Isolate* isolate, std::string name,
+            v8::FunctionCallback function) {
+
+        v8::HandleScope scope(isolate);
+        auto constructor = v8::Local<v8::FunctionTemplate>::New(
+                isolate, v8Constructor_);
+        constructor->Set(v8::String::NewFromUtf8(isolate, name.c_str()),
+                         v8::FunctionTemplate::New(isolate, function));
     }
 
     static T* GetInternalObject(v8::Handle<v8::Object> object) {
@@ -121,10 +134,15 @@ private:
 
     v8::Persistent<v8::Object> v8Object_;
     v8::Isolate* v8Isolate_;
+
     static v8::Persistent<v8::ObjectTemplate> v8Template_;
+    static v8::Persistent<v8::FunctionTemplate> v8Constructor_;
 };
 
 template <typename T>
 v8::Persistent<v8::ObjectTemplate> ScriptObjectWrap<T>::v8Template_;
+
+template <typename T>
+v8::Persistent<v8::FunctionTemplate> ScriptObjectWrap<T>::v8Constructor_;
 
 #endif // JSPLAY_OBJECTSCRIPT_H

@@ -20,6 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
+#include <utils/path-helper.h>
 #include "script-engine.h"
 #include "script-global.h"
 #include "script-debug.h"
@@ -93,15 +94,9 @@ ScriptEngine::~ScriptEngine() {
 void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
     V8::SetFlagsFromCommandLine(&argc, argv, true);
 
-    auto index = filename.find_last_of("\\/");
-    if (index == std::string::npos) {
-        executionPath_ = "";
-    }
-    else {
-        executionPath_ = filename.substr(0, index + 1);
-        filename = filename.substr(index + 1, filename.length() -
-                                              executionPath_.length());
-    }
+    executionPath_ = PathHelper::Current() + "/" +
+            PathHelper::GetPath(filename);
+    filename = PathHelper::GetFileName(filename);
 
     bool debug = false;
     for (int i=1; i<argc; i++) {

@@ -25,6 +25,14 @@ SOFTWARE.*/
 
 #include <string>
 #include <assert.h>
+#include <stdio.h>  /* defines FILENAME_MAX */
+#ifdef WINDOWS
+#include <direct.h>
+    #define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
 
 class PathHelper {
 
@@ -45,6 +53,32 @@ public:
             result.erase(beg, end - beg);
         }
         return result;
+    }
+
+    static std::string GetPath(std::string filepath) {
+        auto index = filepath.find_last_of("\\/");
+        if (index == std::string::npos) {
+            return "";
+        }
+        return filepath.substr(0, index + 0);
+    }
+
+    static std::string GetFileName(std::string filepath) {
+        auto index = filepath.find_last_of("\\/");
+        if (index == std::string::npos) {
+            return filepath;
+        }
+        auto path = GetPath(filepath);
+        return filepath.substr(index + 1, filepath.length() - path.length());
+    }
+
+    static std::string Current() {
+        char cCurrentPath[FILENAME_MAX];
+        if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
+        {
+            throw std::runtime_error("Failed to get current directory.");
+        }
+        return std::string(cCurrentPath);
     }
 };
 

@@ -29,6 +29,7 @@ SOFTWARE.*/
 #include <vector>
 #include <numeric>
 #include <memory>
+#include <utils/path-helper.h>
 
 class ScriptGlobal;
 
@@ -61,10 +62,13 @@ public:
             filepath.erase(0, 1);
         }
         if (filepath.compare(0, 1, "/") != 0) {
-            return executionPath() + "/" + filepath;
+            return PathHelper::Append({executionPath(),
+                                       filepath});
         }
         else {
-            return executionPath() + "/" + scriptPath() + filepath.erase(0, 1);
+            return PathHelper::Append({executionPath(),
+                                       scriptPath(),
+                                       filepath});
         }
     }
 

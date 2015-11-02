@@ -61,10 +61,10 @@ public:
             filepath.erase(0, 1);
         }
         if (filepath.compare(0, 1, "/") != 0) {
-            return executionPath() + filepath;
+            return executionPath() + "/" + filepath;
         }
         else {
-            return executionPath() + scriptPath() + filepath.erase(0, 1);
+            return executionPath() + "/" + scriptPath() + filepath.erase(0, 1);
         }
     }
 

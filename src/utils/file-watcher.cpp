@@ -94,5 +94,5 @@ void FileWatcher::InstallAsConstructor(
     SetConstructorFunction(isolate, "handleEvents", ::HandleEvents);
 }
 
-FileWatcherListener FileWatcher::_listener;
-efsw::FileWatcher FileWatcher::_watcher;
+FileWatcherListener FileWatcher::listener_;
+efsw::FileWatcher FileWatcher::watcher_;

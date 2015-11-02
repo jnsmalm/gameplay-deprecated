@@ -87,15 +87,16 @@ class FileWatcher : public ScriptObjectWrap<FileWatcher> {
 public:
     FileWatcher(v8::Isolate *isolate, FileWatcherEventHandler* handler) :
             ScriptObjectWrap(isolate) {
-        _listener.AddEventHandler(handler);
+        listener_.AddEventHandler(handler);
     }
 
     static void HandleEvents() {
-        _listener.HandleEvents();
+        listener_.HandleEvents();
     }
 
     static void Start(std::string directory) {
-        _watcher.addWatch(directory, &_listener, true);
+        watcher_.addWatch(directory, &listener_, true);
+        watcher_.watch();
     }
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -104,8 +105,8 @@ public:
             v8::Handle<v8::ObjectTemplate> objectTemplate);
 
 private:
-    static FileWatcherListener _listener;
-    static efsw::FileWatcher _watcher;
+    static FileWatcherListener listener_;
+    static efsw::FileWatcher watcher_;
 
 };
 

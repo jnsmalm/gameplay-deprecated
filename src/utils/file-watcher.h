@@ -28,6 +28,7 @@ SOFTWARE.*/
 #include <script/script-object-wrap.h>
 #include <efsw/efsw.hpp>
 #include <vector>
+#include <mutex>
 
 class FileWatcherEventHandler {
 
@@ -57,19 +58,27 @@ public:
                           std::string oldFilename = "" ) {
 
         if (action == efsw::Actions::Modified) {
+            // This method will be called from another thread, make sure it
+            // doesn't interfere with handle events.
+            eventLock_.lock();
             events_.push_back(dir + filename);
+            eventLock_.unlock();
         }
     }
 
     void HandleEvents() {
-        for(auto e: events_){
-            for(int i=handlers_.size()-1; i>=0; i--) {
-                if (handlers_[i]->filename() == e) {
-                    handlers_[i]->Handle();
+        // Another thread will be adding events to the list, make sure it
+        // doesn't interfere with this.
+        eventLock_.lock();
+        for (auto e: events_) {
+            for (auto h: handlers_) {
+                if (h->filename() == e) {
+                    h->Handle();
                 }
             }
         }
         events_.clear();
+        eventLock_.unlock();
     }
 
     void AddEventHandler(FileWatcherEventHandler* handler) {
@@ -77,6 +86,7 @@ public:
     }
 
 private:
+    std::mutex eventLock_;
     std::vector<FileWatcherEventHandler*> handlers_;
     std::vector<std::string> events_;
 

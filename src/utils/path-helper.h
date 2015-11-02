@@ -28,10 +28,12 @@ SOFTWARE.*/
 #include <stdio.h>  /* defines FILENAME_MAX */
 #ifdef WIN32
 #include <direct.h>
-    #define GetCurrentDir _getcwd
+#define GetCurrentDir _getcwd
+#define PATH_SEP "\\"
 #else
 #include <unistd.h>
 #define GetCurrentDir getcwd
+#define PATH_SEP "/"
 #endif
 
 #include <vector>
@@ -89,10 +91,10 @@ public:
             if (paths[i] == "") {
                 continue;
             }
-            if (result.compare(result.length() - 1, 1, "/") != 0) {
-                result += "/";
+            if (result.compare(result.length() - 1, 1, PATH_SEP) != 0) {
+                result += PATH_SEP;
             }
-            if (paths[i].compare(0, 1, "/") == 0) {
+            if (paths[i].compare(0, 1, PATH_SEP) == 0) {
                 paths[i].erase(0, 1);
             }
             result += paths[i];

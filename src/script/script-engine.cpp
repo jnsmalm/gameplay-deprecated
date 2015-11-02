@@ -94,8 +94,8 @@ ScriptEngine::~ScriptEngine() {
 void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
     V8::SetFlagsFromCommandLine(&argc, argv, true);
 
-    executionPath_ = PathHelper::Current() + "/" +
-            PathHelper::GetPath(filename);
+    executionPath_ = PathHelper::Append(
+            {PathHelper::Current(), PathHelper::GetPath(filename)});
     filename = PathHelper::GetFileName(filename);
 
     bool debug = false;

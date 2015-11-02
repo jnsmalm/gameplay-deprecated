@@ -34,6 +34,8 @@ SOFTWARE.*/
 #define GetCurrentDir getcwd
 #endif
 
+#include <vector>
+
 class PathHelper {
 
 public:
@@ -79,6 +81,23 @@ public:
             throw std::runtime_error("Failed to get current directory.");
         }
         return std::string(currentPath);
+    }
+
+    static std::string Append(std::vector<std::string> paths) {
+        auto result = paths[0];
+        for (int i=1; i<paths.size(); i++) {
+            if (paths[i] == "") {
+                continue;
+            }
+            if (result.compare(result.length() - 1, 1, "/") != 0) {
+                result += "/";
+            }
+            if (paths[i].compare(0, 1, "/") == 0) {
+                paths[i].erase(0, 1);
+            }
+            result += paths[i];
+        }
+        return result;
     }
 };
 

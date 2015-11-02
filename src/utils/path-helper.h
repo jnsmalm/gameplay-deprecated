@@ -26,7 +26,7 @@ SOFTWARE.*/
 #include <string>
 #include <assert.h>
 #include <stdio.h>  /* defines FILENAME_MAX */
-#ifdef WINDOWS
+#ifdef WIN32
 #include <direct.h>
     #define GetCurrentDir _getcwd
 #else
@@ -73,12 +73,12 @@ public:
     }
 
     static std::string Current() {
-        char cCurrentPath[FILENAME_MAX];
-        if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
+        char currentPath[FILENAME_MAX];
+        if (!GetCurrentDir(currentPath, sizeof(currentPath)))
         {
             throw std::runtime_error("Failed to get current directory.");
         }
-        return std::string(cCurrentPath);
+        return std::string(currentPath);
     }
 };
 

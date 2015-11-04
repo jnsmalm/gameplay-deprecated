@@ -24,6 +24,7 @@ SOFTWARE.*/
 #define GAMEPLAY_FILEWATCHER_H
 
 #include "v8.h"
+#include "path-helper.h"
 #include <string>
 #include <script/script-object-wrap.h>
 #include <efsw/efsw.hpp>
@@ -61,7 +62,7 @@ public:
             // This method will be called from another thread, make sure it
             // doesn't interfere with handle events.
             eventLock_.lock();
-            events_.push_back(dir + filename);
+            events_.push_back(PathHelper::Append({dir, filename}));
             eventLock_.unlock();
         }
     }

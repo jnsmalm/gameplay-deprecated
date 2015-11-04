@@ -29,11 +29,9 @@ SOFTWARE.*/
 #ifdef WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd
-#define PATH_SEP "\\"
 #else
 #include <unistd.h>
 #define GetCurrentDir getcwd
-#define PATH_SEP "/"
 #endif
 
 #include <vector>
@@ -86,18 +84,29 @@ public:
     }
 
     static std::string Append(std::vector<std::string> paths) {
+        for (int i=0; i<paths.size(); i++) {
+            if (paths[i].length() == 0) {
+                continue;
+            }
+            if (i > 0) {
+                if (paths[i].compare(0, 1, "/") == 0 ||
+                    paths[i].compare(0, 1, "\\") == 0) {
+                    paths[i].erase(0, 1);
+                }
+            }
+            if (i < paths.size() - 1) {
+                if (paths[i].compare(paths[i].length()-1, 1, "/") == 0 ||
+                    paths[i].compare(paths[i].length()-1, 1, "\\") == 0) {
+                    paths[i].erase(paths[i].length()-1, 1);
+                }
+            }
+        }
         auto result = paths[0];
         for (int i=1; i<paths.size(); i++) {
             if (paths[i] == "") {
                 continue;
             }
-            if (result.compare(result.length() - 1, 1, PATH_SEP) != 0) {
-                result += PATH_SEP;
-            }
-            if (paths[i].compare(0, 1, PATH_SEP) == 0) {
-                paths[i].erase(0, 1);
-            }
-            result += paths[i];
+            result += "/" + paths[i];
         }
         return result;
     }

@@ -32,12 +32,14 @@ namespace {
 class ScriptModule : public ScriptObjectWrap<ScriptModule> {
 
 public:
-    ScriptModule(v8::Isolate* isolate, std::string path) :
+    ScriptModule(v8::Isolate* isolate, std::string path, std::string filename) :
             ScriptObjectWrap(isolate) {
         v8Object()->Set(v8::String::NewFromUtf8(isolate, "exports"),
                         v8::Object::New(isolate));
         v8Object()->Set(v8::String::NewFromUtf8(isolate, "path"),
                         v8::String::NewFromUtf8(isolate, path.c_str()));
+        v8Object()->Set(v8::String::NewFromUtf8(isolate, "filename"),
+                        v8::String::NewFromUtf8(isolate, filename.c_str()));
     }
 };
 
@@ -130,6 +132,7 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
 Handle<Value> ScriptEngine::Execute(std::string filepath) {
     EscapableHandleScope handle_scope(isolate_);
 
+    auto filename = PathHelper::GetFileName(filepath);
     auto resolvedPath = resolvePath(filepath);
 
     // The original script source is being wrapped in an anonymous function
@@ -167,7 +170,7 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
     auto scope = Handle<Function>::Cast(result);
 
     // Create the current module for the script.
-    auto module = new ScriptModule(isolate_, scriptPath());
+    auto module = new ScriptModule(isolate_, scriptPath(), filename);
     Handle<Value> argument = module->v8Object();
 
     // Call the function that defines the local scope for the script (the module

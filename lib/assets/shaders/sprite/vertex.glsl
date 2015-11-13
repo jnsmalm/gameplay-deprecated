@@ -7,10 +7,10 @@ in vec4 color;
 out vec2 fragTextureCoords;
 out vec4 fragColor;
 
-uniform mat4 projection;
+uniform mat4 viewProjection;
 
 void main() {
     fragTextureCoords = textureCoords;
     fragColor = color;
-    gl_Position = projection * vec4(position, 1);
+    gl_Position = viewProjection * vec4(position, 1);
 }

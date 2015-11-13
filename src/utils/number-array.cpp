@@ -20,46 +20,34 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef GAMEPLAY_VERTEXDATASTATE_H
-#define GAMEPLAY_VERTEXDATASTATE_H
+#include <iostream>
+#include "number-array.h"
 
-#include <gl/glew.h>
-#include <script/script-object-wrap.h>
-#include "vertex-declaration.h"
-#include <assert.h>
+using namespace v8;
 
-enum class BufferUsage {
-    Static,
-    Dynamic,
-    Stream,
-};
+void NumberArray::New(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto size = args[0]->Int32Value();
+    auto numberArray = new NumberArray(args.GetIsolate(), size);
+    args.GetReturnValue().Set(numberArray->v8Object());
+}
 
-class VertexDataState : public ScriptObjectWrap<VertexDataState> {
+void NumberArray::Initialize() {
+    ScriptObjectWrap::Initialize();
+    SetFunction("push", Push);
+    SetFunction("clear", Clear);
+}
 
-public:
-    VertexDataState(v8::Isolate *isolate, GraphicsDevice* graphicsDevice);
-    ~VertexDataState();
-
-    void SetVertices(float *vertices, size_t size, BufferUsage usage);
-    void SetIndices(int *indices, size_t size, BufferUsage usage);
-    void SetVertexDeclaration(VertexDeclaration *declaration,
-                              ShaderProgram *program);
-
-    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
-
-    GLuint glVertexArray() {
-        return glVertexArray_;
+void NumberArray::Push(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    for (int i=0; i<args.Length(); i++) {
+        self->Push(args[i]->NumberValue());
     }
+}
 
-protected:
-    virtual void Initialize() override;
-
-private:
-    GraphicsDevice* graphicsDevice_;
-    GLuint glVertexArray_;
-    GLuint glVertexBuffer_;
-    GLuint glElementBuffer_;
-};
-
-
-#endif //GAMEPLAY_VERTEXDATASTATE_H
+void NumberArray::Clear(const v8::FunctionCallbackInfo<v8::Value> &args) {
+    HandleScope scope(args.GetIsolate());
+    auto self = GetInternalObject(args.Holder());
+    self->Clear();
+}

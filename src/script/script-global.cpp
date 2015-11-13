@@ -30,6 +30,7 @@ SOFTWARE.*/
 #include <graphics/vertex-data-state.h>
 #include <utils/path-helper.h>
 #include <utils/file-watcher.h>
+#include <utils/number-array.h>
 #include "script-object-wrap.h"
 #include "script-global.h"
 #include "scripthelper.h"
@@ -49,6 +50,7 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
     InstallConstructor<SoundSource>("SoundSource");
     InstallConstructor<Timer>("Timer");
     InstallConstructor<FileWatcher>("FileWatcher");
+    InstallConstructor<NumberArray>("NumberArray");
 
     console_.InstallAsTemplate("console", v8Template());
     fileReader_.InstallAsTemplate("file", v8Template());

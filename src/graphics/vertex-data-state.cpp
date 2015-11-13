@@ -22,6 +22,7 @@ SOFTWARE.*/
 
 #include <script/scripthelper.h>
 #include <script/script-engine.h>
+#include <utils/number-array.h>
 #include "vertex-data-state.h"
 #include "graphics-device.h"
 
@@ -33,11 +34,9 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
-    Handle<Array> array = Handle<Array>::Cast(args[0]);
-    float *vertices = new float[array->Length()];
-    for (int i = 0; i < array->Length(); i++) {
-        vertices[i] = (float) array->Get(i)->NumberValue();
-    }
+    auto array = helper.GetObject<NumberArray>(args[0]);
+    GLfloat vertices[array->Length()];
+    array->copy<GLfloat>(&vertices[0]);
 
     try {
         auto usage = helper.GetString(args[1], "static");
@@ -47,6 +46,9 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
         }
         else if (usage == "dynamic") {
             bufferUsage = BufferUsage::Dynamic;
+        }
+        else if (usage == "stream") {
+            bufferUsage = BufferUsage::Stream;
         }
         else {
             throw std::runtime_error(
@@ -59,19 +61,15 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
     catch (std::exception &err) {
         ScriptEngine::current().ThrowTypeError(err.what());
     }
-
-    delete[] vertices;
 }
 
 void SetIndices(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
-    Handle<Array> array = Handle<Array>::Cast(args[0]);
-    int *indices = new int[array->Length()];
-    for (int i = 0; i < array->Length(); i++) {
-        indices[i] = (int) array->Get(i)->NumberValue();
-    }
+    auto array = helper.GetObject<NumberArray>(args[0]);
+    int indices[array->Length()];
+    array->copy<int>(&indices[0]);
 
     try {
         auto usage = helper.GetString(args[1], "static");
@@ -81,6 +79,9 @@ void SetIndices(const FunctionCallbackInfo<Value> &args) {
         }
         else if (usage == "dynamic") {
             bufferUsage = BufferUsage::Dynamic;
+        }
+        else if (usage == "stream") {
+            bufferUsage = BufferUsage::Stream;
         }
         else {
             throw std::runtime_error(
@@ -93,8 +94,6 @@ void SetIndices(const FunctionCallbackInfo<Value> &args) {
     catch (std::exception &err) {
         ScriptEngine::current().ThrowTypeError(err.what());
     }
-
-    delete[] indices;
 }
 
 void SetVertexDeclaration(const FunctionCallbackInfo<Value> &args) {
@@ -121,6 +120,9 @@ void SetVertexDeclaration(const FunctionCallbackInfo<Value> &args) {
             else if (type == "vec4") {
                 vertexDeclaration->AddElement(name, 4, 16);
             }
+            else if (type == "mat4") {
+                vertexDeclaration->AddElement(name, 16, 64);
+            }
             else {
                 throw std::runtime_error(
                         "Can't set vertex declaration type to '" + type + "'.");
@@ -139,6 +141,7 @@ GLenum GetGLUsage(BufferUsage usage) {
     switch (usage) {
         case BufferUsage::Static: return GL_STATIC_DRAW;
         case BufferUsage::Dynamic: return GL_DYNAMIC_DRAW;
+        case BufferUsage::Stream: return GL_STREAM_DRAW;
         default: return GL_STATIC_DRAW;
     }
 }

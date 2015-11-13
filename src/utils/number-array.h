@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+opyright (c) 2015 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,46 +20,49 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef GAMEPLAY_VERTEXDATASTATE_H
-#define GAMEPLAY_VERTEXDATASTATE_H
+#ifndef GAMEPLAY_NUMBERARRAY_H
+#define GAMEPLAY_NUMBERARRAY_H
 
-#include <gl/glew.h>
+#include "v8.h"
 #include <script/script-object-wrap.h>
-#include "vertex-declaration.h"
-#include <assert.h>
+#include <vector>
 
-enum class BufferUsage {
-    Static,
-    Dynamic,
-    Stream,
-};
-
-class VertexDataState : public ScriptObjectWrap<VertexDataState> {
+class NumberArray : public ScriptObjectWrap<NumberArray> {
 
 public:
-    VertexDataState(v8::Isolate *isolate, GraphicsDevice* graphicsDevice);
-    ~VertexDataState();
-
-    void SetVertices(float *vertices, size_t size, BufferUsage usage);
-    void SetIndices(int *indices, size_t size, BufferUsage usage);
-    void SetVertexDeclaration(VertexDeclaration *declaration,
-                              ShaderProgram *program);
+    NumberArray(v8::Isolate* isolate, int size) :
+            ScriptObjectWrap(isolate) {
+        numbers_.reserve(size);
+    }
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    GLuint glVertexArray() {
-        return glVertexArray_;
+    void Push(double value) {
+        numbers_.push_back(value);
+    }
+
+    void Clear() {
+        numbers_.clear();
+    }
+
+    int Length() {
+        return numbers_.size();
+    }
+
+    template <typename T>
+    void copy(T* array) {
+        std::copy(numbers_.begin(), numbers_.end(), array);
     }
 
 protected:
-    virtual void Initialize() override;
+    void Initialize() override;
 
 private:
-    GraphicsDevice* graphicsDevice_;
-    GLuint glVertexArray_;
-    GLuint glVertexBuffer_;
-    GLuint glElementBuffer_;
+    std::vector<double> numbers_;
+
+    static void Push(const v8::FunctionCallbackInfo<v8::Value>& args);
+    static void Clear(const v8::FunctionCallbackInfo<v8::Value>& args);
+
 };
 
-
-#endif //GAMEPLAY_VERTEXDATASTATE_H
+#endif //GAMEPLAY_TIMER_H

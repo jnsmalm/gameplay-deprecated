@@ -87,8 +87,7 @@ function Brick(graphics, x, y) {
 Utils.extend(Brick, Entity);
 
 Brick.prototype.destroy = function() {
-    this.components.boxcollider.enabled = false;
-    this.components.mesh.visible = false;
+    this.destroyed = true;
 };
 
 function Wall(graphics) {

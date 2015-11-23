@@ -31,7 +31,16 @@ class ScriptObjectWrap {
 
 public:
     ScriptObjectWrap(v8::Isolate* isolate) : v8Isolate_(isolate) { }
-    virtual ~ScriptObjectWrap() { };
+
+    virtual ~ScriptObjectWrap() {
+        if (!v8Object_.IsEmpty()) {
+            // If the v8 object isn't empty when the destructor gets called, it
+            // means that the destructor wasn't triggered from the weak
+            // callback. Remove the weak callback so the destructor doesn't get
+            // triggered a second time.
+            v8Object_.ClearWeak();
+        }
+    };
 
     void InstallAsObject(std::string name, v8::Handle<v8::Object> parent) {
         parent->Set(v8::String::NewFromUtf8(

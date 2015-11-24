@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_SCRIPTOBJECTWRAP_H
-#define JSPLAY_SCRIPTOBJECTWRAP_H
+#ifndef GAMEPLAY_SCRIPTOBJECTWRAP_H
+#define GAMEPLAY_SCRIPTOBJECTWRAP_H
 
 #include <v8.h>
 #include <string>
@@ -154,4 +154,4 @@ v8::Persistent<v8::ObjectTemplate> ScriptObjectWrap<T>::v8Template_;
 template <typename T>
 v8::Persistent<v8::FunctionTemplate> ScriptObjectWrap<T>::v8Constructor_;
 
-#endif // JSPLAY_OBJECTSCRIPT_H
+#endif // GAMEPLAY_SCRIPTOBJECTWRAP_H

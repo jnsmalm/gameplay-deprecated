@@ -56,6 +56,12 @@ enum class RasterizerState {
     CullCounterClockwise,
 };
 
+enum class ClearType {
+    Default,
+    Color,
+    Depth,
+};
+
 class Window;
 class VertexDataState;
 class ShaderProgram;
@@ -65,7 +71,7 @@ class GraphicsDevice : public ScriptObjectWrap<GraphicsDevice> {
 public:
     GraphicsDevice(v8::Isolate* isolate, Window *window_);
 
-    void Clear(float r, float g, float b, float a);
+    void Clear(ClearType type, float r, float g, float b, float a);
     void DrawPrimitives(PrimitiveType primitiveType, int startVertex,
                         int primitiveCount);
     void DrawIndexedPrimitives(PrimitiveType primitiveType, int startVertex,

@@ -144,9 +144,19 @@ GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
     SetRasterizerState(RasterizerState::CullNone);
 }
 
-void GraphicsDevice::Clear(float r, float g, float b, float a) {
+void GraphicsDevice::Clear(ClearType type, float r, float g, float b, float a) {
     glClearColor(r, g, b, a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    switch (type) {
+        case ClearType::Default:
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            break;
+        case ClearType::Color:
+            glClear(GL_COLOR_BUFFER_BIT);
+            break;
+        case ClearType::Depth:
+            glClear(GL_DEPTH_BUFFER_BIT);
+            break;
+    }
 }
 
 void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
@@ -353,14 +363,34 @@ void GraphicsDevice::Initialize() {
 
 void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
-    ScriptObjectHelper options(args.GetIsolate(), args[0]->ToObject());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto clearType = helper.GetString(args[0]);
+    ClearType type = ClearType::Default;
+
+    if (clearType == "color") {
+        type = ClearType::Color;
+    }
+    else if (clearType == "depth") {
+        type = ClearType::Depth;
+    }
+
+    v8::Handle<v8::Object> color;
+    if (args[1]->IsObject()) {
+        color = args[1]->ToObject();
+    }
+    else {
+        color = v8::Object::New(args.GetIsolate());
+    }
+
+    ScriptObjectHelper options(args.GetIsolate(), color);
 
     auto r = options.GetFloat("r");
     auto g = options.GetFloat("g");
     auto b = options.GetFloat("b");
     auto a = options.GetFloat("a");
 
-    GetInternalObject(args.Holder())->Clear(r, g, b, a);
+    GetInternalObject(args.Holder())->Clear(type, r, g, b, a);
 }
 
 void GraphicsDevice::DrawPrimitives(const FunctionCallbackInfo<Value> &args) {

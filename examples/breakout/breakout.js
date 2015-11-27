@@ -37,8 +37,7 @@ game.update = function(elapsed) {
         ball.launch(scene);
     }
     scene.update(elapsed);
-    CollisionManager.detectEntityCollisions(
-        ball, scene.layers.default.entities);
+    CollisionManager.detectEntityCollisions(ball, scene.entities);
 };
 
 game.draw = function() {

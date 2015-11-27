@@ -50,14 +50,14 @@ function Ball(graphics, paddle) {
 
 Utils.extend(Ball, Entity);
 
-Ball.prototype.launch = function(scene) {
+Ball.prototype.launch = function() {
     if (this.components.rigidbody.enabled) {
         return;
     }
     this.components.rigidbody.enabled = true;
     this.transform.scale(3,1,1);
     var position = this.transform.position;
-    this.transform.parent(scene);
+    this.transform.parent(null);
     this.transform.position = position;
     this.components.rigidbody.body.velocity = new Vector3();
     this.components.rigidbody.addImpulse(5,10,0);

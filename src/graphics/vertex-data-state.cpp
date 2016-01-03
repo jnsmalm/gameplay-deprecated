@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,8 +35,8 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
     ScriptHelper helper(args.GetIsolate());
 
     auto array = helper.GetObject<NumberArray>(args[0]);
-    GLfloat vertices[array->Length()];
-    array->copy<GLfloat>(&vertices[0]);
+    GLfloat* vertices = new GLfloat[array->Length()];
+    array->copy<GLfloat>(vertices);
 
     try {
         auto usage = helper.GetString(args[1], "static");
@@ -57,6 +57,7 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
         auto self = helper.GetObject<VertexDataState>(args.Holder());
         self->SetVertices(vertices, sizeof(float) * array->Length(),
                           bufferUsage);
+        delete[] vertices;
     }
     catch (std::exception &err) {
         ScriptEngine::current().ThrowTypeError(err.what());
@@ -68,8 +69,8 @@ void SetIndices(const FunctionCallbackInfo<Value> &args) {
     ScriptHelper helper(args.GetIsolate());
 
     auto array = helper.GetObject<NumberArray>(args[0]);
-    int indices[array->Length()];
-    array->copy<int>(&indices[0]);
+    int* indices = new int[array->Length()];
+    array->copy<int>(indices);
 
     try {
         auto usage = helper.GetString(args[1], "static");
@@ -90,6 +91,7 @@ void SetIndices(const FunctionCallbackInfo<Value> &args) {
         auto self = helper.GetObject<VertexDataState>(args.Holder());
         self->SetIndices(indices, sizeof(int) * array->Length(),
                           bufferUsage);
+        delete[] indices;
     }
     catch (std::exception &err) {
         ScriptEngine::current().ThrowTypeError(err.what());

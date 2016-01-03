@@ -36,3 +36,4 @@ build/
 node_modules/
 deps/v8
 .idea/
+bin/

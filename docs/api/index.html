@@ -28,9 +28,12 @@ sections:
 <div class="container">
   <div class="row">
   <div class="col-md-9">
-    <div class="alert alert-warning" role="alert">
-      This project is currently in beta (early stages). Breaking changes can occur even between minor versions.
+    <div class="alert alert-danger" role="alert">
+      Some of this documentation is not up to date, please refer to the examples instead.
     </div>
+    <!--<div class="alert alert-warning" role="alert">
+      This project is currently in beta (early stages). Breaking changes can occur even between minor versions.
+    </div>-->
     {% for section in page.sections %}
       {% assign name = section.name | downcase %}
       <h2 id="{{ name }}">{{ section.name }}</h2>

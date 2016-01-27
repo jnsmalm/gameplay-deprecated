@@ -1,30 +1,17 @@
-var Game = require('../lib/game.js').Game;
-var Entity = require('../lib/entity.js').Entity;
-var Scene = require('../lib/scene.js').Scene;
-var SpriteComponent = require('../lib/sprite.js').SpriteComponent;
+// Import everything in the library into the '$' variable.
+var $ = require('/../lib/import.js');
 
-// The game creates a window and enters a game loop which calls update and draw
-// at specified intervals.
-var game = new Game();
-var scene = new Scene(game.window);
+var game = new $.Game();
 
-// Create the entity and add a sprite component for drawing a sprite.
-var entity = new Entity();
-entity.addComponent(new SpriteComponent({
-    spriteBatch: scene.spriteBatch,
-    texture: '/assets/cow.png',
-    // Pixels per unit controls the size of the sprite.
-    pixelsPerUnit: 200
-}));
+$.Sprite.init(game.window);
+var sprite = new $.Sprite('/assets/cow.png');
 
-scene.addEntity(entity);
-
-game.update = function (elapsed) {
-    scene.update(elapsed);
+game.draw = function() {
+  sprite.draw();
+  // To improve performance when drawing many sprites, the sprites are batched 
+  // by texture. Make sure that the last drawn sprites are being drawn.
+  $.Sprite.drawBatched();
 };
 
-game.draw = function () {
-    scene.draw();
-};
-
+// Start running the game which calls update and draw.
 game.run();

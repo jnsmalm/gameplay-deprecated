@@ -4,10 +4,12 @@ var $ = require('/../lib/import.js');
 var game = new $.Game();
 
 $.Model.init(game.window);
-var model = $.Model.load('/assets/suzanne.json')[0];
+
+var model = $.Model.load('/assets/suzanne.json');
+model.transform.scale(0.5, 0.5, 0.5);
 
 game.update = function() {
-  model.transform.rotate(0, 0.015, 0);
+  model.transform.rotate(0, 0.01, 0);
 };
 
 game.draw = function() {

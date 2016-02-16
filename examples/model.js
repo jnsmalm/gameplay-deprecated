@@ -1,5 +1,5 @@
 // Import everything in the library into the '$' variable.
-var $ = require('/../lib/import.js');
+var $ = require('/../lib/import.js').library();
 
 var game = new $.Game();
 

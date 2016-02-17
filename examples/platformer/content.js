@@ -58,6 +58,9 @@ class Content {
         height: 16
       })
     };
+    for (var key in this.textures) {
+      this.textures[key].filter = 'nearest';
+    };
   }
 }
 

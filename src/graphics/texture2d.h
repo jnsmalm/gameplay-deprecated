@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,11 @@ SOFTWARE.*/
 #include <string>
 #include <script/script-object-wrap.h>
 
+enum class TextureFilter {
+    Linear,
+    Nearest,
+};
+
 class Texture2D : public ScriptObjectWrap<Texture2D> {
 
 public:
@@ -36,6 +41,7 @@ public:
     ~Texture2D();
 
     void GetData(float* pixels);
+    void SetFilter(TextureFilter filter);
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 

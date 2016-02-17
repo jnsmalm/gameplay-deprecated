@@ -75,6 +75,22 @@ void GetData(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().Set(array);
 }
 
+void SetFilter(Local<String> name, Local<Value> value,
+               const PropertyCallbackInfo<void>& args) {
+
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto texture = helper.GetObject<Texture2D>(args.Holder());
+    auto filter = helper.GetString(value);
+    if (filter == "linear") {
+        texture->SetFilter(TextureFilter::Linear);
+    }
+    else if (filter == "nearest") {
+        texture->SetFilter(TextureFilter::Nearest);
+    }
+}
+
 }
 
 Texture2D::Texture2D(Isolate* isolate, std::string filename) :
@@ -87,8 +103,6 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
     if (image == NULL) {
         throw std::runtime_error("Failed to load image '" + filename + "'");
     }
-
-    // TODO: Add texture filtering to script
 
     GLint old_texture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
@@ -142,11 +156,29 @@ void Texture2D::GetData(float* pixels) {
     assert(glGetError() == GL_NO_ERROR);
 }
 
+void Texture2D::SetFilter(TextureFilter filter) {
+    GLint old_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+    glBindTexture(GL_TEXTURE_2D, glTexture_);
+    switch (filter) {
+        case TextureFilter::Linear:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            break;
+        case TextureFilter::Nearest:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            break;
+    }
+    glBindTexture(GL_TEXTURE_2D, old_texture);
+}
+
 void Texture2D::Initialize() {
     ScriptObjectWrap::Initialize();
     SetAccessor("channels", GetChannels, NULL);
     SetAccessor("width", GetWidth, NULL);
     SetAccessor("height", GetHeight, NULL);
+    SetAccessor("filter", NULL, ::SetFilter);
     SetFunction("getData", ::GetData);
 }
 

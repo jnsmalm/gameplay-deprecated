@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2.2)
 
 project(play)
 
-set (GAMEPLAY_VERSION "0.3.0")
+set (GAMEPLAY_VERSION "0.4.0")
 
 set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
@@ -126,7 +126,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 add_subdirectory(deps/glfw)
 add_subdirectory(deps/glew)
 add_subdirectory(deps/freetype)
-add_subdirectory(deps/openal)
+add_subdirectory(deps/openal-soft)
 add_subdirectory(deps/efsw)
 
 include_directories(
@@ -135,7 +135,7 @@ include_directories(
   deps/freetype/include
   deps/rlutil
   deps/rapidjson
-  deps/openal/include
+  deps/openal-soft/include
   deps/stb
   deps/v8/include
   src

@@ -72,6 +72,4 @@ md build
 cd build
 cmake .. -G "Visual Studio 12 2013"
 ```
-If an error occur saying something like "Cannot find source file: 
-CheckFileOffsetBits.c", try running the cmake command again. Open the created
-Visual Studio solution and build as usual.
+Open the created Visual Studio solution and build as usual.

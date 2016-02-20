@@ -105,7 +105,7 @@ class Player extends $.Entity {
     }
     // The player has landed on a platform, respond to the collision and reset 
     // the jumping flags.
-    this.rigidBody.handleCollision(collider.rigidBody, mtv);
+    $.RigidBody.handleCollision(this.rigidBody, collider.rigidBody, mtv);
     this.isJumping = false;
     this.isDoubleJumping = false;
   }

@@ -63,6 +63,7 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
 
     glfwMakeContextCurrent(glfwWindow_);
     glfwSwapInterval(1);
+    glViewport(0, 0, width_, height_);
 
     glewExperimental = GL_TRUE;
     if (glewInit() == GLEW_OK) {

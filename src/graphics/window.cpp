@@ -50,8 +50,7 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
 
     glfwSetFramebufferSizeCallback(
             glfwWindow_, [](GLFWwindow* window, int width, int height) {
-        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        glViewport(0, 0, mode->width, mode->height);
+        glViewport(0, 0, width, height);
     });
 
     if (monitor) {

@@ -71,10 +71,13 @@ public:
         // Another thread will be adding events to the list, make sure it
         // doesn't interfere with this.
         eventLock_.lock();
+        // Store the number of handlers currently available. This prevents a
+        // crash if the handler is creating a new FileWatcher.
+        auto numberOfHandlers = handlers_.size();
         for (auto e: events_) {
-            for (auto h: handlers_) {
-                if (h->filename() == e) {
-                    h->Handle();
+            for (int i=0; i<numberOfHandlers; i++) {
+                if (handlers_[i]->filename() == e) {
+                    handlers_[i]->Handle();
                 }
             }
         }

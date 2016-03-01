@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ SOFTWARE.*/
 
 #include <string>
 #include <assert.h>
+#include <regex>
 #include <stdio.h>  /* defines FILENAME_MAX */
 #ifdef WIN32
 #include <direct.h>
@@ -40,7 +41,8 @@ class PathHelper {
 
 public:
     static std::string Normalize(std::string filepath) {
-        std::string result = filepath;
+        std::regex backslash("\\\\");
+        std::string result = std::regex_replace(filepath, backslash, "/");
         while (result.find("../", 2) != std::string::npos) {
             auto pos = result.find("../", 2);
             auto end = result.rfind("/", pos - 1);
@@ -62,7 +64,7 @@ public:
         if (index == std::string::npos) {
             return "";
         }
-        return filepath.substr(0, index + 0);
+        return PathHelper::Normalize(filepath.substr(0, index + 0));
     }
 
     static std::string GetFileName(std::string filepath) {
@@ -80,7 +82,7 @@ public:
         {
             throw std::runtime_error("Failed to get current directory.");
         }
-        return std::string(currentPath);
+        return PathHelper::Normalize(std::string(currentPath));
     }
 
     static std::string Append(std::vector<std::string> paths) {

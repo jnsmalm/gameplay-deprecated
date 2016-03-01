@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -67,13 +67,12 @@ void ScriptGlobal::Require(const v8::FunctionCallbackInfo<v8::Value>& args) {
     try {
         auto filepath = helper.GetString(args[0]);
         auto resolved = ScriptEngine::current().resolvePath(filepath);
-        auto normalized = PathHelper::Normalize(resolved);
-        if (moduleCache.count(normalized) == 1) {
-            args.GetReturnValue().Set(moduleCache[normalized]);
+        if (moduleCache.count(resolved) == 1) {
+            args.GetReturnValue().Set(moduleCache[resolved]);
             return;
         }
         auto result = ScriptEngine::current().Execute(filepath);
-        moduleCache[normalized].Reset(args.GetIsolate(), result);
+        moduleCache[resolved].Reset(args.GetIsolate(), result);
         args.GetReturnValue().Set(result);
     }
     catch (std::exception& ex) {

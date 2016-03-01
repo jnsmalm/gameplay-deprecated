@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -58,18 +58,18 @@ public:
     }
 
     std::string resolvePath(std::string filepath) {
+        std::string resolved;
         if (filepath.compare(0, 2, "./") == 0) {
             filepath.erase(0, 1);
         }
         if (filepath.compare(0, 1, "/") != 0) {
-            return PathHelper::Append({executionPath(),
-                                       filepath});
+            resolved = PathHelper::Append({executionPath(), filepath});
         }
         else {
-            return PathHelper::Append({executionPath(),
-                                       scriptPath(),
-                                       filepath});
+            resolved = PathHelper::Append(
+                    {executionPath(), scriptPath(), filepath});
         }
+        return PathHelper::Normalize(resolved);
     }
 
 private:

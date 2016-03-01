@@ -23,11 +23,11 @@ SOFTWARE.*/
 'use strict';
 
 var $ = require('/../../lib/import.js').library().include(
-  '/platform.js', 
-  '/player.js',
-  '/ground.js', 
-  '/content.js',
-  '/coin.js'
+  './platform.js', 
+  './player.js',
+  './ground.js', 
+  './content.js',
+  './coin.js'
 );
 
 $.Physics.gravity.y = -55;

@@ -23,9 +23,9 @@ SOFTWARE.*/
 'use strict';
 
 var $ = require('/../../lib/import.js').library().include(
-  '/box.js',
-  '/paddle.js',
-  '/ball.js'
+  './box.js',
+  './paddle.js',
+  './ball.js'
 );
 
 class Level extends $.Scene {

@@ -23,7 +23,7 @@ SOFTWARE.*/
 'use strict';
 
 var $ = require('/../../lib/import.js').library().include(
-  '/content.js'
+  './content.js'
 );
 
 class Coin extends $.Entity {

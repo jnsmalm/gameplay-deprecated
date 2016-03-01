@@ -60,10 +60,12 @@ public:
     std::string resolvePath(std::string filepath) {
         std::string resolved;
         if (filepath.compare(0, 2, "./") == 0) {
-            filepath.erase(0, 1);
+            resolved = PathHelper::Append(
+                    {executionPath(), scriptPath(), filepath.substr(2)});
         }
-        if (filepath.compare(0, 1, "/") != 0) {
-            resolved = PathHelper::Append({executionPath(), filepath});
+        else if (filepath.compare(0, 1, "/") == 0) {
+            resolved = PathHelper::Append(
+                    {executionPath(), filepath.substr(1)});
         }
         else {
             resolved = PathHelper::Append(

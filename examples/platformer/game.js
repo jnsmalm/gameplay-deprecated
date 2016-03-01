@@ -23,8 +23,8 @@ SOFTWARE.*/
 'use strict';
 
 var $ = require('/../../lib/import.js').library().include(
-  '/content.js',
-  '/level.js'
+  './content.js',
+  './level.js'
 );
 
 var game = new $.Game({

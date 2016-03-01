@@ -23,7 +23,7 @@ SOFTWARE.*/
 'use strict';
 
 var $ = require('/../../lib/import.js').library().include(
-  '/box.js'
+  './box.js'
 );
 
 class Paddle extends $.Entity {

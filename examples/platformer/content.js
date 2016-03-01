@@ -27,19 +27,19 @@ var $ = require('/../../lib/import.js').library();
 class Content {
   load() {
     this.buffers = {
-      bounce: new SoundBuffer('/content/sounds/bounce.wav'),
-      coin: new SoundBuffer('/content/sounds/coin.wav')
+      bounce: new SoundBuffer('./content/sounds/bounce.wav'),
+      coin: new SoundBuffer('./content/sounds/coin.wav')
     };
     this.textures = {
-      dirt: new Texture2D('/content/graphics/dirt.png'),
-      grass: new Texture2D('/content/graphics/grass.png'),
-      jump: new Texture2D('/content/graphics/jump.png'),
-      idle: new Texture2D('/content/graphics/idle.png'),
-      walk: new Texture2D('/content/graphics/walk.png'),
-      coin: new Texture2D('/content/graphics/coin.png'),
-      platform: new Texture2D('/content/graphics/platform.png'),
-      sky: new Texture2D('/content/graphics/sky.png'),
-      clouds: new Texture2D('/content/graphics/clouds.png')
+      dirt: new Texture2D('./content/graphics/dirt.png'),
+      grass: new Texture2D('./content/graphics/grass.png'),
+      jump: new Texture2D('./content/graphics/jump.png'),
+      idle: new Texture2D('./content/graphics/idle.png'),
+      walk: new Texture2D('./content/graphics/walk.png'),
+      coin: new Texture2D('./content/graphics/coin.png'),
+      platform: new Texture2D('./content/graphics/platform.png'),
+      sky: new Texture2D('./content/graphics/sky.png'),
+      clouds: new Texture2D('./content/graphics/clouds.png')
     };
     this.sheets = {
       idle: new $.SpriteSheet({ 

@@ -151,10 +151,7 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
     }
 
     if (filepath.compare(0, 2, "./") == 0) {
-        filepath.erase(0, 1);
-    }
-    if (filepath.compare(0, 1, "/") == 0) {
-        filepath.erase(0, 1);
+        filepath.erase(0, 2);
     }
     int index = filepath.find_last_of("\\/");
     if (index == std::string::npos) {

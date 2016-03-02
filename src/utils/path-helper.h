@@ -64,7 +64,7 @@ public:
         if (index == std::string::npos) {
             return "";
         }
-        return PathHelper::Normalize(filepath.substr(0, index + 0));
+        return filepath.substr(0, index + 1);
     }
 
     static std::string GetFileName(std::string filepath) {
@@ -96,7 +96,7 @@ public:
                     paths[i].erase(0, 1);
                 }
             }
-            if (i < paths.size() - 1) {
+            if (paths[i].length() > 0) {
                 if (paths[i].compare(paths[i].length()-1, 1, "/") == 0 ||
                     paths[i].compare(paths[i].length()-1, 1, "\\") == 0) {
                     paths[i].erase(paths[i].length()-1, 1);

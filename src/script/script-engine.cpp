@@ -98,6 +98,7 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
 
     executionPath_ = PathHelper::Append(
             {PathHelper::Current(), PathHelper::GetPath(filename)});
+
     filename = PathHelper::GetFileName(filename);
 
     bool debug = false;
@@ -153,13 +154,11 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
     if (filepath.compare(0, 2, "./") == 0) {
         filepath.erase(0, 2);
     }
-    int index = filepath.find_last_of("\\/");
-    if (index == std::string::npos) {
-        scriptPath_.push_back("");
+    if (filepath.compare(0, 1, "/") == 0) {
+        filepath.erase(0, 1);
     }
-    else {
-        scriptPath_.push_back(filepath.substr(0, index + 1));
-    }
+    auto p = PathHelper::GetPath(filepath);
+    scriptPath_.push_back(p);
 
     // The result from the running script is a function that defines the local
     // scope for the script.

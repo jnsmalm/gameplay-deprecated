@@ -53,8 +53,7 @@ public:
         if (scriptPath_.empty()) {
             return "";
         }
-        return std::accumulate(scriptPath_.begin(), scriptPath_.end(),
-                               std::string(""));
+        return PathHelper::Append(scriptPath_);
     }
 
     std::string resolvePath(std::string filepath) {

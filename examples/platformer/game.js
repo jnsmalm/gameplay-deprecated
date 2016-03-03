@@ -27,30 +27,22 @@ var $ = require('/../../lib/import.js').library().include(
   './level.js'
 );
 
-var game = new $.Game({
-  fullscreen: false
-});
-
-// Load all the content used by the game.
-$.Content.load();
-
-// Start the file watcher so the level can be edited in runtime.
-FileWatcher.start();
-
-// Create and load the level.
-var level = new $.Level('/content/level.json');
-
-game.update = function(elapsed) {
-  if ($.Game.keyboard.isKeyDown($.Keys.escape)) {
-    game.exit();
+class PlatformGame extends $.EditableGame {
+  constructor() {
+    super();
+    // Load all the content used by the game.
+    $.Content.load();
+    // Create and load the level.
+    this.scene = new $.Level('/content/level.json');
   }
-  level.update(elapsed);
-  FileWatcher.handleEvents();
-};
 
-game.draw = function() {
-  level.draw();
-};
+  update(elapsed) {
+    if ($.Game.keyboard.isKeyDown($.Keys.escape)) {
+      this.exit();
+    }
+    super.update(elapsed);
+  }
+}
 
-game.run();
+new PlatformGame().run();
 

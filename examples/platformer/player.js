@@ -26,9 +26,19 @@ var $ = require('/../../lib/import.js').library().include(
   './content.js'
 );
 
+var editable = new $.EditableModule(module);
+
 class Player extends $.Entity {
   constructor(colliders) {
     super();
+    this.colliders = colliders;
+    editable.setup(this);
+  }
+
+  setup() {
+    // Clear before adding components so we don't accumulate them when the 
+    // module is modified.
+    this.components.length = 0;
 
     this.bounceSound = new SoundSource($.Content.buffers.bounce);
     this.coinSound = new SoundSource($.Content.buffers.coin);
@@ -37,7 +47,7 @@ class Player extends $.Entity {
     // it more easy to respond to collision with the platforms.
     this.rigidBody = this.addRigidBody({ 
       enableGravity: true, 
-      bounciness: 0.0001 
+      bounciness: 0.0001
     });
 
     // Adds the sprite for the player, default it's set to the first frame of 
@@ -46,12 +56,17 @@ class Player extends $.Entity {
     this.sprite.source = $.Content.sheets.idle.getFrameSource(0);
     this.sprite.pixelsPerUnit = 10;
 
+    if (this.collider) {
+      // Remove from collider if it already exists.
+      this.colliders.splice(this.colliders.indexOf(this.collider), 1);
+    }
+
     // Adds a box collider so we can detect collision with other objects. The 
     // size width is set to be a bit smaller than the actual sprite width.
-    var collider = this.addBoxCollider(
+    this.collider = this.addBoxCollider(
       new $.Vector3(this.sprite.width/2, this.sprite.height, 0));
-    collider.onCollision = this.onCollision.bind(this);
-    colliders.push(collider);
+    this.collider.onCollision = this.onCollision.bind(this);
+    this.colliders.push(this.collider);
 
     // The player controller makes the player walk and jump.
     this.components.push(new PlayerController(this));

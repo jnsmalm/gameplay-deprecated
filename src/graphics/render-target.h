@@ -20,66 +20,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef GAMEPLAY_TEXTURE2D_H
-#define GAMEPLAY_TEXTURE2D_H
+#ifndef GAMEPLAY_RENDERTARGET_H
+#define GAMEPLAY_RENDERTARGET_H
 
 #include <gl/glew.h>
 #include "v8.h"
-#include <string>
 #include <script/script-object-wrap.h>
+#include "texture2d.h"
 #include <vector>
 
-enum class TextureFilter {
-    Linear,
-    Nearest,
-};
-
-class Texture2D : public ScriptObjectWrap<Texture2D> {
+class RenderTarget : public ScriptObjectWrap<RenderTarget> {
 
 public:
-    Texture2D(v8::Isolate* isolate, std::string filename);
-    Texture2D(v8::Isolate* isolate, int width, int height,
-              GLenum internalFormat, GLenum format, GLenum type);
-    ~Texture2D();
-
-    void GetData(float* pixels);
-    void SetData(std::vector<float> pixels);
-    void SetFilter(TextureFilter filter);
+    RenderTarget(v8::Isolate* isolate, std::vector<Texture2D*> textures);
+    ~RenderTarget();
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    int channels() {
-        return channels_;
-    }
-
-    int width() {
-        return width_;
-    }
-
-    int height() {
-        return height_;
-    }
-
-    GLuint glTexture() {
-        return glTexture_;
+    GLuint framebuffer() {
+        return glFramebuffer_;
     }
 
 protected:
     virtual void Initialize() override;
 
 private:
-    static void GetWidth(v8::Local<v8::String> name,
-                         const v8::PropertyCallbackInfo<v8::Value>& args);
-    static void GetHeight(v8::Local<v8::String> name,
-                          const v8::PropertyCallbackInfo<v8::Value>& args);
-
-    GLuint glTexture_;
-    GLenum glInternalFormat_;
-    GLenum glFormat_;
-    GLenum glType_;
-    int width_;
-    int height_;
-    int channels_;
+    GLuint glFramebuffer_;
+    GLuint glDepthRenderBuffer_;
 };
 
-#endif // GAMEPLAY_TEXTURE2D_H
+#endif // GAMEPLAY_RENDERTARGET_H

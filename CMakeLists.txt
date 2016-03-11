@@ -54,6 +54,8 @@ set (JSPLAY_SRCS
         src/graphics/texture2d.cpp
         src/graphics/texture-font.h
         src/graphics/texture-font.cpp
+        src/graphics/render-target.h
+        src/graphics/render-target.cpp
         src/graphics/shader
         src/graphics/shader-program.h
         src/graphics/shader-program.cpp

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ SOFTWARE.*/
 
 #include <script/script-object-wrap.h>
 #include "texture-collection.h"
+#include "render-target.h"
 
 enum class PrimitiveType {
     TriangleList,
@@ -81,6 +82,7 @@ public:
     void SetSynchronizeWithVerticalRetrace(bool value);
     void SetTexture(int index, Texture2D* texture);
     void SetVertexDataState(VertexDataState *vertexDataState);
+    void SetRenderTarget(RenderTarget *renderTarget);
     void SetBlendState(BlendState state);
     void SetDepthState(DepthState state);
     void SetStencilState(StencilState state);

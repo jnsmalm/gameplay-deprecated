@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,8 @@ TextureFont::TextureFont(v8::Isolate *isolate, std::string filename, int size,
                        std::string chars) : ScriptObjectWrap(isolate),
                                             glyphs_(isolate) {
 
-    texture_ = new Texture2D(isolate, 1024, 1024, GL_RED);
+    texture_ = new Texture2D(
+            isolate, 1024, 1024, GL_RED, GL_RED, GL_UNSIGNED_BYTE);
     texture_->InstallAsObject("texture", this->v8Object());
     glyphs_.InstallAsObject("glyphs", this->v8Object());
 

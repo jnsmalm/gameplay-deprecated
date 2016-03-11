@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@ SOFTWARE.*/
 #include <script/scripthelper.h>
 #include <script/script-engine.h>
 #include <script/scriptobjecthelper.h>
+#include <iostream>
 #include "graphics-device.h"
 #include "vertex-declaration.h"
 #include "window.h"
@@ -39,6 +40,19 @@ void SetVertexDataState(const FunctionCallbackInfo<Value>& args) {
     auto vertexBuffer = helper.GetObject<VertexDataState>(args[0]);
     helper.GetObject<GraphicsDevice>(args.Holder())->
             SetVertexDataState(vertexBuffer);
+}
+
+void SetRenderTarget(const FunctionCallbackInfo<Value>& argsconst FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto graphicsDevice = helper.GetObject<GraphicsDevice>(args.Holder());
+    if (args[0]->IsNull()) {
+        graphicsDevice->SetRenderTarget(nullptr);
+    }
+    else {
+        auto renderTarget = helper.GetObject<RenderTarget>(args[0]);
+        graphicsDevice->SetRenderTarget(renderTarget);
+    }
 }
 
 void SetBlendState(const FunctionCallbackInfo<Value>& args) {
@@ -262,6 +276,15 @@ void GraphicsDevice::SetVertexDataState(VertexDataState *vertexDataState) {
     vertexDataState_ = vertexDataState;
 }
 
+void GraphicsDevice::SetRenderTarget(RenderTarget *renderTarget) {
+    if (renderTarget == nullptr) {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    else {
+        glBindFramebuffer(GL_FRAMEBUFFER, renderTarget->framebuffer());
+    }
+}
+
 void GraphicsDevice::SetBlendState(BlendState state) {
     switch (state) {
         case BlendState::Additive: {
@@ -355,6 +378,7 @@ void GraphicsDevice::Initialize() {
     SetFunction("setSynchronizeWithVerticalRetrace",
                 SetSynchronizeWithVerticalRetrace);
     SetFunction("setVertexDataState", ::SetVertexDataState);
+    SetFunction("setRenderTarget", ::SetRenderTarget);
     SetFunction("setBlendState", ::SetBlendState);
     SetFunction("setDepthState", ::SetDepthState);
     SetFunction("setStencilState", ::SetStencilState);

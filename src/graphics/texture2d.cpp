@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +44,8 @@ GLenum GetTextureFormat(int channels) {
         case 2: return GL_LUMINANCE_ALPHA;
         case 3: return GL_RGB;
         case 4: return GL_RGBA;
+        default:
+            throw std::runtime_error("Texture2D: Unknown number of channels.");
     }
 }
 
@@ -67,12 +69,29 @@ void GetData(const FunctionCallbackInfo<Value>& args) {
     texture->GetData(pixels);
 
     auto array = v8::Array::New(args.GetIsolate(), size);
-    for (int i=0; i<size; i++) {
+    for (uint32_t i=0; i<size; i++) {
         array->Set(i, v8::Number::New(args.GetIsolate(), pixels[i]));
     }
     delete[] pixels;
 
     args.GetReturnValue().Set(array);
+}
+
+void SetData(const FunctionCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto texture = helper.GetObject<Texture2D>(args.Holder());
+    int size = texture->width() * texture->height() * texture->channels();
+
+    std::vector<float> pixels;
+
+    auto array = v8::Handle<v8::Array>::Cast(args[0]);
+    for (int i=0; i<array->Length(); i++) {
+        pixels.push_back(array->Get(i)->NumberValue());
+    }
+
+    texture->SetData(pixels);
 }
 
 void SetFilter(Local<String> name, Local<Value> value,
@@ -118,10 +137,15 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
 
     glBindTexture(GL_TEXTURE_2D, old_texture);
 
+    glFormat_ = GetTextureFormat(channels_);
+    glInternalFormat_ = GetTextureFormat(channels_);
+    glType_ = GL_UNSIGNED_BYTE;
+
     stbi_image_free(image);
 }
 
-Texture2D::Texture2D(Isolate* isolate, int width, int height, GLenum format) :
+Texture2D::Texture2D(Isolate* isolate, int width, int height,
+                     GLenum internalFormat, GLenum format, GLenum type) :
         ScriptObjectWrap(isolate) {
 
     Window::EnsureCurrentContext();
@@ -132,10 +156,13 @@ Texture2D::Texture2D(Isolate* isolate, int width, int height, GLenum format) :
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
     glGenTextures(1, &glTexture_);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                 GL_UNSIGNED_BYTE, &empty[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format,
+                 type, &empty[0]);
     glBindTexture(GL_TEXTURE_2D, old_texture);
 
+    glFormat_ = format;
+    glInternalFormat_ = internalFormat;
+    glType_ = type;
     width_ = width;
     height_ = height;
 }
@@ -152,6 +179,16 @@ void Texture2D::GetData(float* pixels) {
     glGetTexImage(GL_TEXTURE_2D, 0,
                   GetTextureFormat(channels_), GL_FLOAT, pixels);
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glBindTexture(GL_TEXTURE_2D, old_texture);
+    assert(glGetError() == GL_NO_ERROR);
+}
+
+void Texture2D::SetData(std::vector<float> pixels) {
+    GLint old_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+    glBindTexture(GL_TEXTURE_2D, glTexture_);
+    glTexImage2D(GL_TEXTURE_2D, 0, glInternalFormat_, width_, height_, 0,
+                 glFormat_, glType_, &pixels[0]);
     glBindTexture(GL_TEXTURE_2D, old_texture);
     assert(glGetError() == GL_NO_ERROR);
 }
@@ -180,16 +217,59 @@ void Texture2D::Initialize() {
     SetAccessor("height", GetHeight, NULL);
     SetAccessor("filter", NULL, ::SetFilter);
     SetFunction("getData", ::GetData);
+    SetFunction("setData", ::SetData);
 }
 
 void Texture2D::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto filepath = ScriptEngine::current().resolvePath(
-            helper.GetString(args[0]));
+
     try {
-        auto texture = new Texture2D(args.GetIsolate(), filepath);
-        args.GetReturnValue().Set(texture->v8Object());
+        if (args[0]->IsString()) {
+            auto filepath = ScriptEngine::current().resolvePath(
+                    helper.GetString(args[0]));
+            auto texture = new Texture2D(args.GetIsolate(), filepath);
+            args.GetReturnValue().Set(texture->v8Object());
+        } else {
+            auto width = helper.GetInteger(args[0]);
+            auto height = helper.GetInteger(args[1]);
+
+            // Note that there is "internal format" and "format, type". GL will
+            // convert from "format, type" to "internal format" as required.
+            // You can give it RGBA data and tell it to use it as luminance if
+            // you want; in that case it will use the R channel and ignore GBA
+            auto options = helper.GetObject(args[2]);
+            auto internalFormat =
+                    helper.GetString(options, "internalFormat", "rgb");
+            auto format = helper.GetString(options, "format", "rgb");
+
+            GLenum glInternalFormat;
+            if (internalFormat == "rgb") {
+                glInternalFormat = GL_RGB;
+            } else if (internalFormat == "rgb16f") {
+                glInternalFormat = GL_RGB16F;
+            } else if (internalFormat == "rgba16f") {
+                glInternalFormat = GL_RGBA16F;
+            } else if (internalFormat == "red") {
+                glInternalFormat = GL_RED;
+            } else {
+                throw std::runtime_error("Texture2D: Unknown internal format.");
+            }
+
+            GLenum glFormat;
+            if (format == "rgb") {
+                glFormat = GL_RGB;
+            } else if (format == "rgba") {
+                glFormat = GL_RGBA;
+            } else {
+                throw std::runtime_error("Texture2D: Unknown format.");
+            }
+
+            auto texture = new Texture2D(
+                    args.GetIsolate(), width, height, glInternalFormat,
+                    glFormat, GL_FLOAT);
+            args.GetReturnValue().Set(texture->v8Object());
+        }
     }
     catch (std::exception& ex) {
         ScriptEngine::current().ThrowTypeError(ex.what());

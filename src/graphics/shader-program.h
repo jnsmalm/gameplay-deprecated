@@ -41,7 +41,7 @@ public:
 
     // TODO: Move uniform setters to UniformCollection
     void SetUniformFloat(std::string name, float value);
-    void SetUniformInteger(std::string name, int value);
+    bool SetUniformInteger(std::string name, int value);
     void SetUniformMatrix4(std::string name, GLfloat *value);
     void SetUniformVector2(std::string name, GLfloat *value);
     void SetUniformVector3(std::string name, GLfloat *value);

@@ -25,7 +25,6 @@ SOFTWARE.*/
 #include "graphics/window.h"
 #include "script/scripthelper.h"
 #include <script/script-engine.h>
-#include "graphics-device.h"
 
 using namespace v8;
 
@@ -80,11 +79,13 @@ void ShaderProgram::SetUniformFloat(std::string name, float value) {
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
 }
 
-void ShaderProgram::SetUniformInteger(std::string name, int value) {
+bool ShaderProgram::SetUniformInteger(std::string name, int value) {
     auto oldShaderProgram = graphicsDevice_->shaderProgram();
     graphicsDevice_->SetShaderProgram(this);
     glUniform1i(GetUniformLocation(name), value);
+    auto error = glGetError();
     graphicsDevice_->SetShaderProgram(oldShaderProgram);
+    return error == GL_NO_ERROR;
 }
 
 void ShaderProgram::SetUniformMatrix4(std::string name, float *value) {
@@ -174,7 +175,14 @@ void ShaderProgram::SetUniformValue(
             delete[] data;
         }
         else if (value->IsInt32()) {
-            self->SetUniformInteger(str, value->Int32Value());
+            // JavaScript can't distinguish between an integer (e.g. 32) and a
+            // float (e.g. 32.0). So if it looks like an integer we try to set
+            // the uniform as an integer, if it fails we instead set it as a
+            // float.
+            if (!self->SetUniformInteger(str, value->Int32Value())) {
+                self->SetUniformFloat(
+                        str, static_cast<float>(value->NumberValue()));
+            }
         }
         else if (value->IsNumber()) {
             self->SetUniformFloat(str, static_cast<float>(value->NumberValue()));

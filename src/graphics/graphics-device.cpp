@@ -42,7 +42,7 @@ void SetVertexDataState(const FunctionCallbackInfo<Value>& args) {
             SetVertexDataState(vertexBuffer);
 }
 
-void SetRenderTarget(const FunctionCallbackInfo<Value>& argsconst FunctionCallbackInfo<Value>& args) {
+void SetRenderTarget(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
     auto graphicsDevice = helper.GetObject<GraphicsDevice>(args.Holder());

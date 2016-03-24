@@ -150,14 +150,12 @@ Texture2D::Texture2D(Isolate* isolate, int width, int height,
 
     Window::EnsureCurrentContext();
 
-    std::vector<GLubyte> empty(width * height * 4, 0);
-
     GLint old_texture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
     glGenTextures(1, &glTexture_);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format,
-                 type, &empty[0]);
+                 type, 0);
     glBindTexture(GL_TEXTURE_2D, old_texture);
 
     glFormat_ = format;

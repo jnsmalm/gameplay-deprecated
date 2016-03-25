@@ -3,18 +3,19 @@ var $ = require('/../lib/import.js').library();
 
 var game = new $.Game();
 
-$.Model.init(game.window);
+// Create a shader which is used when drawing the model.
+var shader = new $.BasicShader(game.window);
 
-var model = $.Model.load('/assets/suzanne.json');
+var model = $.Model.load('./assets/suzanne.json', shader);
 model.transform.scale(0.5, 0.5, 0.5);
 
 game.update = function() {
   model.transform.rotate(0, 0.01, 0);
+  // Update camera and lights.
+  shader.update();
 };
 
 game.draw = function() {
-  // Camera and lights need to be updated when changed.
-  $.Model.updateCameraAndLights();
   model.draw();
 };
 

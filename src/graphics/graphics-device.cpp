@@ -25,9 +25,9 @@ SOFTWARE.*/
 #include <script/scriptobjecthelper.h>
 #include <iostream>
 #include "graphics-device.h"
-#include "vertex-declaration.h"
 #include "window.h"
 #include "vertex-data-state.h"
+#include "shader-program.h"
 #include "texture2d.h"
 
 using namespace v8;

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,8 @@ SOFTWARE.*/
 
 #include <gl/glew.h>
 #include <script/script-object-wrap.h>
-#include "vertex-declaration.h"
 #include <assert.h>
+#include "graphics-device.h"
 
 enum class BufferUsage {
     Static,
@@ -34,16 +34,20 @@ enum class BufferUsage {
     Stream,
 };
 
+struct VertexElement {
+    int size;
+    int offset;
+};
+
 class VertexDataState : public ScriptObjectWrap<VertexDataState> {
 
 public:
-    VertexDataState(v8::Isolate *isolate, GraphicsDevice* graphicsDevice);
+    VertexDataState(v8::Isolate *isolate, GraphicsDevice* graphicsDevice,
+                    std::vector<VertexElement> elements);
     ~VertexDataState();
 
     void SetVertices(float *vertices, size_t size, BufferUsage usage);
     void SetIndices(int *indices, size_t size, BufferUsage usage);
-    void SetVertexDeclaration(VertexDeclaration *declaration,
-                              ShaderProgram *program);
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
@@ -55,6 +59,8 @@ protected:
     virtual void Initialize() override;
 
 private:
+    void SetupVertexDeclaration(std::vector<VertexElement> elements);
+
     GraphicsDevice* graphicsDevice_;
     GLuint glVertexArray_;
     GLuint glVertexBuffer_;

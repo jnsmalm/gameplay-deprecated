@@ -28,6 +28,7 @@ SOFTWARE.*/
 #include <utils/timer.h>
 #include <graphics/texture-font.h>
 #include <graphics/vertex-data-state.h>
+#include <graphics/shader-program.h>
 #include <utils/path-helper.h>
 #include <utils/file-watcher.h>
 #include <utils/number-array.h>

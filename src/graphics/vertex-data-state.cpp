@@ -98,61 +98,20 @@ void SetIndices(const FunctionCallbackInfo<Value> &args) {
     }
 }
 
-void SetVertexDeclaration(const FunctionCallbackInfo<Value> &args) {
-    HandleScope scope(args.GetIsolate());
-    ScriptHelper helper(args.GetIsolate());
-
-    Handle<Array> array = Handle<Array>::Cast(args[0]);
-    auto vertexDeclaration = new VertexDeclaration();
-
-    try {
-        for (int i = 0; i < array->Length(); i++) {
-            auto obj = array->Get(i)->ToObject();
-            auto name = helper.GetString(obj, "name");
-            auto type = helper.GetString(obj, "type");
-            if (type == "float") {
-                vertexDeclaration->AddElement(name, 1, 4);
-            }
-            else if (type == "vec2") {
-                vertexDeclaration->AddElement(name, 2, 8);
-            }
-            else if (type == "vec3") {
-                vertexDeclaration->AddElement(name, 3, 12);
-            }
-            else if (type == "vec4") {
-                vertexDeclaration->AddElement(name, 4, 16);
-            }
-            else if (type == "mat4") {
-                vertexDeclaration->AddElement(name, 16, 64);
-            }
-            else {
-                throw std::runtime_error(
-                        "Can't set vertex declaration type to '" + type + "'.");
-            }
-        }
-        auto shaderProgram = helper.GetObject<ShaderProgram>(args[1]);
-        auto self = helper.GetObject<VertexDataState>(args.Holder());
-        self->SetVertexDeclaration(vertexDeclaration, shaderProgram);
-    }
-    catch (std::exception &err) {
-        ScriptEngine::current().ThrowTypeError(err.what());
-    }
-}
-
 GLenum GetGLUsage(BufferUsage usage) {
     switch (usage) {
         case BufferUsage::Static: return GL_STATIC_DRAW;
         case BufferUsage::Dynamic: return GL_DYNAMIC_DRAW;
         case BufferUsage::Stream: return GL_STREAM_DRAW;
-        default: return GL_STATIC_DRAW;
     }
 }
 
 }
 
 VertexDataState::VertexDataState(
-        v8::Isolate *isolate, GraphicsDevice* graphicsDevice)
-        : ScriptObjectWrap(isolate), graphicsDevice_(graphicsDevice) {
+        v8::Isolate *isolate, GraphicsDevice* graphicsDevice,
+        std::vector<VertexElement> elements) :
+        ScriptObjectWrap(isolate), graphicsDevice_(graphicsDevice) {
 
     // A Vertex Array Object (VAO) is an OpenGL Object that stores all of the
     // state needed to supply vertex data. It stores the format of the vertex
@@ -163,6 +122,8 @@ VertexDataState::VertexDataState(
     glGenBuffers(1, &glVertexBuffer_);
     glGenBuffers(1, &glElementBuffer_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glElementBuffer_);
+    glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer_);
+    SetupVertexDeclaration(elements);
     glBindVertexArray(0);
 }
 
@@ -194,28 +155,66 @@ void VertexDataState::SetIndices(
     graphicsDevice_->SetVertexDataState(old);
 }
 
-void VertexDataState::SetVertexDeclaration(
-        VertexDeclaration *declaration, ShaderProgram *program) {
+void VertexDataState::SetupVertexDeclaration(
+        std::vector<VertexElement> elements) {
 
-    auto old = graphicsDevice_->vertexDataState();
-    graphicsDevice_->SetVertexDataState(this);
-    glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer_);
-    declaration->Setup(program);
-    graphicsDevice_->SetVertexDataState(old);
+    int stride = 0;
+    for (auto element : elements) {
+        stride += element.offset;
+    }
+    int location = 0;
+    int offset = 0;
+    for (auto element : elements) {
+        glEnableVertexAttribArray(location);
+        glVertexAttribPointer(location, element.size, GL_FLOAT, GL_FALSE,
+                              stride, (GLvoid *)offset);
+        offset += element.offset;
+        location++;
+    }
 }
 
 void VertexDataState::Initialize() {
     ScriptObjectWrap::Initialize();
     SetFunction("setVertices", ::SetVertices);
     SetFunction("setIndices", ::SetIndices);
-    SetFunction("setVertexDeclaration", ::SetVertexDeclaration);
 }
 
 void VertexDataState::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
+
     auto graphicsDevice = helper.GetObject<GraphicsDevice>(args[0]);
-    auto vertexDataState = new VertexDataState(
-            args.GetIsolate(), graphicsDevice);
-    args.GetReturnValue().Set(vertexDataState->v8Object());
+    Handle<Array> array = Handle<Array>::Cast(args[1]);
+
+    try {
+        auto elements = std::vector<VertexElement>();
+        for (uint32_t i = 0; i < array->Length(); i++) {
+            auto type = helper.GetString(array->Get(i));
+            if (type == "float") {
+                elements.push_back(VertexElement { 1, 4 });
+            }
+            else if (type == "vec2") {
+                elements.push_back(VertexElement { 2, 8 });
+            }
+            else if (type == "vec3") {
+                elements.push_back(VertexElement { 3, 12 });
+            }
+            else if (type == "vec4") {
+                elements.push_back(VertexElement { 4, 16 });
+            }
+            else if (type == "mat4") {
+                elements.push_back(VertexElement { 16, 64 });
+            }
+            else {
+                throw std::runtime_error(
+                        "Can't set vertex declaration type to '" + type + "'.");
+            }
+        }
+        auto vertexDataState = new VertexDataState(
+                args.GetIsolate(), graphicsDevice, elements);
+        args.GetReturnValue().Set(vertexDataState->v8Object());
+    }
+    catch (std::exception &err) {
+        ScriptEngine::current().ThrowTypeError(err.what());
+    }
 }

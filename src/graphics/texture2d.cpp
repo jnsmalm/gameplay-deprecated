@@ -31,6 +31,20 @@ using namespace v8;
 
 namespace {
 
+void GetWidth(Local<String> name, const PropertyCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto self = helper.GetObject<Texture2D>(args.Holder());
+    args.GetReturnValue().Set(self->width());
+}
+
+void GetHeight(Local<String> name, const PropertyCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto self = helper.GetObject<Texture2D>(args.Holder());
+    args.GetReturnValue().Set(self->height());
+}
+
 void GetChannels(Local<String> name, const PropertyCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
@@ -94,8 +108,27 @@ void SetData(const FunctionCallbackInfo<Value>& args) {
     texture->SetData(pixels);
 }
 
+void GetFilter(Local<String> name,
+               const PropertyCallbackInfo<Value> &args) {
+
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto texture = helper.GetObject<Texture2D>(args.Holder());
+
+    switch (texture->filter()) {
+        case TextureFilter::Linear:
+            args.GetReturnValue().Set(
+                    String::NewFromUtf8(args.GetIsolate(), "linear"));
+            break;
+        case TextureFilter::Nearest:
+            args.GetReturnValue().Set(
+                    String::NewFromUtf8(args.GetIsolate(), "nearest"));
+            break;
+    }
+}
+
 void SetFilter(Local<String> name, Local<Value> value,
-               const PropertyCallbackInfo<void>& args) {
+               const PropertyCallbackInfo<void> &args) {
 
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
@@ -107,6 +140,49 @@ void SetFilter(Local<String> name, Local<Value> value,
     }
     else if (filter == "nearest") {
         texture->SetFilter(TextureFilter::Nearest);
+    }
+    else {
+        ScriptEngine::current().ThrowTypeError(
+                "Unknown texture filter '" + filter + "'.");
+    }
+}
+
+void GetWrap(Local<String> name,
+             const PropertyCallbackInfo<Value> &args) {
+
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto texture = helper.GetObject<Texture2D>(args.Holder());
+
+    switch (texture->wrap()) {
+        case TextureWrap::Repeat:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "repeat"));
+            break;
+        case TextureWrap::ClampToEdge:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "clampToEdge"));
+            break;
+    }
+}
+
+void SetWrap(Local<String> name, Local<Value> value,
+             const PropertyCallbackInfo<void>& args) {
+
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+
+    auto texture = helper.GetObject<Texture2D>(args.Holder());
+    auto wrap = helper.GetString(value);
+    if (wrap == "repeat") {
+        texture->SetWrap(TextureWrap::Repeat);
+    }
+    else if (wrap == "clampToEdge") {
+        texture->SetWrap(TextureWrap::ClampToEdge);
+    }
+    else {
+        ScriptEngine::current().ThrowTypeError(
+            "Unknown texture wrap '" + wrap + "'.");
     }
 }
 
@@ -128,8 +204,10 @@ Texture2D::Texture2D(Isolate* isolate, std::string filename) :
 
     glGenTextures(1, &glTexture_);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    SetFilter(TextureFilter::Linear);
+    SetWrap(TextureWrap::Repeat);
+
     glPixelStorei(GL_UNPACK_ALIGNMENT, GetImageAlignment(width_, channels_));
     glTexImage2D(GL_TEXTURE_2D, 0, GetTextureFormat(channels_), width_, height_,
                  0, GetTextureFormat(channels_), GL_UNSIGNED_BYTE, image);
@@ -152,8 +230,13 @@ Texture2D::Texture2D(Isolate* isolate, int width, int height,
 
     GLint old_texture;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+
     glGenTextures(1, &glTexture_);
     glBindTexture(GL_TEXTURE_2D, glTexture_);
+
+    SetFilter(TextureFilter::Linear);
+    SetWrap(TextureWrap::Repeat);
+
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format,
                  type, 0);
     glBindTexture(GL_TEXTURE_2D, old_texture);
@@ -205,15 +288,37 @@ void Texture2D::SetFilter(TextureFilter filter) {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             break;
     }
+    filter_ = filter;
+    glBindTexture(GL_TEXTURE_2D, old_texture);
+}
+
+void Texture2D::SetWrap(TextureWrap wrap) {
+    GLint old_texture;
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &old_texture);
+    glBindTexture(GL_TEXTURE_2D, glTexture_);
+    switch (wrap) {
+        case TextureWrap::Repeat:
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            break;
+        case TextureWrap::ClampToEdge:
+            glTexParameteri(
+                    GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(
+                    GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            break;
+    }
+    wrap_ = wrap;
     glBindTexture(GL_TEXTURE_2D, old_texture);
 }
 
 void Texture2D::Initialize() {
     ScriptObjectWrap::Initialize();
     SetAccessor("channels", GetChannels, NULL);
-    SetAccessor("width", GetWidth, NULL);
-    SetAccessor("height", GetHeight, NULL);
-    SetAccessor("filter", NULL, ::SetFilter);
+    SetAccessor("width", ::GetWidth, NULL);
+    SetAccessor("height", ::GetHeight, NULL);
+    SetAccessor("filter", ::GetFilter, ::SetFilter);
+    SetAccessor("wrap", ::GetWrap, ::SetWrap);
     SetFunction("getData", ::GetData);
     SetFunction("setData", ::SetData);
 }
@@ -272,18 +377,4 @@ void Texture2D::New(const FunctionCallbackInfo<Value>& args) {
     catch (std::exception& ex) {
         ScriptEngine::current().ThrowTypeError(ex.what());
     }
-}
-
-void Texture2D::GetWidth(
-        Local<String> name, const PropertyCallbackInfo<Value>& args) {
-    HandleScope scope(args.GetIsolate());
-    auto self = GetInternalObject(args.Holder());
-    args.GetReturnValue().Set(self->width());
-}
-
-void Texture2D::GetHeight(
-        Local<String> name, const PropertyCallbackInfo<Value>& args) {
-    HandleScope scope(args.GetIsolate());
-    auto self = GetInternalObject(args.Holder());
-    args.GetReturnValue().Set(self->height());
 }

@@ -30,56 +30,49 @@ SOFTWARE.*/
 #include <vector>
 
 enum class TextureFilter {
-    Linear,
-    Nearest,
+  Linear,
+  Nearest,
+};
+
+enum class TextureWrap {
+  Repeat,
+  ClampToEdge
 };
 
 class Texture2D : public ScriptObjectWrap<Texture2D> {
-
 public:
-    Texture2D(v8::Isolate* isolate, std::string filename);
-    Texture2D(v8::Isolate* isolate, int width, int height,
-              GLenum internalFormat, GLenum format, GLenum type);
-    ~Texture2D();
+  Texture2D(v8::Isolate* isolate, std::string filename);
+  Texture2D(v8::Isolate* isolate, int width, int height,
+            GLenum internalFormat, GLenum format, GLenum type);
+  ~Texture2D();
 
-    void GetData(float* pixels);
-    void SetData(std::vector<float> pixels);
-    void SetFilter(TextureFilter filter);
+  void GetData(float* pixels);
+  void SetData(std::vector<float> pixels);
+  void SetFilter(TextureFilter filter);
+  void SetWrap(TextureWrap wrap);
 
-    static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
-    int channels() {
-        return channels_;
-    }
-
-    int width() {
-        return width_;
-    }
-
-    int height() {
-        return height_;
-    }
-
-    GLuint glTexture() {
-        return glTexture_;
-    }
+  int channels() { return channels_; }
+  int width() { return width_; }
+  int height() { return height_; }
+  TextureFilter filter() { return filter_; }
+  TextureWrap wrap() { return wrap_; }
+  GLuint glTexture() { return glTexture_; }
 
 protected:
-    virtual void Initialize() override;
+  virtual void Initialize() override;
 
 private:
-    static void GetWidth(v8::Local<v8::String> name,
-                         const v8::PropertyCallbackInfo<v8::Value>& args);
-    static void GetHeight(v8::Local<v8::String> name,
-                          const v8::PropertyCallbackInfo<v8::Value>& args);
-
-    GLuint glTexture_;
-    GLenum glInternalFormat_;
-    GLenum glFormat_;
-    GLenum glType_;
-    int width_;
-    int height_;
-    int channels_;
+  GLuint glTexture_;
+  GLenum glInternalFormat_;
+  GLenum glFormat_;
+  GLenum glType_;
+  TextureFilter filter_;
+  TextureWrap wrap_;
+  int width_;
+  int height_;
+  int channels_;
 };
 
 #endif // GAMEPLAY_TEXTURE2D_H

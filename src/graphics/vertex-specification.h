@@ -39,15 +39,19 @@ struct VertexElement {
     int offset;
 };
 
-class VertexDataState : public ScriptObjectWrap<VertexDataState> {
+// Vertex Specification is the process of setting up the necessary objects for
+// rendering with a particular shader program, as well as the process of using
+// those objects to render.
+
+class VertexSpecification : public ScriptObjectWrap<VertexSpecification> {
 
 public:
-    VertexDataState(v8::Isolate *isolate, GraphicsDevice* graphicsDevice,
-                    std::vector<VertexElement> elements);
-    ~VertexDataState();
+    VertexSpecification(v8::Isolate *isolate, GraphicsDevice* graphicsDevice,
+                        std::vector<VertexElement> elements);
+    ~VertexSpecification();
 
-    void SetVertices(float *vertices, size_t size, BufferUsage usage);
-    void SetIndices(int *indices, size_t size, BufferUsage usage);
+    void SetVertexData(float *vertices, size_t size, BufferUsage usage);
+    void SetIndexData(int *indices, size_t size, BufferUsage usage);
 
     static void New(const v8::FunctionCallbackInfo<v8::Value>& args);
 

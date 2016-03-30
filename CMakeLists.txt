@@ -62,8 +62,8 @@ set (JSPLAY_SRCS
         src/graphics/window
         src/graphics/graphics-device.cpp
         src/graphics/graphics-device.h
-        src/graphics/vertex-data-state.cpp
-        src/graphics/vertex-data-state.h
+        src/graphics/vertex-specification.cpp
+        src/graphics/vertex-specification.h
         src/graphics/texture-collection.cpp
         src/graphics/texture-collection.h
         src/graphics/glyph-collection.h

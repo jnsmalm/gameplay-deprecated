@@ -26,7 +26,7 @@ SOFTWARE.*/
 #include <iostream>
 #include "graphics-device.h"
 #include "window.h"
-#include "vertex-data-state.h"
+#include "vertex-specification.h"
 #include "shader-program.h"
 #include "texture2d.h"
 
@@ -34,12 +34,12 @@ using namespace v8;
 
 namespace {
 
-void SetVertexDataState(const FunctionCallbackInfo<Value>& args) {
+void SetVertexSpecification(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
-    auto vertexBuffer = helper.GetObject<VertexDataState>(args[0]);
+    auto vertexSpec = helper.GetObject<VertexSpecification>(args[0]);
     helper.GetObject<GraphicsDevice>(args.Holder())->
-            SetVertexDataState(vertexBuffer);
+        SetVertexSpecification(vertexSpec);
 }
 
 void SetRenderTarget(const FunctionCallbackInfo<Value>& args) {
@@ -151,6 +151,7 @@ void SetRasterizerState(const FunctionCallbackInfo<Value>& args) {
 
 GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
         ScriptObjectWrap(isolate), textures_(isolate, this), window_(window) {
+
     textures_.InstallAsObject("textures", this->v8Object());
     SetBlendState(BlendState::Opaque);
     SetDepthState(DepthState::Default);
@@ -175,13 +176,13 @@ void GraphicsDevice::Clear(ClearType type, float r, float g, float b, float a) {
 
 void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
                                     int startVertex, int primitiveCount) {
-    if (vertexDataState_ == nullptr) {
+    if (vertexSpec_ == nullptr) {
         throw std::runtime_error(
-                "Vertex data state must be set before drawing vertices.");
+                "Vertex specification must be set before drawing primitives.");
     }
     if (shaderProgram_ == nullptr) {
         throw std::runtime_error(
-                "Shader program must be set before drawing vertices.");
+                "Shader program must be set before drawing primitives.");
     }
     switch (primitiveType) {
         case PrimitiveType::TriangleList:
@@ -198,13 +199,13 @@ void GraphicsDevice::DrawPrimitives(PrimitiveType primitiveType,
 
 void GraphicsDevice::DrawIndexedPrimitives(PrimitiveType primitiveType,
                                            int startIndex, int primitiveCount) {
-    if (vertexDataState_ == nullptr) {
+    if (vertexSpec_ == nullptr) {
         throw std::runtime_error(
-                "Vertex data state must be set before drawing elements.");
+                "Vertex specification must be set before drawing primitives.");
     }
     if (shaderProgram_ == nullptr) {
         throw std::runtime_error(
-                "Shader program must be set before drawing elements.");
+                "Shader program must be set before drawing primitives.");
     }
     switch (primitiveType) {
         case PrimitiveType::TriangleList:
@@ -266,14 +267,14 @@ void GraphicsDevice::SetTexture(int index, Texture2D* texture) {
     }
 }
 
-void GraphicsDevice::SetVertexDataState(VertexDataState *vertexDataState) {
-    if (vertexDataState == nullptr) {
+void GraphicsDevice::SetVertexSpecification(VertexSpecification *vertexSpec) {
+    if (vertexSpec == nullptr) {
         glBindVertexArray(0);
     }
-    else if (vertexDataState != vertexDataState_) {
-        glBindVertexArray(vertexDataState->glVertexArray());
+    else if (vertexSpec != vertexSpec_) {
+        glBindVertexArray(vertexSpec->glVertexArray());
     }
-    vertexDataState_ = vertexDataState;
+    vertexSpec_ = vertexSpec;
 }
 
 void GraphicsDevice::SetRenderTarget(RenderTarget *renderTarget) {
@@ -377,7 +378,7 @@ void GraphicsDevice::Initialize() {
     SetFunction("setShaderProgram", SetShaderProgram);
     SetFunction("setSynchronizeWithVerticalRetrace",
                 SetSynchronizeWithVerticalRetrace);
-    SetFunction("setVertexDataState", ::SetVertexDataState);
+    SetFunction("setVertexSpecification", ::SetVertexSpecification);
     SetFunction("setRenderTarget", ::SetRenderTarget);
     SetFunction("setBlendState", ::SetBlendState);
     SetFunction("setDepthState", ::SetDepthState);

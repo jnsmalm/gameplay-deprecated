@@ -64,7 +64,7 @@ enum class ClearType {
 };
 
 class Window;
-class VertexDataState;
+class VertexSpecification;
 class ShaderProgram;
 
 class GraphicsDevice : public ScriptObjectWrap<GraphicsDevice> {
@@ -81,7 +81,7 @@ public:
     void SetShaderProgram(ShaderProgram *shaderProgram);
     void SetSynchronizeWithVerticalRetrace(bool value);
     void SetTexture(int index, Texture2D* texture);
-    void SetVertexDataState(VertexDataState *vertexDataState);
+    void SetVertexSpecification(VertexSpecification *vertexSpec);
     void SetRenderTarget(RenderTarget *renderTarget);
     void SetBlendState(BlendState state);
     void SetDepthState(DepthState state);
@@ -92,8 +92,8 @@ public:
         return shaderProgram_;
     }
 
-    VertexDataState* vertexDataState() {
-        return vertexDataState_;
+    VertexSpecification * vertexDataState() {
+        return vertexSpec_;
     }
 
     TextureCollection* textures() {
@@ -117,7 +117,7 @@ private:
             const v8::FunctionCallbackInfo<v8::Value>& args);
 
     TextureCollection textures_;
-    VertexDataState* vertexDataState_ = nullptr;
+    VertexSpecification *vertexSpec_ = nullptr;
     ShaderProgram* shaderProgram_ = nullptr;
     Window* window_ = nullptr;
 };

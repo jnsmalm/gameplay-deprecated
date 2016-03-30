@@ -27,7 +27,7 @@ SOFTWARE.*/
 #include <input/mouse.h>
 #include <utils/timer.h>
 #include <graphics/texture-font.h>
-#include <graphics/vertex-data-state.h>
+#include <graphics/vertex-specification.h>
 #include <graphics/shader-program.h>
 #include <utils/path-helper.h>
 #include <utils/file-watcher.h>
@@ -45,7 +45,7 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
     InstallConstructor<TextureFont>("TextureFont");
     InstallConstructor<Texture2D>("Texture2D");
     InstallConstructor<ShaderProgram>("ShaderProgram");
-    InstallConstructor<VertexDataState>("VertexDataState");
+    InstallConstructor<VertexSpecification>("VertexSpecification");
     InstallConstructor<Keyboard>("Keyboard");
     InstallConstructor<Mouse>("Mouse");
     InstallConstructor<SoundBuffer>("SoundBuffer");

@@ -23,14 +23,14 @@ SOFTWARE.*/
 #include <script/scripthelper.h>
 #include <script/script-engine.h>
 #include <utils/number-array.h>
-#include "vertex-data-state.h"
+#include "vertex-specification.h"
 #include "graphics-device.h"
 
 using namespace v8;
 
 namespace {
 
-void SetVertices(const FunctionCallbackInfo<Value> &args) {
+void SetVertexData(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
@@ -54,9 +54,9 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
             throw std::runtime_error(
                     "Can't set vertices with usage '" + usage + "'.");
         }
-        auto self = helper.GetObject<VertexDataState>(args.Holder());
-        self->SetVertices(vertices, sizeof(float) * array->Length(),
-                          bufferUsage);
+        auto self = helper.GetObject<VertexSpecification>(args.Holder());
+        self->SetVertexData(vertices, sizeof(float) * array->Length(),
+                            bufferUsage);
         delete[] vertices;
     }
     catch (std::exception &err) {
@@ -64,7 +64,7 @@ void SetVertices(const FunctionCallbackInfo<Value> &args) {
     }
 }
 
-void SetIndices(const FunctionCallbackInfo<Value> &args) {
+void SetIndexData(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
@@ -88,9 +88,9 @@ void SetIndices(const FunctionCallbackInfo<Value> &args) {
             throw std::runtime_error(
                     "Can't set elements with usage '" + usage + "'.");
         }
-        auto self = helper.GetObject<VertexDataState>(args.Holder());
-        self->SetIndices(indices, sizeof(int) * array->Length(),
-                          bufferUsage);
+        auto self = helper.GetObject<VertexSpecification>(args.Holder());
+        self->SetIndexData(indices, sizeof(int) * array->Length(),
+                           bufferUsage);
         delete[] indices;
     }
     catch (std::exception &err) {
@@ -108,7 +108,7 @@ GLenum GetGLUsage(BufferUsage usage) {
 
 }
 
-VertexDataState::VertexDataState(
+VertexSpecification::VertexSpecification(
         v8::Isolate *isolate, GraphicsDevice* graphicsDevice,
         std::vector<VertexElement> elements) :
         ScriptObjectWrap(isolate), graphicsDevice_(graphicsDevice) {
@@ -127,35 +127,35 @@ VertexDataState::VertexDataState(
     glBindVertexArray(0);
 }
 
-VertexDataState::~VertexDataState() {
+VertexSpecification::~VertexSpecification() {
     glDeleteVertexArrays(1, &glVertexArray_);
     glDeleteBuffers(1, &glVertexBuffer_);
     glDeleteBuffers(1, &glElementBuffer_);
 }
 
-void VertexDataState::SetVertices(
-        float *vertices, size_t size, BufferUsage usage) {
+void VertexSpecification::SetVertexData(
+    float *vertices, size_t size, BufferUsage usage) {
 
     auto old = graphicsDevice_->vertexDataState();
-    graphicsDevice_->SetVertexDataState(nullptr);
+    graphicsDevice_->SetVertexSpecification(nullptr);
     glBindBuffer(GL_ARRAY_BUFFER, glVertexBuffer_);
     glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(size),
                  vertices, GetGLUsage(usage));
-    graphicsDevice_->SetVertexDataState(old);
+    graphicsDevice_->SetVertexSpecification(old);
 }
 
-void VertexDataState::SetIndices(
-        int *indices, size_t size, BufferUsage usage) {
+void VertexSpecification::SetIndexData(
+    int *indices, size_t size, BufferUsage usage) {
 
     auto old = graphicsDevice_->vertexDataState();
-    graphicsDevice_->SetVertexDataState(nullptr);
+    graphicsDevice_->SetVertexSpecification(nullptr);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, glElementBuffer_);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(size),
                  indices, GetGLUsage(usage));
-    graphicsDevice_->SetVertexDataState(old);
+    graphicsDevice_->SetVertexSpecification(old);
 }
 
-void VertexDataState::SetupVertexDeclaration(
+void VertexSpecification::SetupVertexDeclaration(
         std::vector<VertexElement> elements) {
 
     int stride = 0;
@@ -173,13 +173,13 @@ void VertexDataState::SetupVertexDeclaration(
     }
 }
 
-void VertexDataState::Initialize() {
+void VertexSpecification::Initialize() {
     ScriptObjectWrap::Initialize();
-    SetFunction("setVertices", ::SetVertices);
-    SetFunction("setIndices", ::SetIndices);
+    SetFunction("setVertexData", ::SetVertexData);
+    SetFunction("setIndexData", ::SetIndexData);
 }
 
-void VertexDataState::New(const FunctionCallbackInfo<Value>& args) {
+void VertexSpecification::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
@@ -210,7 +210,7 @@ void VertexDataState::New(const FunctionCallbackInfo<Value>& args) {
                         "Can't set vertex declaration type to '" + type + "'.");
             }
         }
-        auto vertexDataState = new VertexDataState(
+        auto vertexDataState = new VertexSpecification(
                 args.GetIsolate(), graphicsDevice, elements);
         args.GetReturnValue().Set(vertexDataState->v8Object());
     }

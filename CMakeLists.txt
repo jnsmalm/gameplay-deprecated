@@ -17,7 +17,7 @@ if (WIN32)
     ${WIN32_V8_LIBS_DIR}/v8_base_2.lib
     ${WIN32_V8_LIBS_DIR}/v8_base_3.lib
     ${WIN32_V8_LIBS_DIR}/v8_libbase.lib
-    ${WIN32_V8_LIBS_DIR}/v8_snapshot.lib
+    ${WIN32_V8_LIBS_DIR}/v8_nosnapshot.lib
     ${WIN32_V8_LIBS_DIR}/v8_libplatform.lib
     ${WIN32_V8_LIBS_DIR}/icuuc.lib
     ${WIN32_V8_LIBS_DIR}/icui18n.lib)
@@ -26,7 +26,7 @@ else()
   set (V8_LIBS
     ${V8_LIBS_DIR}/libv8_base.a
     ${V8_LIBS_DIR}/libv8_libbase.a
-    ${V8_LIBS_DIR}/libv8_snapshot.a
+    ${V8_LIBS_DIR}/libv8_nosnapshot.a
     ${V8_LIBS_DIR}/libv8_libplatform.a
     ${V8_LIBS_DIR}/libicudata.a
     ${V8_LIBS_DIR}/libicuuc.a
@@ -77,9 +77,7 @@ set (JSPLAY_SRCS
         src/audio/sound-source.cpp
         src/audio/sound-source.h
         src/utils/file-watcher.cpp
-        src/utils/file-watcher.h
-        src/utils/number-array.cpp
-        src/utils/number-array.h)
+        src/utils/file-watcher.h)
 
 set (JSPLAY_LIBS
   ${V8_LIBS}

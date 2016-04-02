@@ -22,7 +22,6 @@ SOFTWARE.*/
 
 #include <script/scripthelper.h>
 #include <script/script-engine.h>
-#include <utils/number-array.h>
 #include "vertex-specification.h"
 #include "graphics-device.h"
 
@@ -34,9 +33,8 @@ void SetVertexData(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
-    auto array = helper.GetObject<NumberArray>(args[0]);
-    GLfloat* vertices = new GLfloat[array->Length()];
-    array->copy<GLfloat>(vertices);
+    auto array = args[0].As<v8::Float32Array>();
+    auto data = static_cast<float*>(array->Buffer()->GetContents().Data());
 
     try {
         auto usage = helper.GetString(args[1], "static");
@@ -55,9 +53,8 @@ void SetVertexData(const FunctionCallbackInfo<Value> &args) {
                     "Can't set vertices with usage '" + usage + "'.");
         }
         auto self = helper.GetObject<VertexSpecification>(args.Holder());
-        self->SetVertexData(vertices, sizeof(float) * array->Length(),
+        self->SetVertexData(data, sizeof(float) * array->Length(),
                             bufferUsage);
-        delete[] vertices;
     }
     catch (std::exception &err) {
         ScriptEngine::current().ThrowTypeError(err.what());
@@ -68,9 +65,8 @@ void SetIndexData(const FunctionCallbackInfo<Value> &args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
-    auto array = helper.GetObject<NumberArray>(args[0]);
-    int* indices = new int[array->Length()];
-    array->copy<int>(indices);
+    auto array = args[0].As<v8::Int32Array>();
+    auto data = static_cast<int*>(array->Buffer()->GetContents().Data());
 
     try {
         auto usage = helper.GetString(args[1], "static");
@@ -89,9 +85,8 @@ void SetIndexData(const FunctionCallbackInfo<Value> &args) {
                     "Can't set elements with usage '" + usage + "'.");
         }
         auto self = helper.GetObject<VertexSpecification>(args.Holder());
-        self->SetIndexData(indices, sizeof(int) * array->Length(),
+        self->SetIndexData(data, sizeof(int) * array->Length(),
                            bufferUsage);
-        delete[] indices;
     }
     catch (std::exception &err) {
         ScriptEngine::current().ThrowTypeError(err.what());

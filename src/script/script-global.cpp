@@ -31,7 +31,6 @@ SOFTWARE.*/
 #include <graphics/shader-program.h>
 #include <utils/path-helper.h>
 #include <utils/file-watcher.h>
-#include <utils/number-array.h>
 #include <graphics/render-target.h>
 #include "script-object-wrap.h"
 #include "script-global.h"
@@ -52,7 +51,6 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
     InstallConstructor<SoundSource>("SoundSource");
     InstallConstructor<Timer>("Timer");
     InstallConstructor<FileWatcher>("FileWatcher");
-    InstallConstructor<NumberArray>("NumberArray");
     InstallConstructor<RenderTarget>("RenderTarget");
 
     console_.InstallAsTemplate("console", v8Template());

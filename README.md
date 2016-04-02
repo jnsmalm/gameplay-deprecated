@@ -16,14 +16,12 @@ to be downloaded and compiled before building Gameplay.
 
 - Go to [Google's V8 website](https://developers.google.com/v8/build) and follow
 the instructions to download the source code for V8.
-- Switch to git tag 4.5.9 and sync tools
+- Switch to git tag 4.9.385.33 and sync tools
 ```
-git checkout tags/4.5.9
+git checkout tags/4.9.385.33
 gclient sync --with_branch_heads --jobs 16
 ```
-- V8 must be built with c++11 and libc++, to do that you:
-	- Change the value CLANG_CXX_LANGUAGE_STANDARD to gnu++11 in the
-	build/standalone.gypi
+- V8 must be built with libc++, to do that you:
 	- Add CLANG_CXX_LIBRARY with value libc++ right under
 	CLANG_CXX_LANGUAGE_STANDARD
 	- Remember to modify it where it says 'clang==1'
@@ -34,9 +32,9 @@ gclient sync --with_branch_heads --jobs 16
 
 - Go to [Google's V8 website](https://developers.google.com/v8/build) and follow
 the instructions to download the source code for V8.
-- Switch to git tag 4.5.9 and sync tools
+- Switch to git tag 4.9.385.33 and sync tools
 ```
-git checkout tags/4.5.9
+git checkout tags/4.9.385.33
 gclient sync --with_branch_heads --jobs 16
 ```
 - Follow the instructions for building V8 with Visual Studio, Use Visual Studio

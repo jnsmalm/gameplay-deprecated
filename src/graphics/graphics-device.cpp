@@ -55,11 +55,36 @@ void SetRenderTarget(const FunctionCallbackInfo<Value>& args) {
     }
 }
 
-void SetBlendState(const FunctionCallbackInfo<Value>& args) {
+void GetBlendState(Local<String> name,
+                   const PropertyCallbackInfo<Value> &args) {
+
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto graphics = helper.GetObject<GraphicsDevice>(args.Holder());
+
+    switch (graphics->blendState()) {
+        case BlendState::AlphaBlend:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "alphaBlend"));
+            break;
+        case BlendState::Additive:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "additive"));
+            break;
+        case BlendState::Opaque:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "opaque"));
+            break;
+    }
+}
+
+void SetBlendState(Local<String> name, Local<Value> value,
+                   const PropertyCallbackInfo<void> &args) {
+
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
-    auto state = helper.GetString(args[0]);
+    auto state = helper.GetString(value);
     if (state == "additive") {
         helper.GetObject<GraphicsDevice>(args.Holder())->
                 SetBlendState(BlendState::Additive);
@@ -74,15 +99,40 @@ void SetBlendState(const FunctionCallbackInfo<Value>& args) {
     }
     else {
         ScriptEngine::current().ThrowTypeError(
-                "Couldn't set blend state to '" + state + "'.");
+            "Couldn't set blend state to '" + state + "'.");
     }
 }
 
-void SetDepthState(const FunctionCallbackInfo<Value>& args) {
+void GetDepthState(Local<String> name,
+                   const PropertyCallbackInfo<Value> &args) {
+
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto graphics = helper.GetObject<GraphicsDevice>(args.Holder());
+
+    switch (graphics->depthState()) {
+        case DepthState::Default:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "default"));
+        break;
+        case DepthState::None:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "none"));
+        break;
+        case DepthState::Read:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "read"));
+        break;
+    }
+}
+
+void SetDepthState(Local<String> name, Local<Value> value,
+                   const PropertyCallbackInfo<void> &args) {
+
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
-    auto state = helper.GetString(args[0]);
+    auto state = helper.GetString(value);
     if (state == "default") {
         helper.GetObject<GraphicsDevice>(args.Holder())->
                 SetDepthState(DepthState::Default);
@@ -101,34 +151,36 @@ void SetDepthState(const FunctionCallbackInfo<Value>& args) {
     }
 }
 
-void SetStencilState(const FunctionCallbackInfo<Value>& args) {
+void GetRasterizerState(Local<String> name,
+                        const PropertyCallbackInfo<Value> &args) {
+
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
+    auto graphics = helper.GetObject<GraphicsDevice>(args.Holder());
 
-    auto state = helper.GetString(args[0]);
-    if (state == "default") {
-        helper.GetObject<GraphicsDevice>(args.Holder())->
-                SetStencilState(StencilState::Default);
-    }
-    else if (state == "mask") {
-        helper.GetObject<GraphicsDevice>(args.Holder())->
-                SetStencilState(StencilState::Mask);
-    }
-    else if (state == "clip") {
-        helper.GetObject<GraphicsDevice>(args.Holder())->
-                SetStencilState(StencilState::Clip);
-    }
-    else {
-        ScriptEngine::current().ThrowTypeError(
-                "Couldn't set stencil state to '" + state + "'.");
+    switch (graphics->rasterizerState()) {
+        case RasterizerState::CullNone:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "cullNone"));
+        break;
+        case RasterizerState::CullCounterClockwise:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "cullCounterClockwise"));
+        break;
+        case RasterizerState::CullClockwise:
+            args.GetReturnValue().Set(
+                String::NewFromUtf8(args.GetIsolate(), "cullClockwise"));
+        break;
     }
 }
 
-void SetRasterizerState(const FunctionCallbackInfo<Value>& args) {
+void SetRasterizerState(Local<String> name, Local<Value> value,
+                        const PropertyCallbackInfo<void> &args) {
+
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
 
-    auto state = helper.GetString(args[0]);
+    auto state = helper.GetString(value);
     if (state == "cullNone") {
         helper.GetObject<GraphicsDevice>(args.Holder())->
                 SetRasterizerState(RasterizerState::CullNone);
@@ -153,10 +205,10 @@ GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
         ScriptObjectWrap(isolate), textures_(isolate, this), window_(window) {
 
     textures_.InstallAsObject("textures", this->v8Object());
+
     SetBlendState(BlendState::Opaque);
     SetDepthState(DepthState::Default);
-    SetStencilState(StencilState::Default);
-    SetRasterizerState(RasterizerState::CullNone);
+    SetRasterizerState(RasterizerState::CullCounterClockwise);
 }
 
 void GraphicsDevice::Clear(ClearType type, float r, float g, float b, float a) {
@@ -303,6 +355,7 @@ void GraphicsDevice::SetBlendState(BlendState state) {
             break;
         }
     }
+    blendState_ = state;
 }
 
 void GraphicsDevice::SetDepthState(DepthState state) {
@@ -323,29 +376,7 @@ void GraphicsDevice::SetDepthState(DepthState state) {
             break;
         }
     }
-}
-
-void GraphicsDevice::SetStencilState(StencilState state) {
-    switch (state) {
-        case StencilState::Default: {
-            glDisable(GL_STENCIL_TEST);
-            break;
-        }
-        case StencilState::Mask: {
-            glEnable(GL_STENCIL_TEST);
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-            glStencilMask(0xFF);
-            glClear(GL_STENCIL_BUFFER_BIT);
-            break;
-        }
-        case StencilState::Clip: {
-            glEnable(GL_STENCIL_TEST);
-            glStencilFunc(GL_EQUAL, 1, 0xFF);
-            glStencilMask(0x00);
-            break;
-        }
-    }
+    depthState_ = state;
 }
 
 void GraphicsDevice::SetRasterizerState(RasterizerState state) {
@@ -367,6 +398,7 @@ void GraphicsDevice::SetRasterizerState(RasterizerState state) {
             break;
         }
     }
+    rasterizerState_ = state;
 }
 
 void GraphicsDevice::Initialize() {
@@ -380,10 +412,9 @@ void GraphicsDevice::Initialize() {
                 SetSynchronizeWithVerticalRetrace);
     SetFunction("setVertexSpecification", ::SetVertexSpecification);
     SetFunction("setRenderTarget", ::SetRenderTarget);
-    SetFunction("setBlendState", ::SetBlendState);
-    SetFunction("setDepthState", ::SetDepthState);
-    SetFunction("setStencilState", ::SetStencilState);
-    SetFunction("setRasterizerState", ::SetRasterizerState);
+    SetAccessor("blendState", ::GetBlendState, ::SetBlendState);
+    SetAccessor("depthState", ::GetDepthState, ::SetDepthState);
+    SetAccessor("rasterizerState", ::GetRasterizerState, ::SetRasterizerState);
 }
 
 void GraphicsDevice::Clear(const FunctionCallbackInfo<Value>& args) {

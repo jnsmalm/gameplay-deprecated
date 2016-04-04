@@ -85,7 +85,6 @@ public:
     void SetRenderTarget(RenderTarget *renderTarget);
     void SetBlendState(BlendState state);
     void SetDepthState(DepthState state);
-    void SetStencilState(StencilState state);
     void SetRasterizerState(RasterizerState state);
 
     ShaderProgram* shaderProgram() {
@@ -104,6 +103,10 @@ public:
         return window_;
     }
 
+    BlendState blendState() { return blendState_; }
+    DepthState depthState() { return depthState_; }
+    RasterizerState rasterizerState() { return rasterizerState_; }
+
 private:
     void Initialize() override;
     static void Clear(const v8::FunctionCallbackInfo<v8::Value>& args);
@@ -120,6 +123,9 @@ private:
     VertexSpecification *vertexSpec_ = nullptr;
     ShaderProgram* shaderProgram_ = nullptr;
     Window* window_ = nullptr;
+    BlendState blendState_;
+    DepthState depthState_;
+    RasterizerState rasterizerState_;
 };
 
 #endif // GAMEPLAY_GRAPHICSDEVICE_H

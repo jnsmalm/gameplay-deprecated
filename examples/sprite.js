@@ -3,14 +3,16 @@ var $ = require('/../lib/import.js').library();
 
 var game = new $.Game();
 
-$.Sprite.init(game.window);
-var sprite = new $.Sprite('/assets/cow.png');
+// The SpriteBatch is used for drawing many sprites in the same draw call to
+// improve performance.
+var spriteBatch = new $.SpriteBatch(game.window);
+var sprite = new $.Sprite(spriteBatch, '/assets/cow.png');
 
 game.draw = function() {
-  sprite.draw();
-  // To improve performance when drawing many sprites, the sprites are batched 
-  // by texture. Make sure that the last drawn sprites are being drawn.
-  $.Sprite.drawBatched();
+  // Add to list of sprites to be drawn.
+  spriteBatch.addSprite(sprite);
+  // Draw as many sprites as possible in a single draw call.
+  spriteBatch.drawSprites();
 };
 
 // Start running the game which calls update and draw.

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2.2)
 
 project(play)
 
-set (GAMEPLAY_VERSION "0.4.0")
+set (GAMEPLAY_VERSION "0.6.0")
 
 set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
@@ -72,8 +72,6 @@ set (JSPLAY_SRCS
         src/audio/audio-manager.h
         src/audio/sound-buffer.cpp
         src/audio/sound-buffer.h
-        src/audio/wave-format.cpp
-        src/audio/wave-format.h
         src/audio/sound-source.cpp
         src/audio/sound-source.h
         src/utils/file-watcher.cpp

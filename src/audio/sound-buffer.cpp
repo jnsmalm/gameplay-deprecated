@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Gameplay Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,37 +23,30 @@ SOFTWARE.*/
 #include <script/scripthelper.h>
 #include <script/script-engine.h>
 #include "sound-buffer.h"
-#include "wave-format.h"
+#include "stb_vorbis.c"
 
 using namespace v8;
 
-namespace {
-    ALenum GetAudioFormat(WaveFormat *waveFormat) {
-        switch (waveFormat->bitsPerSample) {
-            case 16:
-                if (waveFormat->numChannels > 1)
-                    return AL_FORMAT_STEREO16;
-                else
-                    return AL_FORMAT_MONO16;
-            case 8:
-                if (waveFormat->numChannels > 1)
-                    return AL_FORMAT_STEREO8;
-                else
-                    return AL_FORMAT_MONO8;
-            default:
-                return -1;
-        }
-    }
-}
-
 SoundBuffer::SoundBuffer(v8::Isolate *isolate, std::string filename) :
-        ScriptObjectWrap(isolate){
+        ScriptObjectWrap(isolate) {
+
+    int channels, rate;
+    short* output;
+    auto samples = stb_vorbis_decode_filename(
+        filename.c_str(), &channels, &rate, &output);
+
+    if (samples < 0)
+    {
+        throw std::runtime_error("Failed to load sound '" + filename + "'");
+    }
     alGenBuffers((ALuint)1, &al_buffer_);
-    WaveFormat waveFormat;
-    waveFormat.Load(filename);
-    auto audioFormat = GetAudioFormat(&waveFormat);
-    alBufferData(al_buffer_, audioFormat, waveFormat.data,
-                 waveFormat.subChunk2Size, waveFormat.sampleRate);
+    auto format = AL_FORMAT_STEREO16;
+    if (channels == 1)
+    {
+        format = AL_FORMAT_MONO16;
+    }
+    alBufferData(al_buffer_, format, output,
+                 static_cast<ALsizei>(samples*channels*sizeof(short)), rate);
 }
 
 SoundBuffer::~SoundBuffer() {

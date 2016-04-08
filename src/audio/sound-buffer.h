@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Gameplay Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-#ifndef JSPLAY_SOUNDBUFFER_H
-#define JSPLAY_SOUNDBUFFER_H
+#ifndef GAMEPLAY_SOUNDBUFFER_H
+#define GAMEPLAY_SOUNDBUFFER_H
 
 #include <al/al.h>
 #include <al/alc.h>
@@ -44,4 +44,4 @@ private:
     ALuint al_buffer_;
 };
 
-#endif //JSPLAY_SOUNDBUFFER_H
+#endif // GAMEPLAY_SOUNDBUFFER_H

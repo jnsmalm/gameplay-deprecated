@@ -130,8 +130,6 @@ include_directories(
   deps/glfw/include
   deps/glew/include
   deps/freetype/include
-  deps/rlutil
-  deps/rapidjson
   deps/openal-soft/include
   deps/stb
   deps/v8/include

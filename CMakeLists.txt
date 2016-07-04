@@ -47,7 +47,6 @@ set (JSPLAY_SRCS
         src/script/script-engine.cpp
         src/script/script-object-wrap.h
         src/script/scriptobjecthelper.h
-        src/script/script-debug.h
         src/input/keyboard
         src/input/mouse
         src/graphics/texture2d.h
@@ -75,7 +74,9 @@ set (JSPLAY_SRCS
         src/audio/sound-source.cpp
         src/audio/sound-source.h
         src/utils/file-watcher.cpp
-        src/utils/file-watcher.h)
+        src/utils/file-watcher.h
+        src/debug/debug-server.cpp
+        src/debug/debug-server.h)
 
 set (JSPLAY_LIBS
   ${V8_LIBS}
@@ -136,12 +137,14 @@ include_directories(
   deps/v8/include
   src
   deps/v8
-  deps/efsw/include)
+  deps/efsw/include
+  deps/asio)
 
 add_definitions(
   -DGLEW_STATIC
   -DAL_LIBTYPE_STATIC
-  -DGAMEPLAY_VERSION="${GAMEPLAY_VERSION}")
+  -DGAMEPLAY_VERSION="${GAMEPLAY_VERSION}"
+  -DASIO_STANDALONE)
 
 if (UNIX)
   add_definitions(-std=c++11 -stdlib=libc++)

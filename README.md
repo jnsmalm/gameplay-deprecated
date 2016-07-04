@@ -23,7 +23,7 @@ gclient sync --with_branch_heads --jobs 16
 ```
 - V8 must be built with libc++, to do that you:
 	- Add CLANG_CXX_LIBRARY with value libc++ right under
-	CLANG_CXX_LANGUAGE_STANDARD
+	CLANG_CXX_LANGUAGE_STANDARD (build/standalone.gypi)
 	- Remember to modify it where it says 'clang==1'
 - Build V8 using 'make native'.
 - Copy or move the V8 folder to gameplay/deps.

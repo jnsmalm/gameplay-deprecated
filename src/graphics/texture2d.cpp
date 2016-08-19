@@ -31,6 +31,13 @@ using namespace v8;
 
 namespace {
 
+void GetId(Local<String> name, const PropertyCallbackInfo<Value>& args) {
+    HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    auto self = helper.GetObject<Texture2D>(args.Holder());
+    args.GetReturnValue().Set(self->glTexture());
+}
+
 void GetWidth(Local<String> name, const PropertyCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
@@ -314,6 +321,7 @@ void Texture2D::SetWrap(TextureWrap wrap) {
 
 void Texture2D::Initialize() {
     ScriptObjectWrap::Initialize();
+    SetAccessor("id", GetId, NULL);
     SetAccessor("channels", GetChannels, NULL);
     SetAccessor("width", ::GetWidth, NULL);
     SetAccessor("height", ::GetHeight, NULL);

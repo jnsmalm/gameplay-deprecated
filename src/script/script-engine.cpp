@@ -131,19 +131,25 @@ void ScriptEngine::Run(std::string filename, int argc, char* argv[]) {
 Handle<Value> ScriptEngine::Execute(std::string filepath) {
     EscapableHandleScope handle_scope(isolate_);
 
+    if (!PathHelper::FileNameEndsWith(filepath, ".js")) {
+        filepath += ".js";
+    }
+
     auto filename = PathHelper::GetFileName(filepath);
     auto resolvedPath = resolvePath(filepath);
 
     // The original script source is being wrapped in an anonymous function
     // just to define a local scope.
-    auto source = "(function (module) { " +
-            FileReader::ReadAsText(resolvedPath) + " });";
+    auto source = "(function (module, exports) { " +
+            FileReader::ReadAsText(resolvedPath) + "\r\n});";
+
     auto script = String::NewFromUtf8(isolate_, source.c_str());
 
     TryCatch tryCatch;
 
     auto compiled = Script::Compile(
-            script, String::NewFromUtf8(isolate_, resolvedPath.c_str()));
+        script, String::NewFromUtf8(isolate_, resolvedPath.c_str()));
+
     if (compiled.IsEmpty()) {
         PrintCompileError(isolate_, &tryCatch);
         return v8::Null(isolate_);
@@ -165,11 +171,13 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
 
     // Create the current module for the script.
     auto module = new ScriptModule(isolate_, scriptPath(), filename);
-    Handle<Value> argument = module->v8Object();
+
+    Handle<Value> args[] = { module->v8Object(), module->v8Object()->Get(
+        v8::String::NewFromUtf8(isolate_, "exports")) };
 
     // Call the function that defines the local scope for the script (the module
     // is passed as an argument). An error has occurred when result is empty.
-    if (scope->Call(scope, 1, &argument).IsEmpty()) {
+    if (scope->Call(scope, 2, args).IsEmpty()) {
         PrintStackTrace(isolate_, &tryCatch);
         scriptPath_.pop_back();
         return v8::Null(isolate_);
@@ -178,7 +186,7 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
     scriptPath_.pop_back();
 
     return handle_scope.Escape(
-            module->v8Object()->Get(String::NewFromUtf8(isolate_, "exports")));
+        module->v8Object()->Get(String::NewFromUtf8(isolate_, "exports")));
 }
 
 void ScriptEngine::ThrowTypeError(std::string message) {

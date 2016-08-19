@@ -59,6 +59,11 @@ public:
         return result;
     }
 
+    static bool FileNameEndsWith(const std::string &str, const std::string &suffix) {
+        return str.size() >= suffix.size() &&
+               str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+    }
+
     static std::string GetPath(std::string filepath) {
         auto index = filepath.find_last_of("\\/");
         if (index == std::string::npos) {

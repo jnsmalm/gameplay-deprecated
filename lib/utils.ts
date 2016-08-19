@@ -20,39 +20,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-'use strict';
-
-class Utils {
-  static toRadians(degrees) {
-    return degrees * Math.PI / 180;
-  }
-
-  static toDegrees(radians) {
-    return radians * 180 / Math.PI;
-  }
-
-  static options(options, object) {
-    if (typeof options !== 'object') {
-      options = {};
+export class Pool<T> {
+    private items: T[] = [];
+    private index = 0;
+    /**
+     * Creates a new pool with the given number of items.
+     */
+    constructor(ctor: { new (): T }, n: number) {
+        for (let i = 0; i < n; i++) {
+            this.items.push(new ctor());
+        }
     }
-    options.value = function (name, value) {
-      if (options[name] === undefined) {
-        if (object) {
-          object[name] = value;
-        }
-        if (value === undefined) {
-          throw new TypeError(
-            'Required option \'' + name + '\' was not specified.');
-        }
-        return value;
-      }
-      if (object) {
-        object[name] = options[name];
-      }
-      return options[name];
-    };
-    return options;
-  }
+    /**
+     * Returns the next item in the pool.
+     */
+    get next() {
+        this.index = this.index % this.items.length;
+        return this.items[this.index++];
+    }
 }
-
-module.exports.Utils = Utils;

@@ -92,12 +92,12 @@ export class Shape {
         for (let axis of axes) {
             let p1 = a.project(axis);
             let p2 = b.project(axis);
-            if (p1.getOverlap(p2) > 0) {
+            if (p1.getOverlap(p2) >= 0) {
                 // Then we can guarantee that the shapes do not overlap.
                 return false;
             }
             let o = Math.abs(p1.getOverlap(p2));
-            if (o < overlap && o > 0) {
+            if (o < overlap) {
                 overlap = o;
                 smallest = axis;
             }
@@ -169,7 +169,7 @@ export class SphereCollider implements Collider<SphereCollider | BoxCollider> {
      * Attaches the collider to a transform.
      */
     attach(transform: Transform) {
-        this.transform = transform;
+        this.transform.parent = transform;
     }
     /**
      * Updates the collider to be able to perform collision tests.
@@ -216,7 +216,7 @@ export class BoxCollider implements Collider<BoxCollider | SphereCollider> {
      * Attaches the collider to a transform.
      */
     attach(transform: Transform) {
-        this.transform = transform;
+        this.transform.parent = transform;
     }
     /**
      * Updates the box collider.

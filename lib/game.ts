@@ -66,6 +66,12 @@ export module Game {
             lastTime = currentTime;
         }
     }
+    /**
+     * Exits the game.
+     */
+    export function exit() {
+        window.close();
+    }
 
     export function update(elapsedTime: number) {
         // Implemented by the user

@@ -26,6 +26,12 @@ SOFTWARE.*/
 #include "debug/debug-server.h"
 #include <iostream>
 
+#ifdef WIN32
+#define NewLine "\r\n"
+#else
+#define NewLine "\n"
+#endif
+
 using namespace v8;
 
 namespace {
@@ -141,7 +147,7 @@ Handle<Value> ScriptEngine::Execute(std::string filepath) {
     // The original script source is being wrapped in an anonymous function
     // just to define a local scope.
     auto source = "(function (module, exports) { " +
-            FileReader::ReadAsText(resolvedPath) + "\r\n});";
+            FileReader::ReadAsText(resolvedPath) + NewLine + "});";
 
     auto script = String::NewFromUtf8(isolate_, source.c_str());
 

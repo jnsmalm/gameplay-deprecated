@@ -261,3 +261,26 @@ interface Window {
      */
     setTitle(title: string): void;
 }
+
+declare class TextureFont {
+    texture: Texture2D;
+    glyphs: GlyphCollection;
+    constructor(options: { filename: string, size?: number, chars?: string });
+    measureString(text: string): number;
+}
+
+/** Collection of glyphs. */
+declare interface GlyphCollection {
+    /** Returns the glyph of the specified character. */
+    [char: string]: Glyph
+}
+
+/** Represents a glyph */
+declare interface Glyph {
+    /** Offset to apply when positioning the glyph. */
+    offset: { x: number, y: number };
+    /** Advancement to apply when positioning the next glyph in a text. */
+    advance: { x: number, y: number };
+    /** Source rectangle of the glyph in the texture. */
+    source: { x: number, y: number, width: number, height: number };
+}

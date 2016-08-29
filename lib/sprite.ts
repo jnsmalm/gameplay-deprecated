@@ -26,7 +26,8 @@ import { Transform } from "./transform"
 import { Vector2, Vector3, Matrix4 } from "./math"
 import { Camera } from "./camera"
 
-const matrix = new Pool(Matrix4, 5);
+const matrix4 = new Pool(Matrix4, 5);
+const vector2 = new Pool(Vector2, 5);
 
 class Rectangle {
     /**
@@ -133,7 +134,7 @@ export class SpriteBatch {
         this.graphics.setVertexSpecification(this.vertexSpecification);
         this.graphics.setShaderProgram(this.program);
         this.program['viewProjection'] = 
-            this.camera.getViewProjection(matrix.next);
+            this.camera.getViewProjection(matrix4.next);
     }
     /**
      * Sorts the sprites based on texture.
@@ -236,5 +237,55 @@ class SpriteIndexArray extends Array<number> {
      */
     addIndicies(offset: number) {
         this.push(offset, offset + 3, offset + 2, offset, offset + 1, offset + 3);
+    }
+}
+
+export class SpriteText {
+    /** Each character in a string is represented by a sprite. */
+    public sprites: Sprite[] = [];
+
+    public color = Color.white;
+    public transform = new Transform();
+    public pixelsPerUnit = 100;
+
+    /** Creates a new SpriteFont. */
+    constructor(public text: string, 
+        public font: TextureFont, private spriteBatch: SpriteBatch) { }
+    
+    /** Attaches the SpriteText to a Transform. */
+    attach(transform: Transform) {
+        this.transform.parent = transform;
+    }
+
+    draw() {
+        // Make sure we have enough sprites to draw text.
+        while (this.sprites.length < this.text.length) {
+            let sprite = new Sprite(this.spriteBatch, this.font.texture);
+            this.sprites.push(sprite);
+        }
+        let origin = vector2.next.xy(
+            this.font.measureString(this.text) / 2, 0);
+
+        for (var i = 0; i < this.text.length; i++) {
+            let glyph = this.font.glyphs[this.text.charAt(i)];
+            let sprite = this.sprites[i];
+
+            sprite.pixelsPerUnit = this.pixelsPerUnit;
+            sprite.color = this.color;
+            sprite.transform = this.transform;
+            sprite.origin.x = 
+                (origin.x - glyph.offset.x) / this.pixelsPerUnit;
+            sprite.origin.y = 
+                (origin.y + glyph.offset.y) / this.pixelsPerUnit;
+            sprite.source.width = glyph.source.width;
+            sprite.source.height = glyph.source.height;
+            sprite.source.x = glyph.source.x;
+            sprite.source.y = glyph.source.y;
+
+            origin[0] -= glyph.advance.x;
+            origin[1] -= glyph.advance.y;
+
+            this.spriteBatch.addSprite(this.sprites[i]);
+        }
     }
 }

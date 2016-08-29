@@ -22,6 +22,7 @@ SOFTWARE.*/
 
 #include "texture-font.h"
 #include <script/script-engine.h>
+#include <array>
 #include "script/scripthelper.h"
 
 using namespace v8;
@@ -31,7 +32,7 @@ TextureFont::TextureFont(v8::Isolate *isolate, std::string filename, int size,
                                             glyphs_(isolate) {
 
     texture_ = new Texture2D(
-            isolate, 1024, 1024, GL_RED, GL_RED, GL_UNSIGNED_BYTE);
+            isolate, 1024, 1024, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
     texture_->InstallAsObject("texture", this->v8Object());
     glyphs_.InstallAsObject("glyphs", this->v8Object());
 
@@ -145,8 +146,18 @@ void TextureFont::PlaceGlyph(TextureFontGlyph * glyph, int x, int y) {
     glyph->source.x = x;
     glyph->source.y = y;
     auto bitmap = face_->glyph->bitmap;
+
+    // Convert 8-bit anti-aliased bitmap to RGBA
+    std::vector<unsigned char> rgba;
+    for (auto i = 0; i < bitmap.width * bitmap.rows; i++) {
+        rgba.push_back(255);
+        rgba.push_back(255);
+        rgba.push_back(255);
+        rgba.push_back(bitmap.buffer[i]);
+    }
+
     glTexSubImage2D(GL_TEXTURE_2D, 0, (GLint)x, (GLint)y, bitmap.width,
-                    bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, bitmap.buffer);
+                    bitmap.rows, GL_RGBA, GL_UNSIGNED_BYTE, &rgba[0]);
 }
 
 void TextureFont::Initialize() {

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -50,8 +50,8 @@ void GetGlyphWithSymbol(Local<String> name,
     ScriptObjectHelper source(info.GetIsolate());
     source.SetInteger("x", glyph.source.x);
     source.SetInteger("y", glyph.source.y);
-    source.SetInteger("w", glyph.source.w);
-    source.SetInteger("h", glyph.source.h);
+    source.SetInteger("width", glyph.source.w);
+    source.SetInteger("height", glyph.source.h);
 
     ScriptObjectHelper result(info.GetIsolate());
     result.SetObject("offset", &offset);

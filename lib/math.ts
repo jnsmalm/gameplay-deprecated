@@ -56,12 +56,19 @@ export class Vector2 extends Float32Array {
         this[1] = value;
     }
     /**
+     * Sets the x and y components.
+     */
+    xy(x: number, y: number) {
+        this[0] = x;
+        this[1] = y;
+        return this;
+    }
+    /**
      * Returns a nicely formatted string for this vector.
      */
     toString() {
         return <string>vec2.str(this);
     }
-    
 }
 
 /**

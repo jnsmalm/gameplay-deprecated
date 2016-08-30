@@ -240,10 +240,13 @@ class SpriteIndexArray extends Array<number> {
     }
 }
 
+type TextAlignment = 'left' | 'right' | 'center';
+
 export class SpriteText {
     /** Each character in a string is represented by a sprite. */
     public sprites: Sprite[] = [];
 
+    public alignment: TextAlignment = 'center';
     public color = Color.white;
     public transform = new Transform();
     public pixelsPerUnit = 100;
@@ -263,9 +266,15 @@ export class SpriteText {
             let sprite = new Sprite(this.spriteBatch, this.font.texture);
             this.sprites.push(sprite);
         }
-        let origin = vector2.next.xy(
-            this.font.measureString(this.text) / 2, 0);
-
+        if (this.alignment == 'center') {
+            var origin = vector2.next.xy(
+                this.font.measureString(this.text) / 2, 0);
+        } else if (this.alignment == 'left') {
+            var origin = vector2.next.xy(0, 0);
+        } else if (this.alignment == 'right') {
+            var origin = vector2.next.xy(
+                this.font.measureString(this.text), 0);
+        }
         for (var i = 0; i < this.text.length; i++) {
             let glyph = this.font.glyphs[this.text.charAt(i)];
             let sprite = this.sprites[i];

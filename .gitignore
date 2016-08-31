@@ -26,7 +26,6 @@
 *.exe
 *.out
 *.app
-jsplay
 
 # Mac OS X
 .DS_Store
@@ -37,3 +36,6 @@ node_modules/
 deps/v8
 .idea/
 bin/
+dist/**/*.js
+dist/**/*.map
+.vscode/

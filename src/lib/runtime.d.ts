@@ -31,6 +31,10 @@ declare const module: {
     path: string
 };
 
+declare const console: {
+    log(...param: any[]): void
+};
+
 /**
  * Loads a module with the specified name.
  */
@@ -227,7 +231,7 @@ declare class Texture2D {
     getData(): number[];
 }
 
-interface Window {
+declare class Window {
     /**
      * Gets the graphics.
      */

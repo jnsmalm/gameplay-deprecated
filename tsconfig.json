@@ -8,9 +8,14 @@
         "sourceMap": true,
         "moduleResolution": "classic",
         "allowJs": true,
-        "outDir": "dist"
+        "outDir": "build"
     },
-    "include": [
-        "src/**/*"
+    "exclude": [
+        "gulpfile.js",
+        "build",
+        "docs",
+        "node_modules",
+        "src",
+        "deps"
     ]
 }

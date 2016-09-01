@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2.2)
 
-project(play)
+project(gameplay)
 
 set (GAMEPLAY_VERSION "0.6.0")
 
@@ -8,7 +8,7 @@ set (WIN32_V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
 set (V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 if (WIN32)
   set (V8_LIBS
@@ -34,51 +34,51 @@ else()
   set (OPENAL_LIBS openal)
 endif()
 
-set (JSPLAY_SRCS
-        src/runtime/main
-        src/runtime/utils/console
-        src/runtime/utils/file-reader
-        src/runtime/utils/timer.cpp
-        src/runtime/utils/timer.h
-        src/runtime/utils/path-helper.h
-        src/runtime/script/script-global.h
-        src/runtime/script/script-global.cpp
-        src/runtime/script/script-engine.h
-        src/runtime/script/script-engine.cpp
-        src/runtime/script/script-object-wrap.h
-        src/runtime/script/scriptobjecthelper.h
-        src/runtime/input/keyboard
-        src/runtime/input/mouse
-        src/runtime/graphics/texture2d.h
-        src/runtime/graphics/texture2d.cpp
-        src/runtime/graphics/texture-font.h
-        src/runtime/graphics/texture-font.cpp
-        src/runtime/graphics/render-target.h
-        src/runtime/graphics/render-target.cpp
-        src/runtime/graphics/shader
-        src/runtime/graphics/shader-program.h
-        src/runtime/graphics/shader-program.cpp
-        src/runtime/graphics/window
-        src/runtime/graphics/graphics-device.cpp
-        src/runtime/graphics/graphics-device.h
-        src/runtime/graphics/vertex-specification.cpp
-        src/runtime/graphics/vertex-specification.h
-        src/runtime/graphics/texture-collection.cpp
-        src/runtime/graphics/texture-collection.h
-        src/runtime/graphics/glyph-collection.h
-        src/runtime/graphics/glyph-collection.cpp
-        src/runtime/audio/audio-manager.cpp
-        src/runtime/audio/audio-manager.h
-        src/runtime/audio/sound-buffer.cpp
-        src/runtime/audio/sound-buffer.h
-        src/runtime/audio/sound-source.cpp
-        src/runtime/audio/sound-source.h
-        src/runtime/utils/file-watcher.cpp
-        src/runtime/utils/file-watcher.h
-        src/runtime/debug/debug-server.cpp
-        src/runtime/debug/debug-server.h)
+set (GAMEPLAY_SRCS
+        src/main
+        src/utils/console
+        src/utils/file-reader
+        src/utils/timer.cpp
+        src/utils/timer.h
+        src/utils/path-helper.h
+        src/script/script-global.h
+        src/script/script-global.cpp
+        src/script/script-engine.h
+        src/script/script-engine.cpp
+        src/script/script-object-wrap.h
+        src/script/scriptobjecthelper.h
+        src/input/keyboard
+        src/input/mouse
+        src/graphics/texture2d.h
+        src/graphics/texture2d.cpp
+        src/graphics/texture-font.h
+        src/graphics/texture-font.cpp
+        src/graphics/render-target.h
+        src/graphics/render-target.cpp
+        src/graphics/shader
+        src/graphics/shader-program.h
+        src/graphics/shader-program.cpp
+        src/graphics/window
+        src/graphics/graphics-device.cpp
+        src/graphics/graphics-device.h
+        src/graphics/vertex-specification.cpp
+        src/graphics/vertex-specification.h
+        src/graphics/texture-collection.cpp
+        src/graphics/texture-collection.h
+        src/graphics/glyph-collection.h
+        src/graphics/glyph-collection.cpp
+        src/audio/audio-manager.cpp
+        src/audio/audio-manager.h
+        src/audio/sound-buffer.cpp
+        src/audio/sound-buffer.h
+        src/audio/sound-source.cpp
+        src/audio/sound-source.h
+        src/utils/file-watcher.cpp
+        src/utils/file-watcher.h
+        src/debug/debug-server.cpp
+        src/debug/debug-server.h)
 
-set (JSPLAY_LIBS
+set (GAMEPLAY_LIBS
   ${V8_LIBS}
   freetype
   libglew_static
@@ -92,8 +92,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   find_library(OPENGL_LIBRARY OpenGL)
   find_library(IOKIT_LIBRARY IOKit)
   find_library(COREVIDEO_LIBRARY CoreVideo)
-  set (JSPLAY_LIBS
-    ${JSPLAY_LIBS}
+  set (GAMEPLAY_LIBS
+    ${GAMEPLAY_LIBS}
     ${COCOA_LIBRARY}
     ${OPENGL_LIBRARY}
     ${IOKIT_LIBRARY}
@@ -133,7 +133,7 @@ include_directories(
   deps/openal-soft/include
   deps/stb
   deps/v8/include
-  src/runtime
+  src
   deps/v8
   deps/efsw/include
   deps/asio)
@@ -148,6 +148,6 @@ if (UNIX)
   add_definitions(-std=c++11 -stdlib=libc++)
 endif()
 
-add_executable(play ${JSPLAY_SRCS})
+add_executable(gameplay ${GAMEPLAY_SRCS})
 
-target_link_libraries(play ${JSPLAY_LIBS})
+target_link_libraries(gameplay ${GAMEPLAY_LIBS})

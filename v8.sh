@@ -9,4 +9,4 @@ gclient sync --with_branch_heads --jobs 16
 sed -i '' "s/'CLANG_CXX_LANGUAGE_STANDARD': 'gnu++0x'/& ,'CLANG_CXX_LIBRARY': 'libc++'/" build/standalone.gypi
 sed -i '' "/cctest.gyp/d" build/all.gyp
 sed -i '' "/unittests.gyp/d" build/all.gyp
-make native
+make i18nsupport=off native

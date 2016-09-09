@@ -18,19 +18,14 @@ if (WIN32)
     ${WIN32_V8_LIBS_DIR}/v8_base_3.lib
     ${WIN32_V8_LIBS_DIR}/v8_libbase.lib
     ${WIN32_V8_LIBS_DIR}/v8_nosnapshot.lib
-    ${WIN32_V8_LIBS_DIR}/v8_libplatform.lib
-    ${WIN32_V8_LIBS_DIR}/icuuc.lib
-    ${WIN32_V8_LIBS_DIR}/icui18n.lib)
+    ${WIN32_V8_LIBS_DIR}/v8_libplatform.lib)
   set (OPENAL_LIBS OpenAL32)
 else()
   set (V8_LIBS
     ${V8_LIBS_DIR}/libv8_base.a
     ${V8_LIBS_DIR}/libv8_libbase.a
     ${V8_LIBS_DIR}/libv8_nosnapshot.a
-    ${V8_LIBS_DIR}/libv8_libplatform.a
-    ${V8_LIBS_DIR}/libicudata.a
-    ${V8_LIBS_DIR}/libicuuc.a
-    ${V8_LIBS_DIR}/libicui18n.a)
+    ${V8_LIBS_DIR}/libv8_libplatform.a)
   set (OPENAL_LIBS openal)
 endif()
 

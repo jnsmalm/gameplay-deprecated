@@ -16,7 +16,7 @@ gulp.task('dist', function() {
     platform = '-win';
   }
   return gulp.src(
-      ['./{lib,examples,bin}/**/*','LICENSE'])
+      ['./{lib,samples,bin}/**/*','LICENSE','tsconfig.json'])
     .pipe(zip('gameplay-v' + pkg.version + platform + '.zip'))
     .pipe(gulp.dest('dist'));
 });

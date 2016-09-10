@@ -5,11 +5,21 @@ compiler: clang
 env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=c++11 -stdlib=libc++" GYP_DEFINES="clang=1 mac_deployment_target=10.7"
 
 before_install:
-  - brew update
-  - brew install cmake
+- brew update
+- brew install cmake
 
 before_script:
-  - bash v8.sh
+- bash v8.sh
 
 script:
-  - "cd $TRAVIS_BUILD_DIR && mkdir b && cd b && cmake .. && make"
+- "cd $TRAVIS_BUILD_DIR && mkdir b && cd b && cmake .. && make"
+
+deploy:
+  provider: releases
+  api_key:
+    secure: OVEOhtpv2jeR8qphJsQALydF++JWuUq0qXM4q23NpGRVz6UOucJ0+t2wuXzblvB9VsFQ8UCmbK8r3ZRZceh9kFpvKriP0z+DXaL2FHFFEPAkcTd0/FaCJpOmRnEpXIPFnR04k3p/t7bvpXmu1ZfyJaCdjEwwdX0A0RyfBAedcP5O4ujHQJTACTqZHJhDQYmVeSpi+/hqZlWcbJEFvVj7KBTYAuUUFXKWLaCJnexI11w0+/e+UP3Q/L5yO3CvsgvOn7VCXFktv8eDLJ6+yxVHTrb41EYpzqNEHCw8Hs4VTByEIahm+ErpCe9WCD/8RPxtWVzkRzj9y3KAv14Q4RxTTDywjR1YZlMb7pZRIIuyY+jD/sH9LsZFKju3I9BUKU9EQ98hhAzVGIRmf6C8JTV5490x69JB6MkW943yZnVPlyOuB6yyOD+BBtbbCm4Am5Q5LxNd7RQR6xmdiyNLjG/VWD2fERLLdqhT1zybUhN3wf2R2XgygvL0Y57ZhLXJRFdUKLXAHnAh5h7WICqqbeapem5CFepQm4ASEGx1vv4Kv7T2m/PMcW2W7oie1pSHfoxi37HEu6+pT4pEbl8+o1QiSN7i5ZZIEHNp6L/oIWy0CQqQ6cnYOg7W6uy2RTW1cvIhigUuuEHausPJi9jFa+3pT1plWSnMNwRdrsurkRkjXCI=
+  file_glob: true
+  file: dist/gameplay*.zip
+  skip_cleanup: true
+  on:
+    tags: true

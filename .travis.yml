@@ -7,12 +7,17 @@ env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=
 before_install:
 - brew update
 - brew install cmake
+- brew install node
+- npm install -g gulp
 
 before_script:
 - bash v8.sh
 
 script:
 - "cd $TRAVIS_BUILD_DIR && mkdir b && cd b && cmake .. && make"
+
+before_deploy:
+- "cd $TRAVIS_BUILD_DIR && npm install && gulp"
 
 deploy:
   provider: releases

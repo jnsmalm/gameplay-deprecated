@@ -75,9 +75,10 @@ RenderTarget::RenderTarget(Isolate* isolate, std::vector<Texture2D*> textures) :
                                textures[i]->glTexture(), 0);
     }
 
-    GLenum drawBuffers[textures.size()];
+    GLenum *drawBuffers = new GLenum[textures.size()];
     std::copy(attachments.begin(), attachments.end(), drawBuffers);
     glDrawBuffers(static_cast<GLsizei>(textures.size()), drawBuffers);
+    delete[] drawBuffers;
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         throw std::runtime_error(

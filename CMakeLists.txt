@@ -5,7 +5,7 @@ project(gameplay)
 set (GAMEPLAY_VERSION "0.6.0")
 
 set (WIN32_V8_LIBS_DIR
-  ${CMAKE_SOURCE_DIR}/deps/v8/build/Release/lib)
+  ${CMAKE_SOURCE_DIR}/deps/v8/out/release/obj/tools/gyp)
 set (V8_LIBS_DIR
   ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
 set(CMAKE_BUILD_TYPE Release)

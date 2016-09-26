@@ -31,6 +31,7 @@ export module Game {
     export let mouse: Mouse;
     export let timer: Timer;
     export let window: Window;
+    export let escapeKeyExit = true;
 
     let currentTime: number = 0;
     let lastTime: number = 0;
@@ -87,6 +88,10 @@ export module Game {
         timeAccumulator += frameTime;
         while (timeAccumulator >= targetElapsedTime) {
             keyboard.updateState();
+            if (escapeKeyExit && keyboard.isKeyDown(256)) {
+                Game.exit();
+                return;
+            }
             mouse.updateState();
             Game.update(targetElapsedTime);
             timeAccumulator -= targetElapsedTime;

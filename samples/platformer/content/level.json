@@ -1,0 +1,252 @@
+{
+  "player": {
+    "position": {
+      "x": 8,
+      "y": 2
+    }
+  },
+  "platforms": [
+    {
+      "name": "1",
+      "drawOrder": 4,
+      "position": {
+        "x": 0,
+        "y": -6
+      },
+      "size": {
+        "x": 42,
+        "y": 3
+      }
+    },
+    {
+      "name": "2",
+      "drawOrder": 1,
+      "position": {
+        "x": 1,
+        "y": -2
+      },
+      "size": {
+        "x": 6,
+        "y": 8
+      }
+    },
+    {
+      "name": "3",
+      "drawOrder": 2,
+      "position": {
+        "x": -1,
+        "y": -3
+      },
+      "size": {
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "name": "4",
+      "drawOrder": 3,
+      "position": {
+        "x": 3,
+        "y": -4
+      },
+      "size": {
+        "x": 4,
+        "y": 4
+      }
+    },
+    {
+      "name": "5",
+      "drawOrder": 1,
+      "position": {
+        "x": 8,
+        "y": 0
+      },
+      "size": {
+        "x": 1,
+        "y": 1
+      }
+    },
+    {
+      "name": "6",
+      "drawOrder": 1,
+      "position": {
+        "x": 15,
+        "y": -3
+      },
+      "size": {
+        "x": 5,
+        "y": 6
+      }
+    },
+    {
+      "name": "7",
+      "drawOrder": 2,
+      "position": {
+        "x": 12,
+        "y": -4
+      },
+      "size": {
+        "x": 3,
+        "y": 4
+      }
+    },
+    {
+      "name": "8",
+      "drawOrder": 2,
+      "position": {
+        "x": 18,
+        "y": -4
+      },
+      "size": {
+        "x": 3,
+        "y": 4
+      }
+    },
+    {
+      "name": "9",
+      "drawOrder": 1,
+      "position": {
+        "x": -16,
+        "y": -3
+      },
+      "size": {
+        "x": 6,
+        "y": 4
+      }
+    },
+    {
+      "name": "10",
+      "drawOrder": 2,
+      "position": {
+        "x": -13,
+        "y": -5
+      },
+      "size": {
+        "x": 4,
+        "y": 4
+      }
+    },
+    {
+      "name": "11",
+      "drawOrder": 2,
+      "position": {
+        "x": -7,
+        "y": -1
+      },
+      "size": {
+        "x": 1,
+        "y": 1
+      }
+    },
+    {
+      "name": "12",
+      "drawOrder": 2,
+      "position": {
+        "x": -8,
+        "y": -3
+      },
+      "size": {
+        "x": 1,
+        "y": 1
+      }
+    },
+    {
+      "name": "13",
+      "drawOrder": 2,
+      "position": {
+        "x": -8,
+        "y": 1
+      },
+      "size": {
+        "x": 1,
+        "y": 1
+      }
+    }
+  ],
+  "coins": [
+    {
+      "name": "1",
+      "position": {
+        "x": -2,
+        "y": 1
+      }
+    },
+    {
+      "name": "2",
+      "position": {
+        "x": -1,
+        "y": 1
+      }
+    },
+    {
+      "name": "3",
+      "position": {
+        "x": 0,
+        "y": 1
+      }
+    },
+    {
+      "name": "4",
+      "position": {
+        "x": 1,
+        "y": 3
+      }
+    },
+    {
+      "name": "5",
+      "position": {
+        "x": 2,
+        "y": 3
+      }
+    },
+    {
+      "name": "6",
+      "position": {
+        "x": 0,
+        "y": 3
+      }
+    },
+    {
+      "name": "7",
+      "position": {
+        "x": 15,
+        "y": 1
+      }
+    },
+    {
+      "name": "8",
+      "position": {
+        "x": 14,
+        "y": 1
+      }
+    },
+    {
+      "name": "9",
+      "position": {
+        "x": 16,
+        "y": 1
+      }
+    },
+    {
+      "name": "10",
+      "position": {
+        "x": -16,
+        "y": 0
+      }
+    },
+    {
+      "name": "11",
+      "position": {
+        "x": -17,
+        "y": 0
+      }
+    },
+    {
+      "name": "12",
+      "position": {
+        "x": -15,
+        "y": 0
+      }
+    }
+  ]
+}

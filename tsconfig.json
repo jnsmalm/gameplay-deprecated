@@ -5,10 +5,8 @@
         "lib":[
             "es2016"
         ],
-        "sourceMap": true,
-        "moduleResolution": "classic",
-        "allowJs": true,
-        "outDir": "build"
+        "inlineSourceMap": true,
+        "moduleResolution": "classic"
     },
     "exclude": [
         "gulpfile.js",

@@ -291,6 +291,9 @@ export namespace SAT {
         for (var i = 0; i < 3; i++) {
             for (var j = 0; j < 3; j++) {
                 let c = a.normals[i].cross(b.normals[j], vector.next);
+                if (c.sqrMagnitude === 0) {
+                    continue;
+                }
                 axes.push(c.normalize(c));
             }
         }

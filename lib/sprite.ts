@@ -63,6 +63,7 @@ export class Sprite {
     public transform = new Transform();
     public pixelsPerUnit = 100;
     public origin: Vector2;
+    public drawOrder = 0;
     /**
      * Creates a new sprite.
      */
@@ -139,8 +140,11 @@ export class SpriteBatch {
     /**
      * Sorts the sprites based on texture.
      */
-    sort(a: Sprite, b: Sprite) {
-        return a.texture.id - b.texture.id;
+    private sortByTexture(a: Sprite, b: Sprite) {
+        if (a.drawOrder === b.drawOrder) {
+            return a.texture.id - b.texture.id;
+        }
+        return a.drawOrder - b.drawOrder;
     }
     /**
      * Adds a sprite to the list of sprites to be drawn.
@@ -151,7 +155,7 @@ export class SpriteBatch {
     /**
      * Draw sprites that has been added.
      */
-    draw(blendState: BlendState = 'alphaBlend', depthState: DepthState = 'none') {
+    draw(blendState: BlendState = "alphaBlend", depthState: DepthState = "none") {
         if (this.sprites.length === 0) {
             return;
         }
@@ -160,15 +164,17 @@ export class SpriteBatch {
             depthState: this.graphics.depthState
         };
         this.setupState(blendState, depthState);
-        this.sprites.sort(this.sort);
+        this.sprites.sort(this.sortByTexture);
 
         let numberOfSpritesInBatch = 0;
+        let drawOrder = this.sprites[0].drawOrder;
         let texture = this.sprites[0].texture;
 
         for (let sprite of this.sprites) {
-            if (sprite.texture !== texture) {
+            if (sprite.texture !== texture || sprite.drawOrder !== drawOrder) {
                 this.drawBatch(texture, numberOfSpritesInBatch);
                 numberOfSpritesInBatch = 0;
+                drawOrder = sprite.drawOrder;
                 texture = sprite.texture;
             }
             this.vertices.addVertices(sprite);

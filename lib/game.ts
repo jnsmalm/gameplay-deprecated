@@ -22,9 +22,15 @@ SOFTWARE.*/
 
 import { Color } from "./color"
 
+export interface GameOptions {
+    height?: number;
+    fullscreen?: boolean;
+    width?: number;
+}
+
 export module Game {
 
-    export let clearColor: Color;
+    export let clearColor = new Color(0.3, 0.3, 0.3, 1);
     export let fps: number = 0;
     export let graphics: Graphics;
     export let keyboard: Keyboard;
@@ -37,17 +43,15 @@ export module Game {
     let lastTime: number = 0;
     let elapsedTime: number = 0;
     let numberOfFrames: number = 0;
-    let targetElapsedTime: number = 0;
+    let targetElapsedTime: number = 1 / 60;
     let timeAccumulator: number = 0;
 
     export function init(options: GameOptions = {}) {
-        clearColor = options.clearColor || new Color(0.3, 0.3, 0.3, 1);
-        targetElapsedTime = options.targetElapsedTime || 1 / 60;
-
-        if (options.startFileWatcher) {
-            FileWatcher.start();
-        }
-        window = new Window();
+        window = new Window({ 
+            height: options.height, 
+            fullscreen: options.fullscreen ,
+            width: options.width
+        });
         keyboard = new Keyboard(window);
         mouse = new Mouse(window);
         timer = new Timer();
@@ -111,12 +115,4 @@ export module Game {
             FileWatcher.handleEvents();
         }
     }
-}
-
-export interface GameOptions {
-    clearColor?: Color;
-    height?: number;
-    startFileWatcher?: boolean;
-    targetElapsedTime?: number;
-    width?: number;
 }

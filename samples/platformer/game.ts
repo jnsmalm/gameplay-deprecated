@@ -24,7 +24,7 @@ import * as $ from "../../lib/lib"
 import { Level } from "./level"
 import { Content } from "./content"
 
-$.Game.init({ width: 1024, height: 576 });
+$.Game.init();
 
 Content.load();
 

@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-JSPlay Copyright (c) 2015 Jens Malmborg
+Copyright (c) 2016 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,17 @@ Window::Window(Isolate* isolate, std::string title, int width, int height,
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+    if (fullscreen && width == 0 && height == 0) {
+        // Get current video mode to create a borderless full screen window.
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+        width = mode->width;
+        height = mode->height;
+    }
 
     GLFWmonitor* monitor = fullscreen ? glfwGetPrimaryMonitor() : 0;
     glfwWindow_ = glfwCreateWindow(width, height, title.c_str(), monitor, NULL);
@@ -121,11 +132,13 @@ void Window::Initialize() {
 void Window::New(const FunctionCallbackInfo<Value>& args) {
     HandleScope scope(args.GetIsolate());
     ScriptHelper helper(args.GetIsolate());
+
     auto arg = helper.GetObject(args[0]);
-    auto title = helper.GetString(arg, "title", "Play");
+    auto title = helper.GetString(arg, "title", "Gameplay");
     auto fullscreen = helper.GetBoolean(arg, "fullscreen", false);
-    auto width = helper.GetInteger(arg, "width", 800);
-    auto height = helper.GetInteger(arg, "height", 600);
+    auto width = helper.GetInteger(arg, "width", fullscreen ? 0 : 1024);
+    auto height = helper.GetInteger(arg, "height", fullscreen ? 0 : 576);
+
     try {
         auto window = new Window(
                 args.GetIsolate(), title, width, height, fullscreen);

@@ -246,10 +246,17 @@ declare class Window {
     width: number;
     /**
      * Creates a new Window.
+     * @height Preferred Window height (default: 576).
+     * @fullscreen When fullscreen is set the specified width/height is not
+     * guaranteed (default: false).
+     * @title Title for the Window.
+     * @width Preferred Window width (default: 1024).
      */
     constructor(options?: {
-        width?: number;
         height?: number;
+        fullscreen?: boolean;
+        title?: string;
+        width?: number;
     });
     /**
      * Returns true if the window is closing.

@@ -1,6 +1,6 @@
 {
   "name": "gameplay",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "devDependencies": {
     "del": "^1.2.0",

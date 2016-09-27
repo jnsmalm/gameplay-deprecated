@@ -22,31 +22,36 @@ SOFTWARE.*/
 
 import { Color } from "./color"
 
+export interface GameOptions {
+    height?: number;
+    fullscreen?: boolean;
+    width?: number;
+}
+
 export module Game {
 
-    export let clearColor: Color;
+    export let clearColor = new Color(0.3, 0.3, 0.3, 1);
     export let fps: number = 0;
     export let graphics: Graphics;
     export let keyboard: Keyboard;
     export let mouse: Mouse;
     export let timer: Timer;
     export let window: Window;
+    export let escapeKeyExit = true;
 
     let currentTime: number = 0;
     let lastTime: number = 0;
     let elapsedTime: number = 0;
     let numberOfFrames: number = 0;
-    let targetElapsedTime: number = 0;
+    let targetElapsedTime: number = 1 / 60;
     let timeAccumulator: number = 0;
 
     export function init(options: GameOptions = {}) {
-        clearColor = options.clearColor || new Color(0.3, 0.3, 0.3, 1);
-        targetElapsedTime = options.targetElapsedTime || 1 / 60;
-
-        if (options.startFileWatcher) {
-            FileWatcher.start();
-        }
-        window = new Window();
+        window = new Window({ 
+            height: options.height, 
+            fullscreen: options.fullscreen ,
+            width: options.width
+        });
         keyboard = new Keyboard(window);
         mouse = new Mouse(window);
         timer = new Timer();
@@ -87,6 +92,10 @@ export module Game {
         timeAccumulator += frameTime;
         while (timeAccumulator >= targetElapsedTime) {
             keyboard.updateState();
+            if (escapeKeyExit && keyboard.isKeyDown(256)) {
+                Game.exit();
+                return;
+            }
             mouse.updateState();
             Game.update(targetElapsedTime);
             timeAccumulator -= targetElapsedTime;
@@ -106,12 +115,4 @@ export module Game {
             FileWatcher.handleEvents();
         }
     }
-}
-
-export interface GameOptions {
-    clearColor?: Color;
-    height?: number;
-    startFileWatcher?: boolean;
-    targetElapsedTime?: number;
-    width?: number;
 }

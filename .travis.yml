@@ -5,6 +5,8 @@ compiler: clang
 env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=c++11 -stdlib=libc++" GYP_DEFINES="clang=1 mac_deployment_target=10.7"
 
 before_install:
+- "wget https://cmake.org/files/v3.6/cmake-3.6.2-Darwin-x86_64.tar.gz && tar xfz cmake-3.6.2-Darwin-x86_64.tar.gz"
+- export PATH="`pwd`/cmake-3.6.2-Darwin-x86_64/CMake.app/Contents/bin":$PATH:
 - npm install -g gulp
 
 before_script:

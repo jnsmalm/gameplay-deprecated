@@ -4,18 +4,22 @@ language: cpp
 compiler: clang
 env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=c++11 -stdlib=libc++" GYP_DEFINES="clang=1 mac_deployment_target=10.7"
 
-before_install:
-- "wget https://cmake.org/files/v3.6/cmake-3.6.2-Darwin-x86_64.tar.gz && tar xfz cmake-3.6.2-Darwin-x86_64.tar.gz"
-- export PATH="`pwd`/cmake-3.6.2-Darwin-x86_64/CMake.app/Contents/bin":$PATH:
-- npm install -g gulp
+cache:
+  directories:
+  - $TRAVIS_BUILD_DIR/deps/v8
+
+install:
+- bash v8.sh
 
 before_script:
-- bash v8.sh
+- brew update
+- brew install cmake
 
 script:
 - "cd $TRAVIS_BUILD_DIR && mkdir b && cd b && cmake .. && make"
 
 before_deploy:
+- npm install -g gulp
 - "cd $TRAVIS_BUILD_DIR && npm install && gulp"
 
 deploy:

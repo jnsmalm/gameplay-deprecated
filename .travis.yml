@@ -9,7 +9,7 @@ cache:
   - $TRAVIS_BUILD_DIR/deps/v8
 
 install:
-- if [[ ! -d $TRAVIS_BUILD_DIR/deps/v8 ]]; then bash v8.sh; fi
+- if [[ ! -d $TRAVIS_BUILD_DIR/deps/v8/out ]]; then bash v8.sh; fi
 
 before_script:
 - brew update

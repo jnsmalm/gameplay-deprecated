@@ -6,10 +6,11 @@ env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=
 
 cache:
   directories:
-  - $TRAVIS_BUILD_DIR/deps/v8
+  - $TRAVIS_BUILD_DIR/deps/v8/include
+  - $TRAVIS_BUILD_DIR/deps/v8/out/release/obj/tools/gyp
 
 install:
-- if [[ ! -d $TRAVIS_BUILD_DIR/deps/v8/out ]]; then rmdir $TRAVIS_BUILD_DIR/deps/v8; bash v8.sh; fi
+- if [[ ! -d $TRAVIS_BUILD_DIR/deps/v8/out ]]; then rm -rf $TRAVIS_BUILD_DIR/deps/v8; bash v8.sh; fi
 
 before_script:
 - brew update

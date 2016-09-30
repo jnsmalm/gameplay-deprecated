@@ -10,7 +10,7 @@ cache:
   - $TRAVIS_BUILD_DIR/deps/v8/out/release/obj/tools/gyp
 
 install:
-- if [[ ! -d $TRAVIS_BUILD_DIR/deps/v8/libplatform ]]; then rm -rf $TRAVIS_BUILD_DIR/deps/v8; bash v8.sh; fi
+- if [[ ! -f $TRAVIS_BUILD_DIR/deps/v8/out/release/obj/tools/gyp/libv8_base.a ]]; then rm -rf $TRAVIS_BUILD_DIR/deps/v8; bash v8.sh; fi
 
 before_script:
 - brew update

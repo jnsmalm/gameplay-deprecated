@@ -3,22 +3,18 @@ cmake_minimum_required(VERSION 3.2.2)
 project(gameplay)
 
 set (GAMEPLAY_VERSION "0.6.1")
-
-set (WIN32_V8_LIBS_DIR
-  ${CMAKE_SOURCE_DIR}/deps/v8/out/release/obj/tools/gyp)
-set (V8_LIBS_DIR
-  ${CMAKE_SOURCE_DIR}/deps/v8/out/native)
-set(CMAKE_BUILD_TYPE Release)
+set (V8_LIBS_DIR ${CMAKE_SOURCE_DIR}/deps/v8/lib)
+set (CMAKE_BUILD_TYPE Release)
 
 if (WIN32)
   set (V8_LIBS
-    ${WIN32_V8_LIBS_DIR}/v8_base_0.lib
-    ${WIN32_V8_LIBS_DIR}/v8_base_1.lib
-    ${WIN32_V8_LIBS_DIR}/v8_base_2.lib
-    ${WIN32_V8_LIBS_DIR}/v8_base_3.lib
-    ${WIN32_V8_LIBS_DIR}/v8_libbase.lib
-    ${WIN32_V8_LIBS_DIR}/v8_nosnapshot.lib
-    ${WIN32_V8_LIBS_DIR}/v8_libplatform.lib)
+    ${V8_LIBS_DIR}/v8_base_0.lib
+    ${V8_LIBS_DIR}/v8_base_1.lib
+    ${V8_LIBS_DIR}/v8_base_2.lib
+    ${V8_LIBS_DIR}/v8_base_3.lib
+    ${V8_LIBS_DIR}/v8_libbase.lib
+    ${V8_LIBS_DIR}/v8_nosnapshot.lib
+    ${V8_LIBS_DIR}/v8_libplatform.lib)
   set (OPENAL_LIBS OpenAL32)
 else()
   set (V8_LIBS
@@ -127,11 +123,11 @@ include_directories(
   deps/freetype/include
   deps/openal-soft/include
   deps/stb
-  deps/v8/include
-  src
   deps/v8
+  deps/v8/include
   deps/efsw/include
-  deps/asio)
+  deps/asio
+  src)
 
 add_definitions(
   -DGLEW_STATIC

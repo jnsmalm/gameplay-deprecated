@@ -2,17 +2,11 @@ os: osx
 osx_image: xcode7.2
 language: cpp
 compiler: clang
-env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=c++11 -stdlib=libc++" GYP_DEFINES="clang=1 mac_deployment_target=10.7"
-
-cache:
-  directories:
-  - $TRAVIS_BUILD_DIR/deps/v8/include
-  - $TRAVIS_BUILD_DIR/deps/v8/out/native
+env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=c++11 -stdlib=libc++"
 
 install:
-- if [[ ! -f $TRAVIS_BUILD_DIR/deps/v8/out/native/libv8_base.a ]]; then rm -rf $TRAVIS_BUILD_DIR/deps/v8; bash v8.sh; fi
-
-before_script:
+- curl -L https://github.com/jnsmalm/build-v8/releases/download/v4.9.385.33.2/libv8-4.9.385.33.2-darwin-64bit.tar.gz -o libv8.tar.gz
+- "mkdir deps/v8/lib && tar -xvzf libv8.tar.gz -C deps/v8/lib"
 - brew update
 - brew install cmake
 
@@ -26,9 +20,10 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: OVEOhtpv2jeR8qphJsQALydF++JWuUq0qXM4q23NpGRVz6UOucJ0+t2wuXzblvB9VsFQ8UCmbK8r3ZRZceh9kFpvKriP0z+DXaL2FHFFEPAkcTd0/FaCJpOmRnEpXIPFnR04k3p/t7bvpXmu1ZfyJaCdjEwwdX0A0RyfBAedcP5O4ujHQJTACTqZHJhDQYmVeSpi+/hqZlWcbJEFvVj7KBTYAuUUFXKWLaCJnexI11w0+/e+UP3Q/L5yO3CvsgvOn7VCXFktv8eDLJ6+yxVHTrb41EYpzqNEHCw8Hs4VTByEIahm+ErpCe9WCD/8RPxtWVzkRzj9y3KAv14Q4RxTTDywjR1YZlMb7pZRIIuyY+jD/sH9LsZFKju3I9BUKU9EQ98hhAzVGIRmf6C8JTV5490x69JB6MkW943yZnVPlyOuB6yyOD+BBtbbCm4Am5Q5LxNd7RQR6xmdiyNLjG/VWD2fERLLdqhT1zybUhN3wf2R2XgygvL0Y57ZhLXJRFdUKLXAHnAh5h7WICqqbeapem5CFepQm4ASEGx1vv4Kv7T2m/PMcW2W7oie1pSHfoxi37HEu6+pT4pEbl8+o1QiSN7i5ZZIEHNp6L/oIWy0CQqQ6cnYOg7W6uy2RTW1cvIhigUuuEHausPJi9jFa+3pT1plWSnMNwRdrsurkRkjXCI=
+    secure: chjHEXNIYUCQYzd2/uTlM9disrAEEp5mlEmZBSc77nOfTyUFmEAxtMbfC++jEkF5EorcJ6BKFgDyOoWak5uc05fcO9jf5skHrWr/BLD8LnlZmRLTv+YYdkQvEZ6WC6zlpWNGmztwsmrgg94HynAYtc0JwB6nkUQzWwSPwO/aZW8wHqtqWWPcA0S1pOTZR2j0CGpRCt5JcsyezVgbbMXyHfw968lbSfVsm5DifiovUehkrQicUuypJZTP3KwCdw+cM/oUsJ+gXJRgtN/2s5hZRkSSkCythKzgaFGv+9EeaifppsWxHdpKY13K1lwHoMj5wm9lCdujxEGxvPVSPByZaLHQ3J17MTD/sGl6QmM1RNDR56exvxtYRrrn+gvEfP2kaD1UKPQ5TG8xtbjyEpFPHBuEvUIla6yT47bgSg3H3J4XkCwjo13fx3A5+CeXI7mWWHJ8j+2facJSewuSCa/qIjkQGXTlLOcrRmdjKXpbIByKGO8d7HNXJ1Kxtuh5RwUKnFRv2CFBdMjwP97uT6eRxlS8DpfRY4oTImRJh8O1uXPKCkZ6SNSXCsY3fM3hhjA3eZM2IBNt5/s42XweqgO4tJTgILRGDvYM58KHZPUaBXmg7oUj05+k9E9ITOR5G78tLKxvt3pyCYZ9Uy4TFCDxFKP0GF3FiZtOapau8JYfaCo=
   file_glob: true
   file: dist/gameplay*.zip
   skip_cleanup: true
+  draft: true
   on:
     tags: true

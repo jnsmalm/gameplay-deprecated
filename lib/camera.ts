@@ -38,6 +38,14 @@ export class Camera {
     constructor(public aspect: number, public near = 0.1, public far = 1000,
         public fieldOfView = 45, public orthographic = false,
         public orthographicSize = 5) { }
+        
+    static createDefault(window: Window, orthographic = false) {
+        let camera = new Camera(
+            window.width / window.height, 0.1, 1000, 45, orthographic);
+        camera.transform.localPosition.z = 5;
+        camera.transform.rotateY(180 * Math.PI / 180);
+        return camera;
+    }
     /**
      * Creates a new perspective camera.
      */

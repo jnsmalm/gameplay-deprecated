@@ -32,6 +32,7 @@ SOFTWARE.*/
 #include <utils/path-helper.h>
 #include <utils/file-watcher.h>
 #include <graphics/render-target.h>
+#include <iostream>
 #include "script-object-wrap.h"
 #include "script-global.h"
 #include "scripthelper.h"
@@ -59,7 +60,22 @@ ScriptGlobal::ScriptGlobal(v8::Isolate *isolate) :
 
 void ScriptGlobal::Initialize() {
     ScriptObjectWrap::Initialize();
+    SetFunction("load", Load);
     SetFunction("require", Require);
+}
+
+void ScriptGlobal::Load(const v8::FunctionCallbackInfo<v8::Value>& args) {
+    v8::HandleScope scope(args.GetIsolate());
+    ScriptHelper helper(args.GetIsolate());
+    try {
+        auto filepath = helper.GetString(args[0]);
+        auto resolved = ScriptEngine::current().resolvePath(filepath);
+        auto result = ScriptEngine::current().Execute(filepath);
+        args.GetReturnValue().Set(result);
+    }
+    catch (std::exception& ex) {
+        ScriptEngine::current().ThrowTypeError(ex.what());
+    }
 }
 
 void ScriptGlobal::Require(const v8::FunctionCallbackInfo<v8::Value>& args) {

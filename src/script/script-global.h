@@ -42,6 +42,7 @@ private:
         T::InstallAsConstructor(v8Isolate(), name, v8Template());
     }
 
+    static void Load(const v8::FunctionCallbackInfo<v8::Value>& args);
     static void Require(const v8::FunctionCallbackInfo<v8::Value>& args);
 
     static std::map<std::string, v8::Persistent<v8::Value>> moduleCache;

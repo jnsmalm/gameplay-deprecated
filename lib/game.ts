@@ -33,6 +33,7 @@ export interface GameOptions {
     width?: number;
     enableEscapeKeyAsExit?: boolean;
     targetElapsedTime?: number;
+    title?: string;
 }
 
 /** Handles the window, input devices and sets up the game loop. */
@@ -58,13 +59,15 @@ export module Game {
             enableEscapeKeyAsExit = true,
             enableFileWatcher = true,
             width = 1024,
-            targetElapsedTime = 1 / 60
+            targetElapsedTime = 1 / 60,
+            title = ""
         } = options;
 
         window = new Window({
             height: height,
             fullscreen: fullscreen,
-            width: width
+            width: width,
+            title: title
         });
         keyboard = new Keyboard(window);
         mouse = new Mouse(window);

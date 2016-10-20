@@ -48,10 +48,7 @@ export class Level {
     clouds: $.Sprite;
 
     constructor() {
-        this.camera = $.Camera.createPerspective($.Game.window);
-
-        // Rotate the camera and move it back a bit to get a good view.
-        this.camera.transform.rotateY(180 * Math.PI / 180);
+        this.camera = $.Camera.createDefault($.Game.window);
         this.camera.transform.localPosition.z = 14;
 
         this.spriteBatch = new $.SpriteBatch($.Game.graphics, this.camera);

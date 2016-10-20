@@ -79,7 +79,7 @@ declare type BlendState = "alphaBlend" | "opaque" | "additive";
 /**
  * Contains depth state for the graphics.
  */
-declare type DepthState = "default" | "depthRead" | "none";
+declare type DepthState = "default" | "read" | "none";
 
 /**
  * Contains rasterizer state for the graphics.

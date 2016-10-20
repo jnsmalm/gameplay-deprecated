@@ -242,7 +242,7 @@ class SpriteIndexArray extends Array<number> {
      * Adds indicies starting at the given offset.
      */
     addIndicies(offset: number) {
-        this.push(offset, offset + 3, offset + 2, offset, offset + 1, offset + 3);
+        this.push(offset, offset + 2, offset + 3, offset, offset + 3, offset + 1);
     }
 }
 

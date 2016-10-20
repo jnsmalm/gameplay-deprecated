@@ -208,7 +208,7 @@ GraphicsDevice::GraphicsDevice(Isolate *isolate, Window *window) :
 
     SetBlendState(BlendState::Opaque);
     SetDepthState(DepthState::Default);
-    SetRasterizerState(RasterizerState::CullCounterClockwise);
+    SetRasterizerState(RasterizerState::CullClockwise);
 }
 
 void GraphicsDevice::Clear(ClearType type, float r, float g, float b, float a) {

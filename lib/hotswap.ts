@@ -24,26 +24,25 @@ interface HotSwappable {
     init?(): void;
 }
 
+namespace Callbacks {
+    export const done: ((filepath: string) => void)[] = [];
+    export const fail: ((filepath: string) => void)[] = [];
+}
+
 export module HotSwap {
-    let listeners: ((filepath: string) => void)[] = [];
     let exports = {};
     let objects: {
         [filepath: string]: HotSwappable[]
     } = {};
-    
-    export function changed(callback: (filepath: string) => void) {
-        listeners.push(callback);
-    }
-
-    /** Enables an object to swap prototype at runtime when the file changes. */
-    export function setup(
-        object: HotSwappable, module: { filename: string, path: string }) {
-
+    /**
+     * Enables an object to swap prototype at runtime when the file changes.
+     */
+    export function add(object: HotSwappable, module: any) {
         let filepath = module.path + "/" + module.filename;
         if (!exports[filepath]) {
             exports[filepath] = (<any>module).exports;
             let fw = new FileWatcher(filepath, () => {
-                fileChanged(filepath);
+                changed(filepath);
             });
         }
         if (!objects[filepath]) {
@@ -53,31 +52,61 @@ export module HotSwap {
             return;
         }
         let ctor = object.constructor.name;
+        if (!exports[filepath][ctor]) {
+            throw new TypeError(
+                `Could not find constructor "${ctor}" in module "${filepath}", maybe you misspelled or forgot to export it?`);
+        }
         Object.setPrototypeOf(object, exports[filepath][ctor].prototype);
         objects[filepath].push(object);
-        if (object.init) { object.init(); }
+        try {
+            if (object.init) { 
+                object.init();
+            }
+        } catch (err) {
+            console.log(err.stack);
+            for (let cb of Callbacks.fail) {
+                cb(filepath);
+            }
+        }
+    }
+    /**
+     * Adds a function to be called when hotswap failed.
+     */
+    export function fail(callback: (filepath: string) => void) {
+        Callbacks.fail.push(callback);
+    }
+    /**
+     * Adds a function to be called when hotswap is done.
+     */
+    export function done(callback: (filepath: string) => void) {
+        Callbacks.done.push(callback);
     }
 
-    function fileChanged(filepath: string) {
+    function changed(filepath: string) {
         console.log(`${filepath} was changed`);
         try {
             exports[filepath] = load(filepath);
-        } catch (err) {
-            console.log(err);
-            return;
-        }
-        for (let object of objects[filepath]) {
-            let ctor = object.constructor.name;
-            if (!exports[filepath][ctor]) {
-                throw new TypeError(
-                    `Could not find constructor "${ctor}", has the name changed?`);
+            for (let object of objects[filepath]) {
+                let ctor = object.constructor.name;
+                if (!exports[filepath][ctor]) {
+                    throw new TypeError(
+                        `Could not find constructor "${ctor}", maybe you changed the name?`);
+                }
+                Object.setPrototypeOf(
+                    object, exports[filepath][ctor].prototype);
+                if (object.init) { 
+                    object.init();
+                }
             }
-            Object.setPrototypeOf(
-                object, exports[filepath][ctor].prototype);
-            if (object.init) { object.init(); }
-        }
-        for (let s of listeners) {
-            s(filepath);
+            for (let cb of Callbacks.done) {
+                cb(filepath);
+            }
+        } catch (err) {
+            console.log(err.stack);
+            for (let cb of Callbacks.fail) {
+                cb(filepath);
+            }
+            return;
         }
     }
 }

@@ -165,11 +165,16 @@ class FixedTimeStep implements TimeStep {
 }
 
 namespace ErrorHandler {
-    HotSwap.changed((filepath: string) => {
+    HotSwap.done((filepath: string) => {
         // Reset error when a module has been updated.
-        error = false;
+        errors = false;
     });
-    let error = false;
+    HotSwap.fail((filepath: string) => {
+        // Something went wrong when swapping
+        errors = true;
+    });
+    
+    let errors = false;
     let sbatch: SpriteBatch;
     let sprite: Sprite;
 
@@ -180,22 +185,22 @@ namespace ErrorHandler {
             sprite = Sprite.createFromFile(
                 module.path + "/content/error.png", sbatch);
         }
-        if (error) {
+        if (errors) {
             sprite.draw();
             sbatch.draw();
             return;
         }
         try { Game.draw() } catch (err) { 
-            console.log(err.stack); error = true
+            console.log(err.stack); errors = true
         }
     }
 
     export function tryUpdate(elapsedTime: number) {
-        if (error) {
+        if (errors) {
             return;
         }
         try { Game.update(elapsedTime) } catch (err) { 
-            console.log(err.stack); error = true 
+            console.log(err.stack); errors = true 
         }
     }
 }

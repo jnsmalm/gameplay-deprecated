@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 import * as $ from "../../lib/lib"
+import { GraphicsContext } from "./context"
 import { Level } from "./level"
 import { Content } from "./content"
 
@@ -28,7 +29,7 @@ $.Game.init();
 
 Content.load();
 
-const level = new Level();
+const level = new Level(new GraphicsContext());
 FileWatcher.start();
 
 $.Game.draw = function() {

@@ -30,7 +30,6 @@ $.Game.init();
 Content.load();
 
 const level = new Level(new GraphicsContext());
-FileWatcher.start();
 
 $.Game.draw = function() {
     level.draw();
@@ -38,7 +37,6 @@ $.Game.draw = function() {
 
 $.Game.update = function(elapsedTime: number) {
     level.update(elapsedTime);
-    FileWatcher.handleEvents();
 };
 
 $.Game.run();

@@ -1,0 +1,20 @@
+version: 1.0.{build}
+configuration: Release
+image: Visual Studio 2015
+install:
+- npm install -g typescript
+- set PATH=C:\Users\appveyor\AppData\Roaming\npm;%PATH%
+build_script:
+- cmd: .\build.bat
+artifacts:
+- path: gameplay*.zip
+  name: gameplay.zip
+deploy:
+- provider: GitHub
+  tag: '%APPVEYOR_REPO_TAG_NAME%'
+  auth_token:
+    secure: TcTgvgqFgep3CawLJfghwhG4VwcZm6+c4GwCdLXg4zUFktqUEWQXkn4QQUG3WOxY
+  artifact: gameplay.zip
+  draft: true
+  on:
+    APPVEYOR_REPO_TAG: true

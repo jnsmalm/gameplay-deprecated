@@ -26,6 +26,7 @@ import { Level } from "./level"
 import { Coin } from "./coin"
 import { Platform } from "./platform"
 import { Content } from "./content"
+import { GraphicsContext } from "./context"
 
 namespace Movement {
     export const left = new $.Vector3(-0.1, 0, 0);
@@ -155,20 +156,27 @@ export class Player extends $.Entity {
     collider: $.BoxCollider;
     controller: PlayerController;
 
-    constructor(level: Level) {
+    constructor(private context: GraphicsContext) {
         super();
+        $.HotSwap.add(this, module);
+    }
+
+    init() {
+        // Clear components before adding new ones.
+        this.components.length = 0;
 
         // Rigid body is used for simple physics.
         this.rigidBody = new $.RigidBody(1, 0, 0);
         this.rigidBody.enableGravity = true;
 
         // Sprite representing the player visually.
-        let sprite = this.addComponent(new $.Sprite(level.spriteBatch));
+        let sprite = this.addComponent(new $.Sprite(this.context.spriteBatch));
         sprite.pixelsPerUnit = 10;
         sprite.drawOrder = 4;
 
         // Control player movement and animation.
         let animator = this.addComponent(new PlayerAnimator(sprite));
+        animator.animate("idle");
         this.controller = this.addComponent(
             new PlayerController(animator, this.rigidBody));
 

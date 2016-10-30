@@ -248,10 +248,9 @@ namespace Breakout {
 Game.init();
 Game.graphics.rasterizerState = "cullClockwise";
 
-// Create the camera, also rotate it and move it back a bit.
-const camera = Camera.createPerspective(Game.window);
-camera.transform.rotateY(180 * Math.PI / 180);
-camera.transform.move(new Vector3(0, 0, 30));
+// Create the camera and move it back a bit.
+const camera = Camera.createDefault(Game.window);
+camera.transform.localPosition.z = 30;
 
 // Create the shader used for rendering and change light direction.
 const shader = new BasicShader(Game.graphics);

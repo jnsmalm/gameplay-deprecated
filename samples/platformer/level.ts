@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
 import * as $ from "../../lib/lib"
+import { GraphicsContext } from "./context"
 import { Player } from "./player"
 import { Platform } from "./platform"
 import { Coin } from "./coin"
@@ -47,15 +48,17 @@ export class Level {
     sky: $.Sprite;
     clouds: $.Sprite;
 
-    constructor() {
-        this.camera = $.Camera.createPerspective($.Game.window);
+    constructor(private context: GraphicsContext) {
+        let fw = new FileWatcher("./content/level.json", () => {
+            // Reload level when the file changes.
+            this.load("./content/level.json");
+        });
+        this.camera = context.camera;
+        this.spriteBatch = context.spriteBatch;
+        $.HotSwap.add(this, module);
+    }
 
-        // Rotate the camera and move it back a bit to get a good view.
-        this.camera.transform.rotateY(180 * Math.PI / 180);
-        this.camera.transform.localPosition.z = 14;
-
-        this.spriteBatch = new $.SpriteBatch($.Game.graphics, this.camera);
-
+    init() {
         this.sky = new $.Sprite(this.spriteBatch, Content.Textures.sky);
         this.sky.pixelsPerUnit = 0.7;
         this.sky.origin = new $.Vector2(
@@ -70,16 +73,9 @@ export class Level {
             this.clouds.width / 2, this.clouds.height / 2);
         this.clouds.transform.localPosition.z = -5;
 
-        this.player = new Player(this);
+        this.player = new Player(this.context);
 
-        // Load the level from file and reload when the file changes.
         this.load("./content/level.json");
-        let fw = new FileWatcher("./content/level.json", () => {
-            this.load("./content/level.json");
-        });
-
-        // Disable culling to see the player walking in both directions.
-        $.Game.graphics.rasterizerState = "cullNone";
     }
 
     load(filePath: string) {
@@ -136,9 +132,11 @@ export class Level {
         }
         this.detectCollisions();
 
+        // Make the camera follow the player
         this.camera.transform.localPosition.x = 
             this.player.transform.localPosition.x;
 
+        // Animate the clouds
         this.clouds.source.x += 0.005;
     }
 

@@ -20,99 +20,187 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
+import { Vector3 } from "./math"
 import { Color } from "./color"
+import { Sprite, SpriteBatch } from "./sprite"
+import { Camera } from "./camera"
+import { HotSwap } from "./hotswap"
 
 export interface GameOptions {
+    enableFileWatcher?: boolean;
     height?: number;
     fullscreen?: boolean;
     width?: number;
+    enableEscapeKeyAsExit?: boolean;
+    targetElapsedTime?: number;
+    title?: string;
 }
 
+/** Handles the window, input devices and sets up the game loop. */
 export module Game {
 
+    /** Color used when clearing the graphics each frame. */
     export let clearColor = new Color(0.3, 0.3, 0.3, 1);
-    export let fps: number = 0;
+
     export let graphics: Graphics;
     export let keyboard: Keyboard;
     export let mouse: Mouse;
-    export let timer: Timer;
     export let window: Window;
-    export let escapeKeyExit = true;
 
-    let currentTime: number = 0;
-    let lastTime: number = 0;
-    let elapsedTime: number = 0;
-    let numberOfFrames: number = 0;
-    let targetElapsedTime: number = 1 / 60;
-    let timeAccumulator: number = 0;
-
+    /** Creates the window/graphics and input devices. */
     export function init(options: GameOptions = {}) {
-        window = new Window({ 
-            height: options.height, 
-            fullscreen: options.fullscreen ,
-            width: options.width
+        if (window) {
+            // Make sure the game does not get initialized more than once.
+            return;
+        }
+        let {
+            height = 576,
+            fullscreen = false,
+            enableEscapeKeyAsExit = true,
+            enableFileWatcher = true,
+            width = 1024,
+            targetElapsedTime = 1 / 60,
+            title = ""
+        } = options;
+
+        window = new Window({
+            height: height,
+            fullscreen: fullscreen,
+            width: width,
+            title: title
         });
         keyboard = new Keyboard(window);
         mouse = new Mouse(window);
-        timer = new Timer();
         graphics = window.graphics;
-    }
 
-    export function run() {
-        while (!window.isClosing()) {
-            let currentTime = timer.elapsed();
-            let frameTime = currentTime - lastTime;
-            if ((elapsedTime += frameTime) >= 1) {
-                elapsedTime -= 1;
-                fps = numberOfFrames;
-                numberOfFrames = 0;
-            }
-            step(currentTime, frameTime);
-            lastTime = currentTime;
+        if (enableFileWatcher) {
+            FileWatcher.start();
         }
-    }
-    /**
-     * Exits the game.
-     */
-    export function exit() {
-        window.close();
-    }
-
-    export function update(elapsedTime: number) {
-        // Implemented by the user
-    }
-
-    export function draw() {
-        // Implemented by the user
-    }
-
-    function step(currentTime: number, frameTime: number) {
-        window.pollEvents();
-        let updated = false;
-        timeAccumulator += frameTime;
-        while (timeAccumulator >= targetElapsedTime) {
+        timeStep = new FixedTimeStep(targetElapsedTime);
+        timeStep.draw = () => {
+            graphics.clear("default", clearColor);
+            ErrorHandler.tryDraw();
+            graphics.present();
+        };
+        timeStep.update = (elapsedTime: number) => {
             keyboard.updateState();
-            if (escapeKeyExit && keyboard.isKeyDown(256)) {
+            if (enableEscapeKeyAsExit && keyboard.isKeyDown(256)) {
                 Game.exit();
                 return;
             }
+            if (enableFileWatcher) {
+                FileWatcher.handleEvents();
+            }
             mouse.updateState();
-            Game.update(targetElapsedTime);
-            timeAccumulator -= targetElapsedTime;
-            if (timeAccumulator <= targetElapsedTime / 2) {
+            ErrorHandler.tryUpdate(elapsedTime);
+        };
+    }
+
+    /** Run the game, will not return until exit is called. */
+    export function run() {
+        let timer = new Timer();
+        let lastTime = 0;
+
+        // To make sure the run method does not get called again. E.g when
+        // using hotswap functionality.
+        Game.run = () => { };
+
+        while (!window.isClosing()) {
+            window.pollEvents();
+            let time = timer.elapsed();
+            timeStep.step(time - lastTime)
+            lastTime = time;
+        }
+    }
+
+    export function draw() {
+        // Implemented by the user.
+    }
+
+    export function update(elapsedTime: number) {
+        // Implemented by the user.
+    }
+
+    /** Exits the game and closes the window. */
+    export function exit() {
+        window.close();
+    }
+}
+
+interface TimeStep {
+    update(elapsedTime: number): void;
+    draw(): void;
+    step(elapsedTime: number): void;
+}
+
+let timeStep: TimeStep;
+
+class FixedTimeStep implements TimeStep {
+    accumulator = 0;
+
+    constructor(public targetElapsedTime: number) {
+    }
+    step(elapsedTime: number) {
+        this.accumulator += elapsedTime;
+        let updated = false;
+        while (this.accumulator >= this.targetElapsedTime) {
+            this.update(this.targetElapsedTime);
+            updated = true;
+            this.accumulator -= this.targetElapsedTime;
+            if (this.accumulator <= this.targetElapsedTime / 2) {
                 // Lock updates exactly to the monitor refresh (in order to
                 // avoid endlessly accumulating small time deltas, which would 
                 // eventually add up enough to cause a dropped frame).
-                timeAccumulator = 0;
+                this.accumulator = 0;
             }
-            updated = true;
         }
-        if (updated) {
-            window.graphics.clear('default', clearColor);
-            Game.draw();
-            window.graphics.present();
-            numberOfFrames++;
-            FileWatcher.handleEvents();
+        if (updated) { 
+            this.draw();
+        }
+    }
+    draw() {
+    }
+    update(elapsedTime: number) {
+    }
+}
+
+namespace ErrorHandler {
+    HotSwap.done((filepath: string) => {
+        // Reset error when a module has been updated.
+        errors = false;
+    });
+    HotSwap.fail((filepath: string) => {
+        // Something went wrong when swapping
+        errors = true;
+    });
+    
+    let errors = false;
+    let sbatch: SpriteBatch;
+    let sprite: Sprite;
+
+    export function tryDraw() {
+        if (!sbatch) {
+            sbatch = new SpriteBatch(
+                Game.graphics, Camera.createDefault(Game.window, true));
+            sprite = Sprite.createFromFile(
+                module.path + "/content/error.png", sbatch);
+        }
+        if (errors) {
+            sprite.draw();
+            sbatch.draw();
+            return;
+        }
+        try { Game.draw() } catch (err) { 
+            console.log(err.stack); errors = true
+        }
+    }
+
+    export function tryUpdate(elapsedTime: number) {
+        if (errors) {
+            return;
+        }
+        try { Game.update(elapsedTime) } catch (err) { 
+            console.log(err.stack); errors = true 
         }
     }
 }

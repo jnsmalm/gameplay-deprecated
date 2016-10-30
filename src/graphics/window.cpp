@@ -134,7 +134,7 @@ void Window::New(const FunctionCallbackInfo<Value>& args) {
     ScriptHelper helper(args.GetIsolate());
 
     auto arg = helper.GetObject(args[0]);
-    auto title = helper.GetString(arg, "title", "Gameplay");
+    auto title = helper.GetString(arg, "title", "");
     auto fullscreen = helper.GetBoolean(arg, "fullscreen", false);
     auto width = helper.GetInteger(arg, "width", fullscreen ? 0 : 1024);
     auto height = helper.GetInteger(arg, "height", fullscreen ? 0 : 576);

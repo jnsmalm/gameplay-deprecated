@@ -32,3 +32,4 @@ export * from "./physics";
 export * from "./shader";
 export * from "./sprite";
 export * from "./transform";
+export * from "./hotswap"

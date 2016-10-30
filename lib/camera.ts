@@ -39,19 +39,17 @@ export class Camera {
         public fieldOfView = 45, public orthographic = false,
         public orthographicSize = 5) { }
     /**
-     * Creates a new perspective camera.
+     * Creates a new camera.
      */
-    static createPerspective(window: Window) {
-        return new Camera(window.width / window.height);
+    static createDefault(window: Window, orthographic = false) {
+        let camera = new Camera(
+            window.width / window.height, 0.1, 1000, 45, orthographic);
+        camera.transform.localPosition.z = 5;
+        camera.transform.rotateY(180 * Math.PI / 180);
+        return camera;
     }
     /**
-     * Creates a new orthographic camera.
-     */
-    static createOrthographic(window: Window) {
-        return new Camera(window.width / window.height, 0.1, 1000, 45, true);
-    }
-    /**
-     * Gets the projection matrix.
+     * Returns the projection matrix.
      */
     getProjection(out = new Matrix4()) {
         if (this.orthographic) {
@@ -63,7 +61,7 @@ export class Camera {
             this.aspect, this.near, this.far, out);
     }
     /**
-     * Gets the view matrix.
+     * Returns the view matrix.
      */
     getView(out = new Matrix4()) {
         let world = this.transform.getWorldMatrix(matrix.next);

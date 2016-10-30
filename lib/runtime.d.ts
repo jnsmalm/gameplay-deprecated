@@ -36,9 +36,15 @@ declare const console: {
 };
 
 /**
- * Loads a module with the specified name.
+ * Loads a module with the specified name and caches the result. Returns the
+ * same object (for each module name) every time.
  */
 declare function require(name: string): any;
+
+/**
+ * Loads a module with the specified name. Returns a new object every time.
+ */
+declare function load(name: string): any;
 
 declare const file: {
     /**
@@ -73,7 +79,7 @@ declare type BlendState = "alphaBlend" | "opaque" | "additive";
 /**
  * Contains depth state for the graphics.
  */
-declare type DepthState = "default" | "depthRead" | "none";
+declare type DepthState = "default" | "read" | "none";
 
 /**
  * Contains rasterizer state for the graphics.

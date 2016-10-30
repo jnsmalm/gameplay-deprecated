@@ -5,24 +5,19 @@ compiler: clang
 env: CXX="`which clang++` -std=c++11 -stdlib=libc++" LINK="`which clang++` -std=c++11 -stdlib=libc++"
 
 install:
-- curl -L https://github.com/jnsmalm/build-v8/releases/download/v4.9.385.33.2/libv8-4.9.385.33.2-darwin-64bit.tar.gz -o libv8.tar.gz
-- "mkdir deps/v8/lib && tar -xvzf libv8.tar.gz -C deps/v8/lib"
 - brew update
 - brew install cmake
+- npm install -g typescript
 
 script:
-- "cd $TRAVIS_BUILD_DIR && mkdir b && cd b && cmake .. && make"
-
-before_deploy:
-- npm install -g gulp
-- "cd $TRAVIS_BUILD_DIR && npm install && gulp"
+- bash build.sh
 
 deploy:
   provider: releases
   api_key:
     secure: chjHEXNIYUCQYzd2/uTlM9disrAEEp5mlEmZBSc77nOfTyUFmEAxtMbfC++jEkF5EorcJ6BKFgDyOoWak5uc05fcO9jf5skHrWr/BLD8LnlZmRLTv+YYdkQvEZ6WC6zlpWNGmztwsmrgg94HynAYtc0JwB6nkUQzWwSPwO/aZW8wHqtqWWPcA0S1pOTZR2j0CGpRCt5JcsyezVgbbMXyHfw968lbSfVsm5DifiovUehkrQicUuypJZTP3KwCdw+cM/oUsJ+gXJRgtN/2s5hZRkSSkCythKzgaFGv+9EeaifppsWxHdpKY13K1lwHoMj5wm9lCdujxEGxvPVSPByZaLHQ3J17MTD/sGl6QmM1RNDR56exvxtYRrrn+gvEfP2kaD1UKPQ5TG8xtbjyEpFPHBuEvUIla6yT47bgSg3H3J4XkCwjo13fx3A5+CeXI7mWWHJ8j+2facJSewuSCa/qIjkQGXTlLOcrRmdjKXpbIByKGO8d7HNXJ1Kxtuh5RwUKnFRv2CFBdMjwP97uT6eRxlS8DpfRY4oTImRJh8O1uXPKCkZ6SNSXCsY3fM3hhjA3eZM2IBNt5/s42XweqgO4tJTgILRGDvYM58KHZPUaBXmg7oUj05+k9E9ITOR5G78tLKxvt3pyCYZ9Uy4TFCDxFKP0GF3FiZtOapau8JYfaCo=
   file_glob: true
-  file: dist/gameplay*.zip
+  file: gameplay*.tar.gz
   skip_cleanup: true
   draft: true
   on:

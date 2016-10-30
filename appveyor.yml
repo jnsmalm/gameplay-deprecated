@@ -1,22 +1,13 @@
 version: 1.0.{build}
 configuration: Release
+image: Visual Studio 2015
+install:
+- npm install -g typescript
+- set PATH=C:\Users\appveyor\AppData\Roaming\npm;%PATH%
 build_script:
-- ps: >-
-    wget https://github.com/jnsmalm/build-v8/releases/download/v4.9.385.33.2/libv8-4.9.385.33.2-windows-32bit.zip -OutFile libv8.zip;
-    md $env:APPVEYOR_BUILD_FOLDER\deps\v8\lib;
-    Add-Type -AssemblyName System.IO.Compression.FileSystem;
-    [System.IO.Compression.ZipFile]::ExtractToDirectory("$env:APPVEYOR_BUILD_FOLDER\libv8.zip", "$env:APPVEYOR_BUILD_FOLDER\deps\v8\lib");
-
-    md $env:APPVEYOR_BUILD_FOLDER\b; cd $env:APPVEYOR_BUILD_FOLDER\b;
-    cmake .. -G "Visual Studio 14 2015";
-    msbuild $env:APPVEYOR_BUILD_FOLDER\b\gameplay.sln /t:Build /p:Configuration=Release /p:OutputPath=bin\;
-    
-    Move-Item $env:APPVEYOR_BUILD_FOLDER\bin\Release\gameplay.exe $env:APPVEYOR_BUILD_FOLDER\bin;
-    Remove-Item $env:APPVEYOR_BUILD_FOLDER\bin\Release;
-
-    npm install -g gulp; cd $env:APPVEYOR_BUILD_FOLDER; npm install; gulp;
+- cmd: .\build.bat
 artifacts:
-- path: dist/gameplay*.zip
+- path: gameplay*.zip
   name: gameplay.zip
 deploy:
 - provider: GitHub

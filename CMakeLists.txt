@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2.2)
 
 project(gameplay)
 
-set (GAMEPLAY_VERSION "0.6.1")
+set (GAMEPLAY_VERSION "0.7.0")
 set (V8_LIBS_DIR ${CMAKE_SOURCE_DIR}/deps/v8/lib)
 set (CMAKE_BUILD_TYPE Release)
 

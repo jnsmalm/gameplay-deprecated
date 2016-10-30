@@ -1,4 +1,4 @@
-set VERSION="0.6.1"
+set VERSION="0.7.0"
 
 :: Get precompiled libs for V8
 curl -L https://github.com/jnsmalm/build-v8/releases/download/v4.9.385.33.2/libv8-4.9.385.33.2-windows-32bit.zip -o libv8.zip

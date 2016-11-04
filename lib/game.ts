@@ -54,11 +54,11 @@ export module Game {
             return;
         }
         let {
-            height = 576,
+            height = options.fullscreen ? 0 : 576,
             fullscreen = false,
             enableEscapeKeyAsExit = true,
             enableFileWatcher = true,
-            width = 1024,
+            width = options.fullscreen ? 0 : 1024,
             targetElapsedTime = 1 / 60,
             title = ""
         } = options;

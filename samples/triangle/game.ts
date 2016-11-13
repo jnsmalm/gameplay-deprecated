@@ -20,9 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.*/
 
-let window = new Window({
-    fullscreen: true
-});
+let window = new Window();
 
 // Create a vertex specification that has position and color
 let vertexSpecification = new VertexSpecification(

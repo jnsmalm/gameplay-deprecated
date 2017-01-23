@@ -1,6 +1,6 @@
 /*The MIT License (MIT)
 
-Copyright (c) 2016 Jens Malmborg
+Copyright (c) 2017 Jens Malmborg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,17 @@ const vec2 = require("./gl-matrix/vec2");
 const vec3 = require("./gl-matrix/vec3");
 const mat4 = require("./gl-matrix/mat4");
 const quat = require("./gl-matrix/quat");
+
+export namespace Angle {
+    /**
+     * Degrees-to-radians conversion constant.
+     */
+    export const deg2rad = (Math.PI * 2) / 360
+    /**
+     * Radians-to-degrees conversion constant.
+     */
+    export const rad2deg = 360 / (Math.PI * 2)
+}
 
 /**
  * Representation of 2D vectors and points.

@@ -36,6 +36,15 @@ export namespace Angle {
     export const rad2deg = 360 / (Math.PI * 2)
 }
 
+export namespace Lerp {
+    /**
+     * Linearly interpolates between two values.
+     */
+    export function number(a: number, b: number, t: number) {
+        return a + t * (b - a)
+    }
+}
+
 /**
  * Representation of 2D vectors and points.
  */
@@ -94,6 +103,18 @@ export class Vector3 extends Float32Array {
         this[0] = x;
         this[1] = y;
         this[2] = z;
+    }
+    /**
+     * Returns the angle in degrees between a and b
+     */
+    static angle(a: Vector3, b: Vector3) {
+        return <number>vec3.angle(a, b) * Angle.rad2deg
+    }
+    /**
+     * Linearly interpolates between two vectors.
+     */
+    static lerp(a: Vector3, b: Vector3, t: number, out = new Vector3()) {
+        return <Vector3>vec3.lerp(out, a, b, t)
     }
     /**
      * Returns the length of this vector.
@@ -302,7 +323,7 @@ export class Matrix4 extends Float32Array {
     /**
      * Creates a perspective projection matrix.
      */
-    static createPerspective(fov: number, aspect: number, near: number, 
+    static createPerspective(fov: number, aspect: number, near: number,
         far: number, out = new Matrix4()) {
 
         return <Matrix4>mat4.perspective(out, fov, aspect, near, far);
